@@ -353,11 +353,11 @@ public class GUIClickListener implements Listener {
 
         if (slot == size - 5 && clicked.getType() == Material.LIME_WOOL) {
             // Claim All
-            java.util.List<ItemStack> pending = plugin.getStorageManager().getPendingDeliveries(player.getUniqueId());
-            if (pending.isEmpty()) return;
-
             plugin.getServer().getScheduler().runTask(plugin, () -> {
                 player.closeInventory();
+                java.util.List<ItemStack> pending = plugin.getStorageManager().getPendingDeliveries(player.getUniqueId());
+                if (pending.isEmpty()) return;
+                
                 int claimed = 0;
                 for (ItemStack item : pending) {
                     java.util.HashMap<Integer, ItemStack> overflow = player.getInventory().addItem(item);

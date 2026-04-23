@@ -100,10 +100,14 @@ public class AuctionManager {
             }
         }
 
-        // Validate price range
+        // Validate price range and guard against NaN/Infinity exploits
         double minPrice = config.getDouble("bidding.min-start-price", 1.0);
         double maxPrice = config.getDouble("bidding.max-start-price", 1000000.0);
-        if (startPrice < minPrice || (maxPrice > 0 && startPrice > maxPrice)) {
+        if (Double.isNaN(startPrice) || Double.isInfinite(startPrice) || startPrice < minPrice || (maxPrice > 0 && startPrice > maxPrice)) {
+            MessageUtil.send(seller, "invalid-price", null);
+            return null;
+        }
+        if (buyoutPrice > 0 && (Double.isNaN(buyoutPrice) || Double.isInfinite(buyoutPrice))) {
             MessageUtil.send(seller, "invalid-price", null);
             return null;
         }
@@ -231,7 +235,8 @@ public class AuctionManager {
         // Calculate minimum required bid
         double minBid = listing.hasBids() ? listing.getCurrentBid() + minIncrement : listing.getStartPrice();
 
-        if (amount < minBid) {
+        // Guard against NaN/Infinity exploits
+        if (Double.isNaN(amount) || Double.isInfinite(amount) || amount < minBid) {
             MessageUtil.send(bidder, "bid-too-low", Map.of("min_bid", economy.format(minBid)));
             return false;
         }
