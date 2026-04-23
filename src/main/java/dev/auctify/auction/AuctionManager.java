@@ -351,6 +351,13 @@ public class AuctionManager {
                 Map.of("item", ItemUtil.getDisplayName(listing.getItem()),
                         "amount", economy.format(price)));
 
+        // Prompt buyer to rate the seller
+        plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
+            if (buyer.isOnline()) {
+                plugin.getRateGUI().open(buyer, listing.getSellerUUID());
+            }
+        }, 10L);
+
         return true;
     }
 
