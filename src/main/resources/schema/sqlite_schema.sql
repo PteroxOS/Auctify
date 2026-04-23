@@ -11,7 +11,8 @@ CREATE TABLE IF NOT EXISTS auctify_listings (
     top_bidder_uuid TEXT,
     top_bidder_name TEXT,
     created_at INTEGER NOT NULL,
-    end_time INTEGER NOT NULL
+    end_time INTEGER NOT NULL,
+    bin_only INTEGER NOT NULL DEFAULT 0
 );
 
 -- Completed auction history records
@@ -33,5 +34,22 @@ CREATE TABLE IF NOT EXISTS auctify_history (
 CREATE TABLE IF NOT EXISTS auctify_pending_deliveries (
     player_uuid TEXT NOT NULL,
     item_data TEXT NOT NULL,
+    created_at INTEGER NOT NULL
+);
+
+-- Player ratings (reputation system)
+CREATE TABLE IF NOT EXISTS auctify_ratings (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    seller_uuid TEXT NOT NULL,
+    rater_uuid TEXT NOT NULL,
+    rating INTEGER NOT NULL,
+    created_at INTEGER NOT NULL
+);
+
+-- Blacklisted players (admin moderation)
+CREATE TABLE IF NOT EXISTS auctify_blacklist (
+    player_uuid TEXT PRIMARY KEY,
+    reason TEXT,
+    blacklisted_by TEXT NOT NULL,
     created_at INTEGER NOT NULL
 );

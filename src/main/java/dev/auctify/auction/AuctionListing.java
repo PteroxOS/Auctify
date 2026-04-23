@@ -63,6 +63,9 @@ public class AuctionListing {
     /** Whether this listing is still active (not yet resolved). */
     private volatile boolean active;
 
+    /** Whether this is a BIN-only (Buy It Now) listing — no bidding allowed. */
+    private final boolean binOnly;
+
     /**
      * Constructs a new AuctionListing with all required fields.
      * The item is stored as a defensive copy to prevent external mutation.
@@ -78,19 +81,25 @@ public class AuctionListing {
      */
     public AuctionListing(String id, UUID sellerUUID, String sellerName, ItemStack item,
                           double startPrice, double buyoutPrice, long createdAt, long endTime) {
+        this(id, sellerUUID, sellerName, item, startPrice, buyoutPrice, createdAt, endTime, false);
+    }
+
+    public AuctionListing(String id, UUID sellerUUID, String sellerName, ItemStack item,
+                          double startPrice, double buyoutPrice, long createdAt, long endTime, boolean binOnly) {
         this.id = id;
         this.sellerUUID = sellerUUID;
         this.sellerName = sellerName;
-        this.item = item.clone(); // Defensive copy on creation
+        this.item = item.clone();
         this.startPrice = startPrice;
         this.buyoutPrice = buyoutPrice;
-        this.currentBid = startPrice; // Current bid starts at start price
+        this.currentBid = startPrice;
         this.topBidderUUID = null;
         this.topBidderName = null;
         this.bidHistory = Collections.synchronizedList(new ArrayList<>());
         this.createdAt = createdAt;
         this.endTime = endTime;
         this.active = true;
+        this.binOnly = binOnly;
     }
 
     /**
@@ -112,10 +121,18 @@ public class AuctionListing {
                           double startPrice, double buyoutPrice, double currentBid,
                           UUID topBidderUUID, String topBidderName,
                           long createdAt, long endTime) {
+        this(id, sellerUUID, sellerName, item, startPrice, buyoutPrice, currentBid,
+             topBidderUUID, topBidderName, createdAt, endTime, false);
+    }
+
+    public AuctionListing(String id, UUID sellerUUID, String sellerName, ItemStack item,
+                          double startPrice, double buyoutPrice, double currentBid,
+                          UUID topBidderUUID, String topBidderName,
+                          long createdAt, long endTime, boolean binOnly) {
         this.id = id;
         this.sellerUUID = sellerUUID;
         this.sellerName = sellerName;
-        this.item = item.clone(); // Defensive copy
+        this.item = item.clone();
         this.startPrice = startPrice;
         this.buyoutPrice = buyoutPrice;
         this.currentBid = currentBid;
@@ -125,6 +142,7 @@ public class AuctionListing {
         this.createdAt = createdAt;
         this.endTime = endTime;
         this.active = true;
+        this.binOnly = binOnly;
     }
 
     /**
@@ -331,5 +349,10 @@ public class AuctionListing {
      */
     public void setActive(boolean active) {
         this.active = active;
+    }
+
+    /** @return true if this is a BIN-only listing (no bidding) */
+    public boolean isBinOnly() {
+        return binOnly;
     }
 }

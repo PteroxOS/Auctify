@@ -4,6 +4,7 @@ import dev.auctify.Auctify;
 import dev.auctify.auction.AuctionListing;
 import dev.auctify.gui.AuctifyHolder;
 import dev.auctify.gui.GUIManager;
+import dev.auctify.gui.ShulkerPreviewGUI;
 import dev.auctify.util.ItemUtil;
 import dev.auctify.util.MessageUtil;
 import org.bukkit.Material;
@@ -80,6 +81,10 @@ public class GUIClickListener implements Listener {
             case "CONFIRM" -> handleConfirmGUIClick(player, holder, slot, clicked);
             case "DETAIL" -> handleDetailGUIClick(player, slot);
             case "MANAGE" -> handleManageGUIClick(player, holder, slot, clicked);
+            case "CLAIM" -> handleClaimGUIClick(player, slot, clicked, topInv);
+            case "SHULKER" -> handleShulkerGUIClick(player, holder, slot);
+            case "RATE" -> handleRateGUIClick(player, holder, slot);
+            case "ADMIN" -> handleAdminGUIClick(player, holder, slot, clicked);
         }
     }
 
@@ -146,9 +151,25 @@ public class GUIClickListener implements Listener {
             } else if (slot == 48 && clicked.getType() == Material.SUNFLOWER) {
                 guiManager.cancelRefreshTask(player);
                 plugin.getAuctionGUI().open(player, currentPage, holder.getCategory());
+            } else if (slot == 46 && clicked.getType() == Material.CHEST) {
+                // Claim/Mailbox button
+                guiManager.cancelRefreshTask(player);
+                plugin.getClaimGUI().open(player);
             } else if (slot == 51 && clicked.getType() == Material.CLOCK) {
                 plugin.getServer().getScheduler().runTask(plugin, () -> player.closeInventory());
                 player.performCommand("ac history");
+            } else if (slot == 52 && clicked.getType() == Material.COMPARATOR) {
+                // Sort cycle
+                String currentSort = holder.getSortMode();
+                String nextSort = switch (currentSort) {
+                    case "TIME_ASC" -> "TIME_DESC";
+                    case "TIME_DESC" -> "PRICE_ASC";
+                    case "PRICE_ASC" -> "PRICE_DESC";
+                    case "PRICE_DESC" -> "BIDS";
+                    default -> "TIME_ASC";
+                };
+                guiManager.cancelRefreshTask(player);
+                plugin.getAuctionGUI().open(player, 0, holder.getCategory(), nextSort);
             }
             return;
         }
@@ -169,20 +190,43 @@ public class GUIClickListener implements Listener {
         AuctionListing listing = listings.get(listingIndex);
 
         if (listing.getSellerUUID().equals(player.getUniqueId())) {
-            // Seller clicked their own item: open management GUI
             guiManager.cancelRefreshTask(player);
             plugin.getManageListingGUI().open(player, listing);
             return;
         }
 
         if (click == ClickType.RIGHT) {
-            // Right-click: open item detail view
-            guiManager.cancelRefreshTask(player);
-            plugin.getItemDetailGUI().open(player, listing);
+            // Right-click: shulker preview if applicable, otherwise item detail
+            if (ShulkerPreviewGUI.isShulkerBox(listing.getItem())) {
+                guiManager.cancelRefreshTask(player);
+                plugin.getShulkerPreviewGUI().open(player, listing.getItem(), listing.getId());
+            } else {
+                guiManager.cancelRefreshTask(player);
+                plugin.getItemDetailGUI().open(player, listing);
+            }
         } else if (click == ClickType.LEFT) {
-            // Left-click: open bid confirmation
-            guiManager.cancelRefreshTask(player);
-            plugin.getConfirmBidGUI().open(player, listing);
+            // BIN-only listings go straight to buyout
+            if (listing.isBinOnly()) {
+                guiManager.cancelRefreshTask(player);
+                double buyoutPrice = listing.getBuyoutPrice();
+                double balance = plugin.getEconomyManager().getBalance(player.getUniqueId());
+                if (balance < buyoutPrice) {
+                    String formattedPrice = plugin.getEconomyManager().format(buyoutPrice);
+                    plugin.getServer().getScheduler().runTask(plugin, () -> {
+                        player.closeInventory();
+                        MessageUtil.send(player, "insufficient-funds", Map.of("amount", formattedPrice));
+                    });
+                    return;
+                }
+                String buyListingId = listing.getId();
+                plugin.getServer().getScheduler().runTask(plugin, () -> {
+                    player.closeInventory();
+                    plugin.getAuctionManager().buyout(player, buyListingId);
+                });
+            } else {
+                guiManager.cancelRefreshTask(player);
+                plugin.getConfirmBidGUI().open(player, listing);
+            }
         }
     }
 
@@ -293,6 +337,116 @@ public class GUIClickListener implements Listener {
             // Back button
             plugin.getAuctionGUI().open(player);
         }
+    }
+
+    /**
+     * Handles clicks in the Claim/Mailbox GUI.
+     */
+    private void handleClaimGUIClick(Player player, int slot, ItemStack clicked, Inventory inv) {
+        int size = inv.getSize();
+
+        if (slot == size - 9 && clicked.getType() == Material.ARROW) {
+            // Back button
+            plugin.getAuctionGUI().open(player);
+            return;
+        }
+
+        if (slot == size - 5 && clicked.getType() == Material.LIME_WOOL) {
+            // Claim All
+            java.util.List<ItemStack> pending = plugin.getStorageManager().getPendingDeliveries(player.getUniqueId());
+            if (pending.isEmpty()) return;
+
+            plugin.getServer().getScheduler().runTask(plugin, () -> {
+                player.closeInventory();
+                int claimed = 0;
+                for (ItemStack item : pending) {
+                    java.util.HashMap<Integer, ItemStack> overflow = player.getInventory().addItem(item);
+                    if (overflow.isEmpty()) {
+                        claimed++;
+                    } else {
+                        // Drop on ground if full
+                        for (ItemStack drop : overflow.values()) {
+                            player.getWorld().dropItemNaturally(player.getLocation(), drop);
+                        }
+                        claimed++;
+                    }
+                }
+                plugin.getStorageManager().clearPendingDeliveries(player.getUniqueId());
+                MessageUtil.send(player, "claim-success", java.util.Map.of("count", String.valueOf(claimed)));
+            });
+        }
+    }
+
+    /**
+     * Handles clicks in the Shulker Preview GUI.
+     */
+    private void handleShulkerGUIClick(Player player, AuctifyHolder holder, int slot) {
+        if (slot == 31) {
+            // Back button — go to detail view
+            String listingId = holder.getListingId();
+            if (listingId != null) {
+                plugin.getAuctionManager().getListingById(listingId).ifPresent(listing ->
+                        plugin.getItemDetailGUI().open(player, listing));
+            } else {
+                plugin.getAuctionGUI().open(player);
+            }
+        }
+    }
+
+    /**
+     * Handles clicks in the Rating GUI.
+     */
+    private void handleRateGUIClick(Player player, AuctifyHolder holder, int slot) {
+        if (slot == 22 && holder.getTargetPlayerUUID() != null) {
+            // Skip button
+            plugin.getServer().getScheduler().runTask(plugin, player::closeInventory);
+            return;
+        }
+
+        // Star slots: 11, 12, 13, 14, 15 = 1-5 stars
+        if (slot >= 11 && slot <= 15 && holder.getTargetPlayerUUID() != null) {
+            int rating = slot - 10;
+            java.util.UUID sellerUUID = java.util.UUID.fromString(holder.getTargetPlayerUUID());
+            plugin.getStorageManager().saveRating(sellerUUID, player.getUniqueId(), rating);
+            plugin.getServer().getScheduler().runTask(plugin, () -> {
+                player.closeInventory();
+                MessageUtil.send(player, "rate-success", java.util.Map.of("stars", String.valueOf(rating)));
+            });
+        }
+    }
+
+    /**
+     * Handles clicks in the Admin GUI.
+     */
+    private void handleAdminGUIClick(Player player, AuctifyHolder holder, int slot, ItemStack clicked) {
+        int currentPage = holder.getPage();
+
+        // Navigation
+        if (slot == 45 && clicked.getType() == Material.ARROW) {
+            if (currentPage > 0) plugin.getAdminGUI().open(player, currentPage - 1);
+            return;
+        }
+        if (slot == 53 && clicked.getType() == Material.ARROW) {
+            plugin.getAdminGUI().open(player, currentPage + 1);
+            return;
+        }
+        if (slot >= 45) return; // Bottom nav row, ignore
+
+        // Clicked on a listing — force cancel
+        var listings = plugin.getAuctionManager().getActiveListings().stream()
+                .filter(l -> l.isActive())
+                .sorted((a, b) -> Long.compare(a.getEndTime(), b.getEndTime()))
+                .toList();
+
+        int listingIndex = currentPage * 45 + slot;
+        if (listingIndex >= listings.size()) return;
+
+        var listing = listings.get(listingIndex);
+        String cancelId = listing.getId();
+        plugin.getServer().getScheduler().runTask(plugin, () -> {
+            plugin.getAuctionManager().cancelListing(player, cancelId);
+            plugin.getAdminGUI().open(player, currentPage);
+        });
     }
 
     /**

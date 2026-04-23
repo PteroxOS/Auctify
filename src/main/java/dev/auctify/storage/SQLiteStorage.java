@@ -63,9 +63,8 @@ public class SQLiteStorage implements StorageManager {
 
     @Override
     public void saveListing(AuctionListing l) {
-        // Store remaining seconds instead of absolute endTime so timer pauses when server is offline
         long remainingMs = Math.max(0, l.getEndTime() - System.currentTimeMillis());
-        String sql = "INSERT OR REPLACE INTO auctify_listings (id,seller_uuid,seller_name,item_data,start_price,buyout_price,current_bid,top_bidder_uuid,top_bidder_name,created_at,end_time) VALUES (?,?,?,?,?,?,?,?,?,?,?)";
+        String sql = "INSERT OR REPLACE INTO auctify_listings (id,seller_uuid,seller_name,item_data,start_price,buyout_price,current_bid,top_bidder_uuid,top_bidder_name,created_at,end_time,bin_only) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)";
         try (Connection c = dataSource.getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
             ps.setString(1, l.getId()); ps.setString(2, l.getSellerUUID().toString());
             ps.setString(3, l.getSellerName()); ps.setString(4, ItemUtil.serializeToBase64(l.getItem()));
@@ -73,7 +72,8 @@ public class SQLiteStorage implements StorageManager {
             ps.setDouble(7, l.getCurrentBid());
             ps.setString(8, l.getTopBidderUUID() != null ? l.getTopBidderUUID().toString() : null);
             ps.setString(9, l.getTopBidderName()); ps.setLong(10, l.getCreatedAt());
-            ps.setLong(11, remainingMs); ps.executeUpdate();
+            ps.setLong(11, remainingMs); ps.setInt(12, l.isBinOnly() ? 1 : 0);
+            ps.executeUpdate();
         } catch (SQLException e) { logger.log(Level.SEVERE, "Save listing failed: " + l.getId(), e); }
     }
 
@@ -105,13 +105,14 @@ public class SQLiteStorage implements StorageManager {
         if (item == null) { logger.warning("Bad item data for listing " + rs.getString("id")); return null; }
         String tbuStr = rs.getString("top_bidder_uuid");
         UUID tbu = tbuStr != null ? UUID.fromString(tbuStr) : null;
-        // end_time column now stores remaining milliseconds, convert back to absolute
         long remainingMs = rs.getLong("end_time");
         long absoluteEndTime = System.currentTimeMillis() + remainingMs;
+        boolean binOnly = false;
+        try { binOnly = rs.getInt("bin_only") == 1; } catch (SQLException ignored) {}
         return new AuctionListing(rs.getString("id"), UUID.fromString(rs.getString("seller_uuid")),
                 rs.getString("seller_name"), item, rs.getDouble("start_price"), rs.getDouble("buyout_price"),
                 rs.getDouble("current_bid"), tbu, rs.getString("top_bidder_name"),
-                rs.getLong("created_at"), absoluteEndTime);
+                rs.getLong("created_at"), absoluteEndTime, binOnly);
     }
 
     /** {@inheritDoc} */
@@ -181,6 +182,101 @@ public class SQLiteStorage implements StorageManager {
              PreparedStatement ps = c.prepareStatement("DELETE FROM auctify_pending_deliveries WHERE player_uuid=?")) {
             ps.setString(1, playerUUID.toString()); ps.executeUpdate();
         } catch (SQLException e) { logger.log(Level.SEVERE, "Clear pending deliveries failed", e); }
+    }
+
+    // ─── Rating System ───────────────────────────────
+
+    @Override
+    public void saveRating(UUID sellerUUID, UUID raterUUID, int rating) {
+        String sql = "INSERT INTO auctify_ratings (seller_uuid,rater_uuid,rating,created_at) VALUES (?,?,?,?)";
+        try (Connection c = dataSource.getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setString(1, sellerUUID.toString()); ps.setString(2, raterUUID.toString());
+            ps.setInt(3, rating); ps.setLong(4, System.currentTimeMillis()); ps.executeUpdate();
+        } catch (SQLException e) { logger.log(Level.SEVERE, "Save rating failed", e); }
+    }
+
+    @Override
+    public double getAverageRating(UUID sellerUUID) {
+        try (Connection c = dataSource.getConnection();
+             PreparedStatement ps = c.prepareStatement("SELECT AVG(rating) as avg_rating FROM auctify_ratings WHERE seller_uuid=?")) {
+            ps.setString(1, sellerUUID.toString());
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    double avg = rs.getDouble("avg_rating");
+                    if (rs.wasNull()) return -1;
+                    return avg;
+                }
+            }
+        } catch (SQLException e) { logger.log(Level.SEVERE, "Get average rating failed", e); }
+        return -1;
+    }
+
+    @Override
+    public int getRatingCount(UUID sellerUUID) {
+        try (Connection c = dataSource.getConnection();
+             PreparedStatement ps = c.prepareStatement("SELECT COUNT(*) as cnt FROM auctify_ratings WHERE seller_uuid=?")) {
+            ps.setString(1, sellerUUID.toString());
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) return rs.getInt("cnt");
+            }
+        } catch (SQLException e) { logger.log(Level.SEVERE, "Get rating count failed", e); }
+        return 0;
+    }
+
+    @Override
+    public boolean hasRated(UUID sellerUUID, UUID raterUUID) {
+        try (Connection c = dataSource.getConnection();
+             PreparedStatement ps = c.prepareStatement("SELECT COUNT(*) as cnt FROM auctify_ratings WHERE seller_uuid=? AND rater_uuid=?")) {
+            ps.setString(1, sellerUUID.toString()); ps.setString(2, raterUUID.toString());
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) return rs.getInt("cnt") > 0;
+            }
+        } catch (SQLException e) { logger.log(Level.SEVERE, "Check has rated failed", e); }
+        return false;
+    }
+
+    // ─── Blacklist System ────────────────────────────
+
+    @Override
+    public void addBlacklist(UUID playerUUID, String reason, String blacklistedBy) {
+        String sql = "INSERT OR REPLACE INTO auctify_blacklist (player_uuid,reason,blacklisted_by,created_at) VALUES (?,?,?,?)";
+        try (Connection c = dataSource.getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setString(1, playerUUID.toString()); ps.setString(2, reason);
+            ps.setString(3, blacklistedBy); ps.setLong(4, System.currentTimeMillis()); ps.executeUpdate();
+        } catch (SQLException e) { logger.log(Level.SEVERE, "Add blacklist failed", e); }
+    }
+
+    @Override
+    public void removeBlacklist(UUID playerUUID) {
+        try (Connection c = dataSource.getConnection();
+             PreparedStatement ps = c.prepareStatement("DELETE FROM auctify_blacklist WHERE player_uuid=?")) {
+            ps.setString(1, playerUUID.toString()); ps.executeUpdate();
+        } catch (SQLException e) { logger.log(Level.SEVERE, "Remove blacklist failed", e); }
+    }
+
+    @Override
+    public boolean isBlacklisted(UUID playerUUID) {
+        try (Connection c = dataSource.getConnection();
+             PreparedStatement ps = c.prepareStatement("SELECT COUNT(*) as cnt FROM auctify_blacklist WHERE player_uuid=?")) {
+            ps.setString(1, playerUUID.toString());
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) return rs.getInt("cnt") > 0;
+            }
+        } catch (SQLException e) { logger.log(Level.SEVERE, "Check blacklist failed", e); }
+        return false;
+    }
+
+    @Override
+    public List<String[]> getBlacklist() {
+        List<String[]> res = new ArrayList<>();
+        try (Connection c = dataSource.getConnection(); Statement st = c.createStatement();
+             ResultSet rs = st.executeQuery("SELECT * FROM auctify_blacklist")) {
+            while (rs.next()) {
+                res.add(new String[]{rs.getString("player_uuid"), rs.getString("reason"),
+                        rs.getString("blacklisted_by"), String.valueOf(rs.getLong("created_at"))});
+            }
+        } catch (SQLException e) { logger.log(Level.SEVERE, "Get blacklist failed", e); }
+        return res;
     }
 
     /** {@inheritDoc} */

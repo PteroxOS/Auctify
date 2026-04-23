@@ -73,17 +73,17 @@ public class DiscordWebhookUtil {
      */
     private String getWebhookUrl(FileConfiguration config) {
         String url = config.getString("discord.webhook-url", "");
-        if (url == null || url.isEmpty()) {
+        if (url == null || url.trim().isEmpty()) {
             return null;
         }
+        url = url.trim();
         // Block the default placeholder URL
         if (url.equals("https://discord.com/api/webhooks/...")) {
             return null;
         }
         // Basic validation
-        if (!url.startsWith("https://discord.com/api/webhooks/") &&
-            !url.startsWith("https://discordapp.com/api/webhooks/")) {
-            plugin.getLogger().warning("[Discord] Invalid webhook URL format. Must start with https://discord.com/api/webhooks/");
+        if (!url.startsWith("http://") && !url.startsWith("https://")) {
+            plugin.getLogger().warning("[Discord] Invalid webhook URL format. Must start with http or https.");
             return null;
         }
         return url;

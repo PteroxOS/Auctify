@@ -6,6 +6,11 @@ Auctify is a professional, high-performance auction house plugin for Minecraft (
 
 - **Real-Time Bidding**: Interactive chat-based bidding system that updates the GUI immediately.
 - **Dynamic GUI**: Modern chest interface with auto-refresh support for live countdowns.
+- **Mailbox / Claim System**: Dedicated `/ac claim` GUI for safely storing and receiving items.
+- **Shulker Box Preview**: Inspect contents of Shulker boxes listed for sale via right-click without opening them.
+- **Advanced Sorting**: Sort listings by time, price, and bid count directly from the GUI.
+- **Buy-It-Now (BIN) Only**: Option to list items exclusively for instant buyout without bidding.
+- **Rating System**: Leave ratings for sellers after a successful purchase to build community trust.
 - **Categorization**: Filter items by Weapons/Tools, Armor, Blocks, and Miscellaneous categories.
 - **Persistent Timers**: Auction timers only count down while the server is online. Remaining time is preserved across restarts.
 - **Discord Integration**: Comprehensive webhook support with customizable embeds for new listings and sales.
@@ -13,6 +18,7 @@ Auctify is a professional, high-performance auction house plugin for Minecraft (
 - **Automatic Dependency Management**: Automatically downloads and installs required dependencies like Vault if missing.
 - **Anti-Exploit System**: Hardened state management to prevent item duplication and economy desync.
 - **Auto-Save**: Periodic database flushing to ensure data integrity.
+- **Admin Moderation**: Comprehensive admin panel (`/ac admin`) to manage listings and blacklist malicious players.
 
 ## Dependencies
 
@@ -38,7 +44,7 @@ The following placeholders are available when PlaceholderAPI is installed:
 
 ## Installation
 
-1. Download the latest `Auctify-1.0.0.jar`.
+1. Download the latest `Auctify.jar`.
 2. Place the jar in your server's `plugins/` folder.
 3. Start the server. Required dependencies (Vault) will be downloaded automatically if not present.
 4. Configure the database and Discord settings in `config.yml`.

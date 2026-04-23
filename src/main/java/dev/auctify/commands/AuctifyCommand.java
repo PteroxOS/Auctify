@@ -40,6 +40,8 @@ public class AuctifyCommand implements CommandExecutor {
         subCommands.put("history", new HistorySubCommand(plugin));
         subCommands.put("reload", new ReloadSubCommand(plugin));
         subCommands.put("about", new AboutSubCommand(plugin));
+        subCommands.put("claim", new ClaimSubCommand(plugin));
+        subCommands.put("admin", new AdminSubCommand(plugin));
     }
 
     /**
@@ -96,7 +98,9 @@ public class AuctifyCommand implements CommandExecutor {
         MessageUtil.sendRaw(sender, " §e/ac cancel §6<id> §8» §7Cancel your listing");
         MessageUtil.sendRaw(sender, " §e/ac search §6<query> §8» §7Search listings");
         MessageUtil.sendRaw(sender, " §e/ac history §8» §7View your auction history");
+        MessageUtil.sendRaw(sender, " §e/ac claim §8» §7Collect pending items");
         MessageUtil.sendRaw(sender, " §e/ac about §8» §7Plugin information");
+        MessageUtil.sendRaw(sender, " §e/ac admin §8» §7Admin moderation panel §c(Admin)");
         MessageUtil.sendRaw(sender, " §e/ac reload §8» §7Reload configuration §c(Admin)");
         MessageUtil.sendRaw(sender, " §e/ac help §8» §7Show this menu");
         MessageUtil.sendRaw(sender, "§8━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");

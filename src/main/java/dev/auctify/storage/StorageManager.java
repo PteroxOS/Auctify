@@ -91,4 +91,49 @@ public interface StorageManager {
      * Called during plugin disable.
      */
     void shutdown();
+
+    // ─── Rating System ───────────────────────────────
+
+    /**
+     * Saves a player rating for a seller.
+     */
+    void saveRating(UUID sellerUUID, UUID raterUUID, int rating);
+
+    /**
+     * Gets the average rating for a seller.
+     * @return the average rating (1-5), or -1 if no ratings
+     */
+    double getAverageRating(UUID sellerUUID);
+
+    /**
+     * Gets the total number of ratings a seller has received.
+     */
+    int getRatingCount(UUID sellerUUID);
+
+    /**
+     * Checks if a player has already rated a specific seller.
+     */
+    boolean hasRated(UUID sellerUUID, UUID raterUUID);
+
+    // ─── Blacklist System ────────────────────────────
+
+    /**
+     * Adds a player to the blacklist.
+     */
+    void addBlacklist(UUID playerUUID, String reason, String blacklistedBy);
+
+    /**
+     * Removes a player from the blacklist.
+     */
+    void removeBlacklist(UUID playerUUID);
+
+    /**
+     * Checks if a player is blacklisted.
+     */
+    boolean isBlacklisted(UUID playerUUID);
+
+    /**
+     * Gets all blacklisted player UUIDs.
+     */
+    java.util.List<String[]> getBlacklist();
 }

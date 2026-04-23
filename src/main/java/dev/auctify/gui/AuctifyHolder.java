@@ -27,10 +27,16 @@ public class AuctifyHolder implements InventoryHolder {
     /** Optional: The current category filter. */
     private String category = "ALL";
 
+    /** Optional: The current sort mode (TIME_ASC, TIME_DESC, PRICE_ASC, PRICE_DESC, BIDS). */
+    private String sortMode = "TIME_ASC";
+
+    /** Optional: Target player UUID for admin views. */
+    private String targetPlayerUUID;
+
     /**
      * Creates a new AuctifyHolder for a specific GUI type.
      *
-     * @param guiType the GUI type identifier (e.g., "MAIN", "CONFIRM", "DETAIL", "MANAGE")
+     * @param guiType the GUI type identifier (e.g., "MAIN", "CONFIRM", "DETAIL", "MANAGE", "CLAIM", "ADMIN", "SHULKER", "RATE")
      */
     public AuctifyHolder(String guiType) {
         this.guiType = guiType;
@@ -62,6 +68,22 @@ public class AuctifyHolder implements InventoryHolder {
 
     public void setCategory(String category) {
         this.category = category;
+    }
+
+    public String getSortMode() {
+        return sortMode;
+    }
+
+    public void setSortMode(String sortMode) {
+        this.sortMode = sortMode;
+    }
+
+    public String getTargetPlayerUUID() {
+        return targetPlayerUUID;
+    }
+
+    public void setTargetPlayerUUID(String targetPlayerUUID) {
+        this.targetPlayerUUID = targetPlayerUUID;
     }
 
     /**

@@ -25,6 +25,12 @@ public class MemoryStorage implements StorageManager {
     /** Pending item deliveries keyed by player UUID. */
     private final Map<UUID, List<ItemStack>> pendingDeliveries = new ConcurrentHashMap<>();
 
+    /** Ratings: sellerUUID -> list of [raterUUID, rating]. */
+    private final Map<UUID, List<int[]>> ratings = new ConcurrentHashMap<>();
+
+    /** Blacklisted players. */
+    private final Set<UUID> blacklist = ConcurrentHashMap.newKeySet();
+
     /** {@inheritDoc} */
     @Override
     public void initialize() {
@@ -91,6 +97,59 @@ public class MemoryStorage implements StorageManager {
     @Override
     public void clearPendingDeliveries(UUID playerUUID) {
         pendingDeliveries.remove(playerUUID);
+    }
+
+    // ─── Rating System ───────────────────────────────
+
+    @Override
+    public void saveRating(UUID sellerUUID, UUID raterUUID, int rating) {
+        ratings.computeIfAbsent(sellerUUID, k -> Collections.synchronizedList(new ArrayList<>()))
+                .add(new int[]{raterUUID.hashCode(), rating});
+    }
+
+    @Override
+    public double getAverageRating(UUID sellerUUID) {
+        List<int[]> r = ratings.get(sellerUUID);
+        if (r == null || r.isEmpty()) return -1;
+        return r.stream().mapToInt(a -> a[1]).average().orElse(-1);
+    }
+
+    @Override
+    public int getRatingCount(UUID sellerUUID) {
+        List<int[]> r = ratings.get(sellerUUID);
+        return r != null ? r.size() : 0;
+    }
+
+    @Override
+    public boolean hasRated(UUID sellerUUID, UUID raterUUID) {
+        List<int[]> r = ratings.get(sellerUUID);
+        if (r == null) return false;
+        int hash = raterUUID.hashCode();
+        return r.stream().anyMatch(a -> a[0] == hash);
+    }
+
+    // ─── Blacklist System ────────────────────────────
+
+    @Override
+    public void addBlacklist(UUID playerUUID, String reason, String blacklistedBy) {
+        blacklist.add(playerUUID);
+    }
+
+    @Override
+    public void removeBlacklist(UUID playerUUID) {
+        blacklist.remove(playerUUID);
+    }
+
+    @Override
+    public boolean isBlacklisted(UUID playerUUID) {
+        return blacklist.contains(playerUUID);
+    }
+
+    @Override
+    public List<String[]> getBlacklist() {
+        return blacklist.stream()
+                .map(u -> new String[]{u.toString(), "N/A", "N/A", "0"})
+                .collect(Collectors.toList());
     }
 
     /** {@inheritDoc} */

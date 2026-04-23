@@ -56,6 +56,18 @@ public class Auctify extends JavaPlugin {
     /** Discord Webhook util. */
     private dev.auctify.util.DiscordWebhookUtil discordWebhookUtil;
 
+    /** Claim/Mailbox GUI builder. */
+    private ClaimGUI claimGUI;
+
+    /** Shulker preview GUI builder. */
+    private ShulkerPreviewGUI shulkerPreviewGUI;
+
+    /** Rating GUI builder. */
+    private RateGUI rateGUI;
+
+    /** Admin moderation GUI builder. */
+    private AdminGUI adminGUI;
+
     /** The expiry task for cancellation on disable. */
     private AuctionExpiryTask expiryTask;
 
@@ -116,7 +128,11 @@ public class Auctify extends JavaPlugin {
         auctionGUI = new AuctionGUI(this);
         confirmBidGUI = new ConfirmBidGUI(this);
         itemDetailGUI = new ItemDetailGUI(this);
-        manageListingGUI = new dev.auctify.gui.ManageListingGUI(this);
+        manageListingGUI = new ManageListingGUI(this);
+        claimGUI = new ClaimGUI(this);
+        shulkerPreviewGUI = new ShulkerPreviewGUI(this);
+        rateGUI = new RateGUI(this);
+        adminGUI = new AdminGUI(this);
 
         discordWebhookUtil = new dev.auctify.util.DiscordWebhookUtil(this);
 
@@ -324,4 +340,16 @@ public class Auctify extends JavaPlugin {
     public ChatBidListener getChatBidListener() { return chatBidListener; }
 
     public dev.auctify.util.DiscordWebhookUtil getDiscordWebhookUtil() { return discordWebhookUtil; }
+
+    /** @return the claim/mailbox GUI builder */
+    public ClaimGUI getClaimGUI() { return claimGUI; }
+
+    /** @return the shulker preview GUI builder */
+    public ShulkerPreviewGUI getShulkerPreviewGUI() { return shulkerPreviewGUI; }
+
+    /** @return the rating GUI builder */
+    public RateGUI getRateGUI() { return rateGUI; }
+
+    /** @return the admin GUI builder */
+    public AdminGUI getAdminGUI() { return adminGUI; }
 }

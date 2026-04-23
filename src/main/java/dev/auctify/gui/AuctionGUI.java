@@ -42,13 +42,20 @@ public class AuctionGUI {
     }
 
     public void open(Player player, int page) {
-        open(player, page, "ALL");
+        open(player, page, "ALL", "TIME_ASC");
     }
 
     /**
      * Opens the main auction GUI for a player at a specific page and category.
      */
     public void open(Player player, int page, String category) {
+        open(player, page, category, "TIME_ASC");
+    }
+
+    /**
+     * Opens the main auction GUI with sort mode.
+     */
+    public void open(Player player, int page, String category, String sortMode) {
         var config = plugin.getConfig();
         int rows = config.getInt("gui.rows", 6);
         if (rows < 3) rows = 3;
@@ -58,6 +65,7 @@ public class AuctionGUI {
         AuctifyHolder holder = new AuctifyHolder("MAIN");
         holder.setPage(page);
         holder.setCategory(category);
+        holder.setSortMode(sortMode);
         Inventory inv = Bukkit.createInventory(holder, rows * 9, ColorUtil.toComponent(title));
 
         int itemsPerPage = config.getInt("gui.items-per-page", -1);
@@ -65,11 +73,10 @@ public class AuctionGUI {
             itemsPerPage = (rows - 1) * 9;
         }
 
-        // Get active, non-expired listings filtered by category
         List<AuctionListing> listings = plugin.getAuctionManager().getActiveListings().stream()
                 .filter(l -> !l.isExpired())
                 .filter(l -> matchesCategory(l.getItem().getType(), category))
-                .sorted((a, b) -> Long.compare(a.getEndTime(), b.getEndTime()))
+                .sorted(getSortComparator(sortMode))
                 .collect(Collectors.toList());
 
         int totalPages = Math.max(1, (int) Math.ceil((double) listings.size() / itemsPerPage));
@@ -106,11 +113,18 @@ public class AuctionGUI {
             inv.setItem(prevSlot, createNavItem(Material.ARROW, MessageUtil.get("gui-previous-page")));
         }
 
-        // Search Button (Slot 46)
-        inv.setItem(46, createNavItem(Material.NAME_TAG,
-                MessageUtil.get("gui-search-title"),
-                MessageUtil.get("gui-search-lore-1"),
-                MessageUtil.get("gui-search-lore-2")));
+        // Claim/Mailbox Button (Slot 46)
+        int pendingCount = plugin.getStorageManager().getPendingDeliveries(player.getUniqueId()).size();
+        if (pendingCount > 0) {
+            inv.setItem(46, createNavItem(Material.CHEST,
+                    MessageUtil.get("gui-claim-button"),
+                    MessageUtil.get("gui-claim-button-lore", Map.of("count", String.valueOf(pendingCount)))));
+        } else {
+            inv.setItem(46, createNavItem(Material.NAME_TAG,
+                    MessageUtil.get("gui-search-title"),
+                    MessageUtil.get("gui-search-lore-1"),
+                    MessageUtil.get("gui-search-lore-2")));
+        }
 
         // Category Button (Slot 47)
         String catDisplayName = getCategoryDisplayName(category);
@@ -155,6 +169,12 @@ public class AuctionGUI {
                 MessageUtil.get("gui-history-title"),
                 MessageUtil.get("gui-history-lore-1"),
                 MessageUtil.get("gui-history-lore-2")));
+
+        // Sort Button (Slot 52)
+        inv.setItem(52, createNavItem(Material.COMPARATOR,
+                MessageUtil.get("gui-sort-title"),
+                MessageUtil.get("gui-sort-lore-1"),
+                MessageUtil.get("gui-sort-lore-2")));
 
         // Page Info
         inv.setItem(infoSlot, createNavItem(Material.BOOK,
@@ -319,5 +339,15 @@ public class AuctionGUI {
             default:
                 return true;
         }
+    }
+
+    private java.util.Comparator<AuctionListing> getSortComparator(String sortMode) {
+        return switch (sortMode) {
+            case "TIME_DESC" -> (a, b) -> Long.compare(b.getEndTime(), a.getEndTime());
+            case "PRICE_ASC" -> (a, b) -> Double.compare(a.getCurrentBid(), b.getCurrentBid());
+            case "PRICE_DESC" -> (a, b) -> Double.compare(b.getCurrentBid(), a.getCurrentBid());
+            case "BIDS" -> (a, b) -> Integer.compare(b.getBidHistory().size(), a.getBidHistory().size());
+            default -> (a, b) -> Long.compare(a.getEndTime(), b.getEndTime()); // TIME_ASC
+        };
     }
 }

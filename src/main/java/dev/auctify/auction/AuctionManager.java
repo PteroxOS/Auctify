@@ -76,6 +76,12 @@ public class AuctionManager {
             return null;
         }
 
+        // Blacklist check
+        if (storage.isBlacklisted(seller.getUniqueId())) {
+            MessageUtil.send(seller, "blacklisted", null);
+            return null;
+        }
+
         // Null/air item guard
         if (ItemUtil.isEmpty(item)) {
             MessageUtil.send(seller, "hold-item-to-sell", null);
@@ -186,6 +192,18 @@ public class AuctionManager {
         // Permission check
         if (!bidder.hasPermission("auctify.bid")) {
             MessageUtil.send(bidder, "no-permission", null);
+            return false;
+        }
+
+        // Blacklist check
+        if (storage.isBlacklisted(bidder.getUniqueId())) {
+            MessageUtil.send(bidder, "blacklisted", null);
+            return false;
+        }
+
+        // Can't bid on BIN-only listings
+        if (listing.isBinOnly()) {
+            MessageUtil.send(bidder, "bin-only", null);
             return false;
         }
 
@@ -386,6 +404,7 @@ public class AuctionManager {
         ));
 
         MessageUtil.send(player, "listing-cancelled", null);
+        plugin.getLogger().info("Player " + player.getName() + " cancelled listing " + listingId);
         return true;
     }
 
@@ -511,17 +530,16 @@ public class AuctionManager {
     private void deliverItem(UUID playerUUID, ItemStack item) {
         Player player = Bukkit.getPlayer(playerUUID);
         if (player != null && player.isOnline()) {
-            // Check if inventory is full
-            if (player.getInventory().firstEmpty() == -1) {
-                // Drop at feet
-                player.getWorld().dropItemNaturally(player.getLocation(), item);
-                MessageUtil.sendRaw(player, "§7Your inventory was full. Item dropped at your feet.");
-            } else {
-                player.getInventory().addItem(item);
+            java.util.HashMap<Integer, ItemStack> overflow = player.getInventory().addItem(item.clone());
+            if (!overflow.isEmpty()) {
+                for (ItemStack drop : overflow.values()) {
+                    player.getWorld().dropItemNaturally(player.getLocation(), drop);
+                }
+                MessageUtil.sendRaw(player, "§7Your inventory was full. Some items were dropped at your feet.");
             }
         } else {
             // Save for offline delivery
-            storage.savePendingDelivery(playerUUID, item);
+            storage.savePendingDelivery(playerUUID, item.clone());
         }
     }
 
