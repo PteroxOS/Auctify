@@ -1,0 +1,190 @@
+package dev.auctify.storage;
+
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
+import dev.auctify.auction.AuctionHistory;
+import dev.auctify.auction.AuctionListing;
+import dev.auctify.util.ItemUtil;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.plugin.java.JavaPlugin;
+
+import java.io.*;
+import java.sql.*;
+import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+/**
+ * MySQL implementation of {@link StorageManager} using HikariCP connection pooling.
+ * Recommended for production servers with high traffic.
+ */
+public class MySQLStorage implements StorageManager {
+
+    private final JavaPlugin plugin;
+    private final Logger logger;
+    private HikariDataSource dataSource;
+
+    /** @param plugin the main plugin instance */
+    public MySQLStorage(JavaPlugin plugin) {
+        this.plugin = plugin;
+        this.logger = plugin.getLogger();
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public void initialize() {
+        var cfg = plugin.getConfig();
+        String host = cfg.getString("storage.mysql.host", "localhost");
+        int port = cfg.getInt("storage.mysql.port", 3306);
+        String db = cfg.getString("storage.mysql.database", "auctify");
+        String user = cfg.getString("storage.mysql.username", "root");
+        String pass = cfg.getString("storage.mysql.password", "password");
+        int pool = cfg.getInt("storage.mysql.pool-size", 10);
+        boolean ssl = cfg.getBoolean("storage.mysql.use-ssl", false);
+
+        HikariConfig hc = new HikariConfig();
+        hc.setJdbcUrl("jdbc:mysql://" + host + ":" + port + "/" + db + "?useSSL=" + ssl + "&autoReconnect=true");
+        hc.setUsername(user);
+        hc.setPassword(pass);
+        hc.setMaximumPoolSize(pool);
+        hc.setPoolName("Auctify-MySQL");
+        hc.addDataSourceProperty("cachePrepStmts", "true");
+        hc.addDataSourceProperty("prepStmtCacheSize", "250");
+        dataSource = new HikariDataSource(hc);
+
+        executeSchema();
+        logger.info("MySQL storage initialized: " + host + ":" + port + "/" + db);
+    }
+
+    private void executeSchema() {
+        try (InputStream is = plugin.getResource("schema/mysql_schema.sql")) {
+            if (is == null) { logger.severe("mysql_schema.sql not found!"); return; }
+            String schema = new String(is.readAllBytes());
+            try (Connection conn = dataSource.getConnection()) {
+                for (String s : schema.split(";")) {
+                    String t = s.trim();
+                    if (!t.isEmpty()) try (Statement st = conn.createStatement()) { st.execute(t); }
+                }
+            }
+        } catch (IOException | SQLException e) { logger.log(Level.SEVERE, "MySQL schema exec failed", e); }
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public void saveListing(AuctionListing l) {
+        String sql = "REPLACE INTO auctify_listings (id,seller_uuid,seller_name,item_data,start_price,buyout_price,current_bid,top_bidder_uuid,top_bidder_name,created_at,end_time) VALUES (?,?,?,?,?,?,?,?,?,?,?)";
+        try (Connection c = dataSource.getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setString(1, l.getId()); ps.setString(2, l.getSellerUUID().toString());
+            ps.setString(3, l.getSellerName()); ps.setString(4, ItemUtil.serializeToBase64(l.getItem()));
+            ps.setDouble(5, l.getStartPrice()); ps.setDouble(6, l.getBuyoutPrice());
+            ps.setDouble(7, l.getCurrentBid());
+            ps.setString(8, l.getTopBidderUUID() != null ? l.getTopBidderUUID().toString() : null);
+            ps.setString(9, l.getTopBidderName()); ps.setLong(10, l.getCreatedAt());
+            ps.setLong(11, l.getEndTime()); ps.executeUpdate();
+        } catch (SQLException e) { logger.log(Level.SEVERE, "Save listing failed: " + l.getId(), e); }
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public void deleteListing(String id) {
+        try (Connection c = dataSource.getConnection();
+             PreparedStatement ps = c.prepareStatement("DELETE FROM auctify_listings WHERE id=?")) {
+            ps.setString(1, id); ps.executeUpdate();
+        } catch (SQLException e) { logger.log(Level.SEVERE, "Delete listing failed: " + id, e); }
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public List<AuctionListing> getAllListings() {
+        List<AuctionListing> res = new ArrayList<>();
+        try (Connection c = dataSource.getConnection(); Statement st = c.createStatement();
+             ResultSet rs = st.executeQuery("SELECT * FROM auctify_listings")) {
+            while (rs.next()) {
+                ItemStack item = ItemUtil.deserializeFromBase64(rs.getString("item_data"));
+                if (item == null) continue;
+                String tbuStr = rs.getString("top_bidder_uuid");
+                UUID tbu = tbuStr != null ? UUID.fromString(tbuStr) : null;
+                res.add(new AuctionListing(rs.getString("id"), UUID.fromString(rs.getString("seller_uuid")),
+                        rs.getString("seller_name"), item, rs.getDouble("start_price"),
+                        rs.getDouble("buyout_price"), rs.getDouble("current_bid"), tbu,
+                        rs.getString("top_bidder_name"), rs.getLong("created_at"), rs.getLong("end_time")));
+            }
+        } catch (SQLException e) { logger.log(Level.SEVERE, "Load listings failed", e); }
+        return res;
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public void saveHistory(AuctionHistory h) {
+        String sql = "REPLACE INTO auctify_history (id,seller_uuid,seller_name,winner_uuid,winner_name,item_data,start_price,final_price,tax_amount,resolved_at,reason) VALUES (?,?,?,?,?,?,?,?,?,?,?)";
+        try (Connection c = dataSource.getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setString(1, h.id()); ps.setString(2, h.sellerUUID().toString());
+            ps.setString(3, h.sellerName());
+            ps.setString(4, h.winnerUUID() != null ? h.winnerUUID().toString() : null);
+            ps.setString(5, h.winnerName()); ps.setString(6, h.itemData());
+            ps.setDouble(7, h.startPrice()); ps.setDouble(8, h.finalPrice());
+            ps.setDouble(9, h.taxAmount()); ps.setLong(10, h.resolvedAt());
+            ps.setString(11, h.reason()); ps.executeUpdate();
+        } catch (SQLException e) { logger.log(Level.SEVERE, "Save history failed", e); }
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public List<AuctionHistory> getHistory(UUID playerUUID, int limit) {
+        List<AuctionHistory> res = new ArrayList<>();
+        String sql = "SELECT * FROM auctify_history WHERE seller_uuid=? OR winner_uuid=? ORDER BY resolved_at DESC LIMIT ?";
+        try (Connection c = dataSource.getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
+            String u = playerUUID.toString(); ps.setString(1, u); ps.setString(2, u); ps.setInt(3, limit);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    String wu = rs.getString("winner_uuid");
+                    res.add(new AuctionHistory(rs.getString("id"), UUID.fromString(rs.getString("seller_uuid")),
+                            rs.getString("seller_name"), wu != null ? UUID.fromString(wu) : null,
+                            rs.getString("winner_name"), rs.getString("item_data"), rs.getDouble("start_price"),
+                            rs.getDouble("final_price"), rs.getDouble("tax_amount"),
+                            rs.getLong("resolved_at"), rs.getString("reason")));
+                }
+            }
+        } catch (SQLException e) { logger.log(Level.SEVERE, "Load history failed", e); }
+        return res;
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public void savePendingDelivery(UUID playerUUID, ItemStack item) {
+        String sql = "INSERT INTO auctify_pending_deliveries (player_uuid,item_data,created_at) VALUES (?,?,?)";
+        try (Connection c = dataSource.getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setString(1, playerUUID.toString()); ps.setString(2, ItemUtil.serializeToBase64(item));
+            ps.setLong(3, System.currentTimeMillis()); ps.executeUpdate();
+        } catch (SQLException e) { logger.log(Level.SEVERE, "Save pending delivery failed", e); }
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public List<ItemStack> getPendingDeliveries(UUID playerUUID) {
+        List<ItemStack> res = new ArrayList<>();
+        try (Connection c = dataSource.getConnection();
+             PreparedStatement ps = c.prepareStatement("SELECT item_data FROM auctify_pending_deliveries WHERE player_uuid=?")) {
+            ps.setString(1, playerUUID.toString());
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) { ItemStack i = ItemUtil.deserializeFromBase64(rs.getString("item_data")); if (i != null) res.add(i); }
+            }
+        } catch (SQLException e) { logger.log(Level.SEVERE, "Load pending failed", e); }
+        return res;
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public void clearPendingDeliveries(UUID playerUUID) {
+        try (Connection c = dataSource.getConnection();
+             PreparedStatement ps = c.prepareStatement("DELETE FROM auctify_pending_deliveries WHERE player_uuid=?")) {
+            ps.setString(1, playerUUID.toString()); ps.executeUpdate();
+        } catch (SQLException e) { logger.log(Level.SEVERE, "Clear pending failed", e); }
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public void shutdown() {
+        if (dataSource != null && !dataSource.isClosed()) { dataSource.close(); logger.info("MySQL pool closed."); }
+    }
+}

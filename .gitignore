@@ -1,0 +1,23 @@
+# Maven
+target/
+*.jar
+
+# IDE
+.idea/
+*.iml
+.classpath
+.project
+.settings/
+.vscode/
+
+# Plugin Data
+auctify.db
+locales/
+config.yml
+logs/
+plugins/
+*.log
+
+# System
+.DS_Store
+Thumbs.db

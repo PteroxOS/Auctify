@@ -1,0 +1,50 @@
+name: Auctify
+version: ${project.version}
+main: dev.auctify.Auctify
+api-version: 1.18
+authors:
+  - Jephyruu
+description: A professional live auction house plugin with real-time bidding.
+website: https://github.com/pteroxos/auctify
+
+softdepend:
+  - Vault
+  - EssentialsX
+  - ProtocolLib
+  - PlaceholderAPI
+
+commands:
+  ac:
+    description: Open or interact with the Auctify auction house.
+    usage: /ac <sell|bid|open|cancel|search|history|reload|help>
+    aliases:
+      - auction
+      - auctify
+      - ah
+      - au
+
+permissions:
+  auctify.use:
+    description: Access to basic auction house features.
+    default: true
+  auctify.sell:
+    description: Permission to list items for sale.
+    default: true
+  auctify.bid:
+    description: Permission to place bids.
+    default: true
+  auctify.search:
+    description: Permission to search listings.
+    default: true
+  auctify.history:
+    description: Permission to view auction history.
+    default: true
+  auctify.admin:
+    description: Access to admin commands (cancel any listing, reload config).
+    default: op
+  auctify.bypass.maxlistings:
+    description: Bypass the max listings per player limit.
+    default: op
+  auctify.bypass.tax:
+    description: Bypass the seller tax on completed auctions.
+    default: false

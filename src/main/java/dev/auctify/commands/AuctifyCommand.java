@@ -1,0 +1,114 @@
+package dev.auctify.commands;
+
+import dev.auctify.Auctify;
+import dev.auctify.commands.subcommands.*;
+import dev.auctify.util.MessageUtil;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandExecutor;
+import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
+
+import java.util.HashMap;
+import java.util.Map;
+
+/**
+ * Root command dispatcher for the /ac command.
+ * Running /ac with no args opens the auction GUI directly (for players).
+ * Routes subcommands to their respective handlers.
+ */
+public class AuctifyCommand implements CommandExecutor {
+
+    private final Auctify plugin;
+
+    /** Map of subcommand names to their handler instances. */
+    private final Map<String, SubCommand> subCommands = new HashMap<>();
+
+    /**
+     * Registers all subcommands.
+     *
+     * @param plugin the main plugin instance
+     */
+    public AuctifyCommand(Auctify plugin) {
+        this.plugin = plugin;
+
+        // Register all subcommands
+        subCommands.put("sell", new SellSubCommand(plugin));
+        subCommands.put("bid", new BidSubCommand(plugin));
+        subCommands.put("open", new OpenSubCommand(plugin));
+        subCommands.put("cancel", new CancelSubCommand(plugin));
+        subCommands.put("search", new SearchSubCommand(plugin));
+        subCommands.put("history", new HistorySubCommand(plugin));
+        subCommands.put("reload", new ReloadSubCommand(plugin));
+        subCommands.put("about", new AboutSubCommand(plugin));
+    }
+
+    /**
+     * Dispatches the /ac command to the appropriate subcommand handler.
+     * Running /ac with no args opens the GUI directly for players.
+     */
+    @Override
+    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+        // No args → open GUI directly for players, show help for console
+        if (args.length == 0) {
+            if (sender instanceof Player player) {
+                plugin.getAuctionGUI().open(player);
+            } else {
+                sendHelpMenu(sender);
+            }
+            return true;
+        }
+
+        // "help" subcommand → show help menu
+        if (args[0].equalsIgnoreCase("help")) {
+            sendHelpMenu(sender);
+            return true;
+        }
+
+        String subName = args[0].toLowerCase();
+        SubCommand sub = subCommands.get(subName);
+
+        if (sub == null) {
+            MessageUtil.sendRaw(sender, "§cUnknown subcommand. Use §f/ac help §cfor a list.");
+            return true;
+        }
+
+        // Check if command requires player
+        if (sub.isPlayerOnly() && !(sender instanceof Player)) {
+            MessageUtil.send(sender, "player-only", null);
+            return true;
+        }
+
+        // Execute the subcommand
+        sub.execute(sender, args);
+        return true;
+    }
+
+    /**
+     * Sends the help menu with all available subcommands.
+     */
+    private void sendHelpMenu(CommandSender sender) {
+        MessageUtil.sendRaw(sender, "");
+        MessageUtil.sendRaw(sender, "§6§l✦ AUCTIFY §8— §7Command Reference");
+        MessageUtil.sendRaw(sender, "§8━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+        MessageUtil.sendRaw(sender, " §e/ac §8» §7Open the auction house");
+        MessageUtil.sendRaw(sender, " §e/ac sell §6<price> §7[buyout] [duration] §8» §7List held item");
+        MessageUtil.sendRaw(sender, " §e/ac bid §6<id> <amount> §8» §7Place a bid");
+        MessageUtil.sendRaw(sender, " §e/ac cancel §6<id> §8» §7Cancel your listing");
+        MessageUtil.sendRaw(sender, " §e/ac search §6<query> §8» §7Search listings");
+        MessageUtil.sendRaw(sender, " §e/ac history §8» §7View your auction history");
+        MessageUtil.sendRaw(sender, " §e/ac about §8» §7Plugin information");
+        MessageUtil.sendRaw(sender, " §e/ac reload §8» §7Reload configuration §c(Admin)");
+        MessageUtil.sendRaw(sender, " §e/ac help §8» §7Show this menu");
+        MessageUtil.sendRaw(sender, "§8━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+        MessageUtil.sendRaw(sender, "");
+    }
+
+    /**
+     * Returns the subcommand map for tab completion.
+     *
+     * @return the map of subcommand names to handlers
+     */
+    public Map<String, SubCommand> getSubCommands() {
+        return subCommands;
+    }
+}
