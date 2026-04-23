@@ -182,6 +182,101 @@ public class MySQLStorage implements StorageManager {
         } catch (SQLException e) { logger.log(Level.SEVERE, "Clear pending failed", e); }
     }
 
+    // ─── Rating System ───────────────────────────────
+
+    @Override
+    public void saveRating(UUID sellerUUID, UUID raterUUID, int rating) {
+        String sql = "REPLACE INTO auctify_ratings (seller_uuid,rater_uuid,rating,created_at) VALUES (?,?,?,?)";
+        try (Connection c = dataSource.getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setString(1, sellerUUID.toString()); ps.setString(2, raterUUID.toString());
+            ps.setInt(3, rating); ps.setLong(4, System.currentTimeMillis()); ps.executeUpdate();
+        } catch (SQLException e) { logger.log(Level.SEVERE, "Save rating failed", e); }
+    }
+
+    @Override
+    public double getAverageRating(UUID sellerUUID) {
+        try (Connection c = dataSource.getConnection();
+             PreparedStatement ps = c.prepareStatement("SELECT AVG(rating) as avg_rating FROM auctify_ratings WHERE seller_uuid=?")) {
+            ps.setString(1, sellerUUID.toString());
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    double avg = rs.getDouble("avg_rating");
+                    if (rs.wasNull()) return -1;
+                    return avg;
+                }
+            }
+        } catch (SQLException e) { logger.log(Level.SEVERE, "Get average rating failed", e); }
+        return -1;
+    }
+
+    @Override
+    public int getRatingCount(UUID sellerUUID) {
+        try (Connection c = dataSource.getConnection();
+             PreparedStatement ps = c.prepareStatement("SELECT COUNT(*) as cnt FROM auctify_ratings WHERE seller_uuid=?")) {
+            ps.setString(1, sellerUUID.toString());
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) return rs.getInt("cnt");
+            }
+        } catch (SQLException e) { logger.log(Level.SEVERE, "Get rating count failed", e); }
+        return 0;
+    }
+
+    @Override
+    public boolean hasRated(UUID sellerUUID, UUID raterUUID) {
+        try (Connection c = dataSource.getConnection();
+             PreparedStatement ps = c.prepareStatement("SELECT COUNT(*) as cnt FROM auctify_ratings WHERE seller_uuid=? AND rater_uuid=?")) {
+            ps.setString(1, sellerUUID.toString()); ps.setString(2, raterUUID.toString());
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) return rs.getInt("cnt") > 0;
+            }
+        } catch (SQLException e) { logger.log(Level.SEVERE, "Check has rated failed", e); }
+        return false;
+    }
+
+    // ─── Blacklist System ────────────────────────────
+
+    @Override
+    public void addBlacklist(UUID playerUUID, String reason, String blacklistedBy) {
+        String sql = "REPLACE INTO auctify_blacklist (player_uuid,reason,blacklisted_by,created_at) VALUES (?,?,?,?)";
+        try (Connection c = dataSource.getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setString(1, playerUUID.toString()); ps.setString(2, reason);
+            ps.setString(3, blacklistedBy); ps.setLong(4, System.currentTimeMillis()); ps.executeUpdate();
+        } catch (SQLException e) { logger.log(Level.SEVERE, "Add blacklist failed", e); }
+    }
+
+    @Override
+    public void removeBlacklist(UUID playerUUID) {
+        try (Connection c = dataSource.getConnection();
+             PreparedStatement ps = c.prepareStatement("DELETE FROM auctify_blacklist WHERE player_uuid=?")) {
+            ps.setString(1, playerUUID.toString()); ps.executeUpdate();
+        } catch (SQLException e) { logger.log(Level.SEVERE, "Remove blacklist failed", e); }
+    }
+
+    @Override
+    public boolean isBlacklisted(UUID playerUUID) {
+        try (Connection c = dataSource.getConnection();
+             PreparedStatement ps = c.prepareStatement("SELECT COUNT(*) as cnt FROM auctify_blacklist WHERE player_uuid=?")) {
+            ps.setString(1, playerUUID.toString());
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) return rs.getInt("cnt") > 0;
+            }
+        } catch (SQLException e) { logger.log(Level.SEVERE, "Check blacklist failed", e); }
+        return false;
+    }
+
+    @Override
+    public List<String[]> getBlacklist() {
+        List<String[]> res = new ArrayList<>();
+        try (Connection c = dataSource.getConnection(); Statement st = c.createStatement();
+             ResultSet rs = st.executeQuery("SELECT * FROM auctify_blacklist")) {
+            while (rs.next()) {
+                res.add(new String[]{rs.getString("player_uuid"), rs.getString("reason"),
+                        rs.getString("blacklisted_by"), String.valueOf(rs.getLong("created_at"))});
+            }
+        } catch (SQLException e) { logger.log(Level.SEVERE, "Get blacklist failed", e); }
+        return res;
+    }
+
     /** {@inheritDoc} */
     @Override
     public void shutdown() {

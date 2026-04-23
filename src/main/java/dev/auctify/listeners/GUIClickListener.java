@@ -399,7 +399,7 @@ public class GUIClickListener implements Listener {
     private void handleRateGUIClick(Player player, AuctifyHolder holder, int slot) {
         if (slot == 22 && holder.getTargetPlayerUUID() != null) {
             // Skip button
-            plugin.getServer().getScheduler().runTask(plugin, player::closeInventory);
+            plugin.getServer().getScheduler().runTask(plugin, () -> player.closeInventory());
             return;
         }
 

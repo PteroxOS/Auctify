@@ -119,17 +119,14 @@ public class AdminSubCommand implements SubCommand {
         return false;
     }
 
-    @Override
     public String getPermission() {
         return "auctify.admin";
     }
 
-    @Override
     public String getUsage() {
         return "/ac admin [blacklist|cancel]";
     }
 
-    @Override
     public String getDescription() {
         return "Open the admin moderation panel.";
     }

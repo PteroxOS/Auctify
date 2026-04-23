@@ -27,17 +27,14 @@ public class ClaimSubCommand implements SubCommand {
         return true;
     }
 
-    @Override
     public String getPermission() {
         return "auctify.use";
     }
 
-    @Override
     public String getUsage() {
         return "/ac claim";
     }
 
-    @Override
     public String getDescription() {
         return "Collect pending items from your mailbox.";
     }

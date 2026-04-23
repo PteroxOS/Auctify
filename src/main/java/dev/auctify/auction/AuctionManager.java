@@ -354,7 +354,7 @@ public class AuctionManager {
         // Prompt buyer to rate the seller
         plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
             if (buyer.isOnline()) {
-                plugin.getRateGUI().open(buyer, listing.getSellerUUID());
+                plugin.getRateGUI().open(buyer, listing.getSellerUUID(), listing.getSellerName());
             }
         }, 10L);
 
