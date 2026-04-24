@@ -52,6 +52,9 @@ public class PlayerQuitListener implements Listener {
     public void onPlayerJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
 
+        // Check if setup wizard should show (first-run admin)
+        plugin.getSetupWizard().onPlayerJoin(player);
+
         // Check for pending deliveries asynchronously
         plugin.getServer().getScheduler().runTaskAsynchronously(plugin, () -> {
             List<ItemStack> pending = plugin.getAuctionManager().claimPendingDeliveries(player.getUniqueId());

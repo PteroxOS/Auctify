@@ -52,6 +52,22 @@ public class SetupWizard {
     }
 
     /**
+     * Called when a player joins - shows welcome if first-run and admin.
+     */
+    public void onPlayerJoin(Player player) {
+        if (plugin.getConfig().getBoolean("system.first-run", true)) {
+            if (player.isOp() || player.hasPermission("auctify.admin")) {
+                // Delay slightly to ensure player fully loaded
+                Bukkit.getScheduler().runTaskLater(plugin, () -> {
+                    if (player.isOnline()) {
+                        showWelcomeMessage(player);
+                    }
+                }, 20L); // 1 second delay
+            }
+        }
+    }
+
+    /**
      * Starts the setup wizard for a player.
      */
     public void startSetup(Player player) {
@@ -87,15 +103,15 @@ public class SetupWizard {
         TextComponent yesButton = new TextComponent("    ");
         TextComponent yes = new TextComponent("[ §a§lYES, Setup Now §r]");
         yes.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/ac setup"));
-        yes.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, 
-            new ComponentBuilder("Click to start setup wizard").create()));
+        yes.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
+                new ComponentBuilder("Click to start setup wizard").create()));
         yesButton.addExtra(yes);
 
         TextComponent noButton = new TextComponent("    ");
         TextComponent no = new TextComponent("[ §c§lNO, Use Defaults §r]");
         no.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/ac setup skip"));
-        no.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, 
-            new ComponentBuilder("Skip setup and use default settings").create()));
+        no.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
+                new ComponentBuilder("Skip setup and use default settings").create()));
         noButton.addExtra(no);
 
         player.spigot().sendMessage(yesButton);
@@ -106,7 +122,8 @@ public class SetupWizard {
     // ========== STEP 1: LANGUAGE ==========
     private void showStep1_Language(Player player) {
         SetupState state = activeSetups.get(player.getUniqueId());
-        if (state == null) return;
+        if (state == null)
+            return;
 
         MessageUtil.sendRaw(player, "");
         MessageUtil.sendRaw(player, "§8╔════════════════════════════════════════════════╗");
@@ -118,17 +135,18 @@ public class SetupWizard {
         MessageUtil.sendRaw(player, "§8╚════════════════════════════════════════════════╝");
         MessageUtil.sendRaw(player, "");
 
-        sendClickableOption(player, "  [ §aEnglish §r]", "en", 
-            "Click to select English", "/ac setup step1 en");
-        sendClickableOption(player, "  [ §2Bahasa Indonesia §r]", "id", 
-            "Klik untuk pilih Indonesia", "/ac setup step1 id");
+        sendClickableOption(player, "  [ §aEnglish §r]", "en",
+                "Click to select English", "/ac setup step1 en");
+        sendClickableOption(player, "  [ §2Bahasa Indonesia §r]", "id",
+                "Klik untuk pilih Indonesia", "/ac setup step1 id");
         MessageUtil.sendRaw(player, "");
     }
 
     // ========== STEP 2: STORAGE ==========
     private void showStep2_Storage(Player player) {
         SetupState state = activeSetups.get(player.getUniqueId());
-        if (state == null) return;
+        if (state == null)
+            return;
 
         String title = state.locale.equals("id") ? "SETUP WIZARD (Step 2/7)" : "SETUP WIZARD (Step 2/7)";
         String prompt = state.locale.equals("id") ? "Pilih tipe penyimpanan:" : "Choose storage type:";
@@ -144,18 +162,19 @@ public class SetupWizard {
         MessageUtil.sendRaw(player, "");
 
         sendClickableOption(player, "  [ §aSQLite §r]§7 - File-based, easy setup", "sqlite",
-            "Best for small-medium servers", "/ac setup step2 sqlite");
+                "Best for small-medium servers", "/ac setup step2 sqlite");
         sendClickableOption(player, "  [ §bMySQL §r]§7 - Database server", "mysql",
-            "Best for large servers", "/ac setup step2 mysql");
+                "Best for large servers", "/ac setup step2 mysql");
         sendClickableOption(player, "  [ §eMemory §r]§7 - No persistence (testing)", "memory",
-            "Data lost on restart!", "/ac setup step2 memory");
+                "Data lost on restart!", "/ac setup step2 memory");
         MessageUtil.sendRaw(player, "");
     }
 
     // ========== STEP 3: ECONOMY TAX ==========
     private void showStep3_Economy(Player player) {
         SetupState state = activeSetups.get(player.getUniqueId());
-        if (state == null) return;
+        if (state == null)
+            return;
 
         boolean isId = state.locale.equals("id");
         String title = isId ? "SETUP WIZARD (Step 3/7)" : "SETUP WIZARD (Step 3/7)";
@@ -172,21 +191,23 @@ public class SetupWizard {
         MessageUtil.sendRaw(player, "");
 
         sendClickableOption(player, "  [ §a0% §r]§7 - No tax", "0",
-            isId ? "Tidak ada pajak" : "No tax on sales", "/ac setup step3 0");
+                isId ? "Tidak ada pajak" : "No tax on sales", "/ac setup step3 0");
         sendClickableOption(player, "  [ §e5% §r]§7 - Recommended", "5",
-            isId ? "Pajak 5% (default)" : "5% tax (default)", "/ac setup step3 5");
+                isId ? "Pajak 5% (default)" : "5% tax (default)", "/ac setup step3 5");
         sendClickableOption(player, "  [ §c10% §r]§7 - High tax", "10",
-            isId ? "Pajak 10%" : "10% tax", "/ac setup step3 10");
+                isId ? "Pajak 10%" : "10% tax", "/ac setup step3 10");
         sendClickableOption(player, "  [ §bCustom §r]§7 - Enter percentage", "custom",
-            isId ? "Masukkan angka 0-100" : "Enter 0-100", "/ac setup step3 custom");
+                isId ? "Masukkan angka 0-100" : "Enter 0-100", "/ac setup step3 custom");
         MessageUtil.sendRaw(player, "");
-        MessageUtil.sendRaw(player, isId ? "§7§oPajak: persen dari harga jual yang diambil server" : "§7§oTax: percentage taken from seller's earnings");
+        MessageUtil.sendRaw(player, isId ? "§7§oPajak: persen dari harga jual yang diambil server"
+                : "§7§oTax: percentage taken from seller's earnings");
     }
 
     // ========== STEP 4: GENERAL ==========
     private void showStep4_General(Player player) {
         SetupState state = activeSetups.get(player.getUniqueId());
-        if (state == null) return;
+        if (state == null)
+            return;
 
         boolean isId = state.locale.equals("id");
         String title = isId ? "SETUP WIZARD (Step 4/7)" : "SETUP WIZARD (Step 4/7)";
@@ -203,18 +224,19 @@ public class SetupWizard {
         MessageUtil.sendRaw(player, "");
 
         sendClickableOption(player, "  [ §a5 min §r]§7 - Quick auctions", "300",
-            isId ? "Durasi 5 menit" : "5 minutes duration", "/ac setup step4 300");
+                isId ? "Durasi 5 menit" : "5 minutes duration", "/ac setup step4 300");
         sendClickableOption(player, "  [ §e15 min §r]§7 - Standard", "900",
-            isId ? "Durasi 15 menit (default)" : "15 minutes (default)", "/ac setup step4 900");
+                isId ? "Durasi 15 menit (default)" : "15 minutes (default)", "/ac setup step4 900");
         sendClickableOption(player, "  [ §b1 hour §r]§7 - Long auctions", "3600",
-            isId ? "Durasi 1 jam" : "1 hour duration", "/ac setup step4 3600");
+                isId ? "Durasi 1 jam" : "1 hour duration", "/ac setup step4 3600");
         MessageUtil.sendRaw(player, "");
     }
 
     // ========== STEP 5: GUI ==========
     private void showStep5_GUI(Player player) {
         SetupState state = activeSetups.get(player.getUniqueId());
-        if (state == null) return;
+        if (state == null)
+            return;
 
         boolean isId = state.locale.equals("id");
         String title = isId ? "SETUP WIZARD (Step 5/7)" : "SETUP WIZARD (Step 5/7)";
@@ -233,18 +255,19 @@ public class SetupWizard {
         MessageUtil.sendRaw(player, "");
 
         sendClickableOption(player, "  [ §a15 sec §r]§7 - Fast", "15",
-            isId ? "15 detik" : "15 seconds", "/ac setup step5 15");
+                isId ? "15 detik" : "15 seconds", "/ac setup step5 15");
         sendClickableOption(player, "  [ §e30 sec §r]§7 - Standard (default)", "30",
-            isId ? "30 detik (default)" : "30 seconds (default)", "/ac setup step5 30");
+                isId ? "30 detik (default)" : "30 seconds (default)", "/ac setup step5 30");
         sendClickableOption(player, "  [ §b60 sec §r]§7 - Relaxed", "60",
-            isId ? "60 detik" : "60 seconds", "/ac setup step5 60");
+                isId ? "60 detik" : "60 seconds", "/ac setup step5 60");
         MessageUtil.sendRaw(player, "");
     }
 
     // ========== STEP 6: DISCORD ==========
     private void showStep6_Discord(Player player) {
         SetupState state = activeSetups.get(player.getUniqueId());
-        if (state == null) return;
+        if (state == null)
+            return;
 
         boolean isId = state.locale.equals("id");
         String title = isId ? "SETUP WIZARD (Step 6/7)" : "SETUP WIZARD (Step 6/7)";
@@ -261,17 +284,19 @@ public class SetupWizard {
         MessageUtil.sendRaw(player, "");
 
         sendClickableOption(player, "  [ §cSkip §r]§7 - No Discord", "skip",
-            isId ? "Lewati" : "Skip this step", "/ac setup step6 skip");
+                isId ? "Lewati" : "Skip this step", "/ac setup step6 skip");
         sendClickableOption(player, "  [ §aEnable §r]§7 - Enter webhook URL", "enable",
-            isId ? "Masukkan URL webhook" : "Enter webhook URL", "/ac setup step6 enable");
+                isId ? "Masukkan URL webhook" : "Enter webhook URL", "/ac setup step6 enable");
         MessageUtil.sendRaw(player, "");
-        MessageUtil.sendRaw(player, "§7§o" + (isId ? "Webhook URL didapat dari channel Discord" : "Get webhook URL from Discord channel"));
+        MessageUtil.sendRaw(player,
+                "§7§o" + (isId ? "Webhook URL didapat dari channel Discord" : "Get webhook URL from Discord channel"));
     }
 
     // ========== STEP 7: BACKUP ==========
     private void showStep7_Backup(Player player) {
         SetupState state = activeSetups.get(player.getUniqueId());
-        if (state == null) return;
+        if (state == null)
+            return;
 
         boolean isId = state.locale.equals("id");
         String title = isId ? "SETUP WIZARD (Step 7/7)" : "SETUP WIZARD (Step 7/7)";
@@ -288,20 +313,21 @@ public class SetupWizard {
         MessageUtil.sendRaw(player, "");
 
         sendClickableOption(player, "  [ §cDisable §r]§7 - No backup", "disable",
-            isId ? "Matikan backup" : "Disable backup", "/ac setup step7 disable");
+                isId ? "Matikan backup" : "Disable backup", "/ac setup step7 disable");
         sendClickableOption(player, "  [ §a1 hour §r]§7 - Frequent", "60",
-            isId ? "Backup tiap 1 jam" : "Every 1 hour", "/ac setup step7 60");
+                isId ? "Backup tiap 1 jam" : "Every 1 hour", "/ac setup step7 60");
         sendClickableOption(player, "  [ §e6 hours §r]§7 - Balanced", "360",
-            isId ? "Backup tiap 6 jam" : "Every 6 hours", "/ac setup step7 360");
+                isId ? "Backup tiap 6 jam" : "Every 6 hours", "/ac setup step7 360");
         sendClickableOption(player, "  [ §b24 hours §r]§7 - Daily", "1440",
-            isId ? "Backup tiap 24 jam" : "Every 24 hours", "/ac setup step7 1440");
+                isId ? "Backup tiap 24 jam" : "Every 24 hours", "/ac setup step7 1440");
         MessageUtil.sendRaw(player, "");
     }
 
     // ========== COMPLETE ==========
     private void completeSetup(Player player) {
         SetupState state = activeSetups.remove(player.getUniqueId());
-        if (state == null) return;
+        if (state == null)
+            return;
 
         // Apply all settings
         plugin.getConfig().set("locale", state.locale);
@@ -310,15 +336,15 @@ public class SetupWizard {
         plugin.getConfig().set("economy.tax-destination", state.taxPercent > 0 ? "void" : "void");
         plugin.getConfig().set("general.default-duration", state.duration);
         plugin.getConfig().set("gui.bid-input-timeout", state.bidTimeout);
-        
+
         if (!state.discordWebhook.isEmpty()) {
             plugin.getConfig().set("discord.webhook-url", state.discordWebhook);
             plugin.getConfig().set("discord.enabled", true);
         }
-        
+
         plugin.getConfig().set("storage.sqlite.backup.enabled", state.backupEnabled);
         plugin.getConfig().set("storage.sqlite.backup.interval", state.backupInterval);
-        
+
         plugin.getConfig().set("system.first-run", false);
         plugin.saveConfig();
 
@@ -331,8 +357,10 @@ public class SetupWizard {
         MessageUtil.sendRaw(player, "§8║                                                ║");
         MessageUtil.sendRaw(player, "§8║      §a§l✓ SETUP COMPLETED SUCCESSFULLY!        §8║");
         MessageUtil.sendRaw(player, "§8║                                                §8║");
-        MessageUtil.sendRaw(player, "§8║  §7" + padRight(isId ? "Semua pengaturan telah disimpan!" : "All settings saved!", 38) + "§8║");
-        MessageUtil.sendRaw(player, "§8║  §7" + padRight(isId ? "Plugin akan di-reload..." : "Reloading plugin...", 38) + "§8║");
+        MessageUtil.sendRaw(player,
+                "§8║  §7" + padRight(isId ? "Semua pengaturan telah disimpan!" : "All settings saved!", 38) + "§8║");
+        MessageUtil.sendRaw(player,
+                "§8║  §7" + padRight(isId ? "Plugin akan di-reload..." : "Reloading plugin...", 38) + "§8║");
         MessageUtil.sendRaw(player, "§8║                                                §8║");
         MessageUtil.sendRaw(player, "§8╚════════════════════════════════════════════════╝");
         MessageUtil.sendRaw(player, "");
@@ -347,7 +375,8 @@ public class SetupWizard {
         plugin.getConfig().set("system.first-run", false);
         plugin.saveConfig();
         activeSetups.remove(player.getUniqueId());
-        MessageUtil.sendRaw(player, "§7Setup skipped. Using default configuration. Run §f/ac setup §7anytime to configure.");
+        MessageUtil.sendRaw(player,
+                "§7Setup skipped. Using default configuration. Run §f/ac setup §7anytime to configure.");
     }
 
     // ========== HANDLE INPUT ==========
@@ -408,13 +437,14 @@ public class SetupWizard {
     private void sendClickableOption(Player player, String label, String value, String tooltip, String command) {
         TextComponent component = new TextComponent(label);
         component.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, command));
-        component.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, 
-            new ComponentBuilder(tooltip).create()));
+        component.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
+                new ComponentBuilder(tooltip).create()));
         player.spigot().sendMessage(component);
     }
 
     private String padRight(String text, int width) {
-        if (text.length() >= width) return text.substring(0, width);
+        if (text.length() >= width)
+            return text.substring(0, width);
         return text + " ".repeat(width - text.length());
     }
 
