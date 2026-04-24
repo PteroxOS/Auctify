@@ -18,7 +18,8 @@ import java.util.logging.Logger;
 
 /**
  * Main plugin class for Auctify — a professional live auction house plugin.
- * Initializes all managers in dependency order, registers commands and listeners,
+ * Initializes all managers in dependency order, registers commands and
+ * listeners,
  * and handles graceful shutdown with item preservation.
  *
  * @author Jephyruu
@@ -81,8 +82,10 @@ public class Auctify extends JavaPlugin {
     // TODO: Add PlaceholderAPI support for leaderboard placeholders
 
     /**
-     * Called when the plugin is enabled. Initializes everything in dependency order:
-     * Config → Banner → Dependencies → Economy → Storage → AuctionManager → GUI → Commands → Listeners → Tasks
+     * Called when the plugin is enabled. Initializes everything in dependency
+     * order:
+     * Config → Banner → Dependencies → Economy → Storage → AuctionManager → GUI →
+     * Commands → Listeners → Tasks
      */
     @Override
     public void onEnable() {
@@ -157,6 +160,23 @@ public class Auctify extends JavaPlugin {
                 int saved = auctionManager.saveAllListings();
                 getLogger().info("Auto-save: " + saved + " active listings saved.");
             }, autoSaveTicks, autoSaveTicks);
+        }
+
+        // Start automatic backup task (SQLite only)
+        if (getConfig().getBoolean("storage.sqlite.backup.enabled", true)) {
+            int backupMinutes = getConfig().getInt("storage.sqlite.backup.interval", 60);
+            if (backupMinutes > 0) {
+                long backupTicks = backupMinutes * 60L * 20L;
+                getServer().getScheduler().runTaskTimerAsynchronously(this, () -> {
+                    boolean success = storageManager.backup();
+                    if (success) {
+                        getLogger().info("§aAutomatic database backup completed successfully.");
+                    } else {
+                        getLogger().warning("§cAutomatic database backup failed! Check logs for details.");
+                    }
+                }, backupTicks, backupTicks);
+                getLogger().info("§e⚡ §7Automatic backup enabled (every " + backupMinutes + " minutes)");
+            }
         }
 
         // Register PlaceholderAPI expansion if available
@@ -263,7 +283,8 @@ public class Auctify extends JavaPlugin {
      * Pads a string for log alignment.
      */
     private String padLog(String text, int width) {
-        if (text.length() >= width) return text;
+        if (text.length() >= width)
+            return text;
         return text + " ".repeat(width - text.length());
     }
 
@@ -316,43 +337,71 @@ public class Auctify extends JavaPlugin {
     }
 
     /** @return the economy manager */
-    public EconomyManager getEconomyManager() { return economyManager; }
+    public EconomyManager getEconomyManager() {
+        return economyManager;
+    }
 
     /** @return the storage manager */
-    public StorageManager getStorageManager() { return storageManager; }
+    public StorageManager getStorageManager() {
+        return storageManager;
+    }
 
     /** @return the auction manager */
-    public AuctionManager getAuctionManager() { return auctionManager; }
+    public AuctionManager getAuctionManager() {
+        return auctionManager;
+    }
 
     /** @return the GUI state manager */
-    public GUIManager getGUIManager() { return guiManager; }
+    public GUIManager getGUIManager() {
+        return guiManager;
+    }
 
     /** @return the main auction GUI builder */
-    public AuctionGUI getAuctionGUI() { return auctionGUI; }
+    public AuctionGUI getAuctionGUI() {
+        return auctionGUI;
+    }
 
     /** @return the bid confirmation GUI builder */
-    public ConfirmBidGUI getConfirmBidGUI() { return confirmBidGUI; }
+    public ConfirmBidGUI getConfirmBidGUI() {
+        return confirmBidGUI;
+    }
 
     /** @return the item detail GUI builder */
-    public ItemDetailGUI getItemDetailGUI() { return itemDetailGUI; }
+    public ItemDetailGUI getItemDetailGUI() {
+        return itemDetailGUI;
+    }
 
     /** @return the manage listing GUI builder */
-    public dev.auctify.gui.ManageListingGUI getManageListingGUI() { return manageListingGUI; }
+    public dev.auctify.gui.ManageListingGUI getManageListingGUI() {
+        return manageListingGUI;
+    }
 
     /** @return the chat bid listener (for starting bid input mode) */
-    public ChatBidListener getChatBidListener() { return chatBidListener; }
+    public ChatBidListener getChatBidListener() {
+        return chatBidListener;
+    }
 
-    public dev.auctify.util.DiscordWebhookUtil getDiscordWebhookUtil() { return discordWebhookUtil; }
+    public dev.auctify.util.DiscordWebhookUtil getDiscordWebhookUtil() {
+        return discordWebhookUtil;
+    }
 
     /** @return the claim/mailbox GUI builder */
-    public ClaimGUI getClaimGUI() { return claimGUI; }
+    public ClaimGUI getClaimGUI() {
+        return claimGUI;
+    }
 
     /** @return the shulker preview GUI builder */
-    public ShulkerPreviewGUI getShulkerPreviewGUI() { return shulkerPreviewGUI; }
+    public ShulkerPreviewGUI getShulkerPreviewGUI() {
+        return shulkerPreviewGUI;
+    }
 
     /** @return the rating GUI builder */
-    public RateGUI getRateGUI() { return rateGUI; }
+    public RateGUI getRateGUI() {
+        return rateGUI;
+    }
 
     /** @return the admin GUI builder */
-    public AdminGUI getAdminGUI() { return adminGUI; }
+    public AdminGUI getAdminGUI() {
+        return adminGUI;
+    }
 }

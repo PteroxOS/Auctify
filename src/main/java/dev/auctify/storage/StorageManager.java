@@ -211,4 +211,18 @@ public interface StorageManager {
      * Gets all blacklisted player UUIDs.
      */
     java.util.List<String[]> getBlacklist();
+
+    // ─── Backup System ──────────────────────────────
+
+    /**
+     * Performs a backup of the storage data (implementation-dependent).
+     * For SQLite: copies the database file to backup folder.
+     * For MySQL: may perform a logical dump or rely on external backup.
+     * For Memory: no-op.
+     *
+     * @return true if backup was successful, false otherwise
+     */
+    default boolean backup() {
+        return true; // Default no-op for in-memory or unsupported backends
+    }
 }

@@ -157,6 +157,20 @@ storage:
   sqlite:
     file: "auctify.db"
 
+    # Automatic backup settings (prevents data loss)
+    backup:
+      # Enable automatic backups?
+      enabled: true
+
+      # Backup interval in minutes (0 = disabled, only manual backup)
+      # Default: 60 minutes (1 hour)
+      interval: 60
+
+      # Maximum number of backup files to keep
+      # Old backups are automatically deleted
+      # Default: 10 (keeps 10 most recent backups)
+      keep-count: 10
+
   # MySQL settings (only used if type is "mysql")
   mysql:
     host: "localhost"

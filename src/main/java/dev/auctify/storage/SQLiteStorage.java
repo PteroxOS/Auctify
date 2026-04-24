@@ -515,6 +515,75 @@ public class SQLiteStorage implements StorageManager {
         return res;
     }
 
+    /**
+     * Performs a backup of the SQLite database.
+     * Copies the database file to a backup folder with timestamp.
+     *
+     * @return true if backup was successful
+     */
+    @Override
+    public boolean backup() {
+        String fileName = plugin.getConfig().getString("storage.sqlite.file", "auctify.db");
+        File dbFile = new File(plugin.getDataFolder(), fileName);
+        if (!dbFile.exists()) {
+            logger.warning("Cannot backup: database file does not exist");
+            return false;
+        }
+
+        // Create backup directory
+        File backupDir = new File(plugin.getDataFolder(), "backups");
+        if (!backupDir.exists()) {
+            backupDir.mkdirs();
+        }
+
+        // Generate timestamped filename
+        String timestamp = new java.text.SimpleDateFormat("yyyy-MM-dd_HH-mm-ss").format(new java.util.Date());
+        String backupName = "auctify_backup_" + timestamp + ".db";
+        File backupFile = new File(backupDir, backupName);
+
+        // Copy database file
+        try (java.nio.channels.FileChannel source = java.nio.channels.FileChannel.open(dbFile.toPath(),
+                java.nio.file.StandardOpenOption.READ);
+                java.nio.channels.FileChannel dest = java.nio.channels.FileChannel.open(backupFile.toPath(),
+                        java.nio.file.StandardOpenOption.CREATE, java.nio.file.StandardOpenOption.WRITE)) {
+            dest.transferFrom(source, 0, source.size());
+            logger.info("Database backup created: " + backupFile.getName());
+
+            // Clean up old backups if configured
+            cleanupOldBackups(backupDir);
+
+            return true;
+        } catch (IOException e) {
+            logger.log(Level.SEVERE, "Database backup failed", e);
+            return false;
+        }
+    }
+
+    /**
+     * Removes old backup files based on retention policy.
+     * Keeps only the most recent N backups.
+     */
+    private void cleanupOldBackups(File backupDir) {
+        int maxBackups = plugin.getConfig().getInt("storage.sqlite.backup.keep-count", 10);
+        if (maxBackups <= 0)
+            return;
+
+        File[] backups = backupDir.listFiles((dir, name) -> name.startsWith("auctify_backup_") && name.endsWith(".db"));
+        if (backups == null || backups.length <= maxBackups)
+            return;
+
+        // Sort by last modified (oldest first)
+        java.util.Arrays.sort(backups, java.util.Comparator.comparingLong(File::lastModified));
+
+        // Delete oldest backups
+        int toDelete = backups.length - maxBackups;
+        for (int i = 0; i < toDelete; i++) {
+            if (backups[i].delete()) {
+                logger.fine("Deleted old backup: " + backups[i].getName());
+            }
+        }
+    }
+
     /** {@inheritDoc} */
     @Override
     public void shutdown() {

@@ -12,10 +12,10 @@ import java.util.UUID;
 /**
  * /ac admin — Opens the admin moderation panel.
  * Subcommands:
- *   /ac admin                — Open admin GUI
- *   /ac admin blacklist add <player> [reason]
- *   /ac admin blacklist remove <player>
- *   /ac admin blacklist list
+ * /ac admin — Open admin GUI
+ * /ac admin blacklist add <player> [reason]
+ * /ac admin blacklist remove <player>
+ * /ac admin blacklist list
  */
 public class AdminSubCommand implements SubCommand {
 
@@ -42,6 +42,11 @@ public class AdminSubCommand implements SubCommand {
             return;
         }
 
+        if (args[1].equalsIgnoreCase("backup")) {
+            handleBackup(sender);
+            return;
+        }
+
         if (args[1].equalsIgnoreCase("cancel") && args.length >= 3) {
             String listingId = args[2];
             // Admin force cancel
@@ -59,6 +64,7 @@ public class AdminSubCommand implements SubCommand {
         MessageUtil.sendRaw(sender, "§e/ac admin blacklist remove <player> §8— §7Unblacklist player");
         MessageUtil.sendRaw(sender, "§e/ac admin blacklist list §8— §7Show blacklisted players");
         MessageUtil.sendRaw(sender, "§e/ac admin cancel <id> §8— §7Force cancel a listing");
+        MessageUtil.sendRaw(sender, "§e/ac admin backup §8— §7Manually backup database (SQLite)");
     }
 
     private void handleBlacklist(CommandSender sender, String[] args) {
@@ -79,7 +85,8 @@ public class AdminSubCommand implements SubCommand {
                     MessageUtil.sendRaw(sender, "§cPlayer not found or offline.");
                     return;
                 }
-                String reason = args.length >= 5 ? String.join(" ", java.util.Arrays.copyOfRange(args, 4, args.length)) : "No reason";
+                String reason = args.length >= 5 ? String.join(" ", java.util.Arrays.copyOfRange(args, 4, args.length))
+                        : "No reason";
                 plugin.getStorageManager().addBlacklist(target.getUniqueId(), reason, sender.getName());
                 MessageUtil.send(sender, "admin-blacklist-added", Map.of("player", target.getName(), "reason", reason));
             }
@@ -112,6 +119,21 @@ public class AdminSubCommand implements SubCommand {
             }
             default -> MessageUtil.sendRaw(sender, "§cUsage: /ac admin blacklist <add|remove|list>");
         }
+    }
+
+    private void handleBackup(CommandSender sender) {
+        MessageUtil.sendRaw(sender, "§eStarting database backup...");
+        // Run backup asynchronously to avoid blocking main thread
+        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+            boolean success = plugin.getStorageManager().backup();
+            Bukkit.getScheduler().runTask(plugin, () -> {
+                if (success) {
+                    MessageUtil.sendRaw(sender, "§aDatabase backup completed successfully! Check backups/ folder.");
+                } else {
+                    MessageUtil.sendRaw(sender, "§cDatabase backup failed! Check console for errors.");
+                }
+            });
+        });
     }
 
     @Override
