@@ -73,6 +73,9 @@ public class Auctify extends JavaPlugin {
     /** Admin moderation GUI builder. */
     private AdminGUI adminGUI;
 
+    /** NPC Auctioneer handler. */
+    private dev.auctify.npc.AuctionNPC auctionNPC;
+
     /** The expiry task for cancellation on disable. */
     private AuctionExpiryTask expiryTask;
 
@@ -146,6 +149,10 @@ public class Auctify extends JavaPlugin {
 
         discordWebhookUtil = new dev.auctify.util.DiscordWebhookUtil(this);
 
+        auctionNPC = new dev.auctify.npc.AuctionNPC(this);
+
+        setupWizard = new SetupWizard(this);
+
         // Register commands
         registerCommands();
 
@@ -196,10 +203,6 @@ public class Auctify extends JavaPlugin {
 
         // Print startup summary
         printStartupSummary(elapsed);
-
-        // Initialize setup wizard and check for first run
-        setupWizard = new SetupWizard(this);
-        setupWizard.checkFirstRun();
 
         // Warn if economy is unavailable
         if (!economyManager.isAvailable()) {
@@ -346,6 +349,7 @@ public class Auctify extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new GUIClickListener(this), this);
         getServer().getPluginManager().registerEvents(chatBidListener, this);
         getServer().getPluginManager().registerEvents(new PlayerQuitListener(this), this);
+        getServer().getPluginManager().registerEvents(auctionNPC, this);
         getServer().getPluginManager().registerEvents(new InventoryCloseListener(this), this);
     }
 
@@ -421,5 +425,10 @@ public class Auctify extends JavaPlugin {
     /** @return the admin GUI builder */
     public AdminGUI getAdminGUI() {
         return adminGUI;
+    }
+
+    /** @return the NPC auctioneer handler */
+    public dev.auctify.npc.AuctionNPC getAuctionNPC() {
+        return auctionNPC;
     }
 }

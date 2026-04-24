@@ -281,4 +281,31 @@ public interface StorageManager {
      * Gets buy orders for a specific player.
      */
     java.util.List<dev.auctify.auction.BuyOrder> getBuyOrdersByPlayer(UUID playerUUID);
+
+    // ─── Watchlist System ───────────────────────────
+
+    /**
+     * Adds a listing to player's watchlist.
+     */
+    void addToWatchlist(UUID playerUUID, String listingId);
+
+    /**
+     * Removes a listing from player's watchlist.
+     */
+    void removeFromWatchlist(UUID playerUUID, String listingId);
+
+    /**
+     * Checks if a listing is in player's watchlist.
+     */
+    boolean isInWatchlist(UUID playerUUID, String listingId);
+
+    /**
+     * Gets all watchlist entries for a player.
+     */
+    java.util.List<String> getWatchlist(UUID playerUUID);
+
+    /**
+     * Clears all watchlist entries for a player.
+     */
+    void clearWatchlist(UUID playerUUID);
 }

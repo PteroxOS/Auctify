@@ -46,6 +46,8 @@ public class AuctifyCommand implements CommandExecutor {
         subCommands.put("bidhistory", new BidHistorySubCommand(plugin));
         subCommands.put("extend", new ExtendSubCommand(plugin));
         subCommands.put("bulkcancel", new BulkCancelSubCommand(plugin));
+        // v1.0.2 features
+        subCommands.put("watchlist", new WatchlistSubCommand(plugin));
         // Setup wizard is handled directly in onCommand
     }
 

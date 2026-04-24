@@ -132,6 +132,23 @@ public class AuctionManager {
             return null;
         }
 
+        // Listing fee deduction
+        double listingFeePercent = config.getDouble("listing.fee-percent", 0);
+        double listingFeeMin = config.getDouble("listing.fee-min", 0);
+        double listingFeeMax = config.getDouble("listing.fee-max", 0);
+        if (listingFeePercent > 0 && !seller.hasPermission("auctify.bypass.fee")) {
+            double fee = Math.max(listingFeeMin, startPrice * listingFeePercent / 100);
+            if (listingFeeMax > 0)
+                fee = Math.min(fee, listingFeeMax);
+
+            var feeResult = economy.withdraw(seller.getUniqueId(), fee);
+            if (!feeResult.success()) {
+                MessageUtil.send(seller, "listing-fee-insufficient", Map.of("fee", economy.format(fee)));
+                return null;
+            }
+            MessageUtil.send(seller, "listing-fee-deducted", Map.of("fee", economy.format(fee)));
+        }
+
         // Validate price range and guard against NaN/Infinity exploits
         double minPrice = config.getDouble("bidding.min-start-price", 1.0);
         double maxPrice = config.getDouble("bidding.max-start-price", 1000000.0);
@@ -849,5 +866,49 @@ public class AuctionManager {
             }
         }
         return count;
+    }
+
+    /**
+     * Auto-relists an expired auction with a discount.
+     * Used when auto-relist is enabled and auction expired without bids.
+     *
+     * @param listing the expired listing to relist
+     */
+    public void autoRelistAuction(AuctionListing listing) {
+        var config = plugin.getConfig();
+        double discountPercent = config.getDouble("auto-relist.discount-percent", 10);
+
+        // Calculate discounted price
+        double newStartPrice = Math.max(1, listing.getStartPrice() * (1 - discountPercent / 100));
+        double newBuyoutPrice = listing.getBuyoutPrice() > 0
+                ? Math.max(1, listing.getBuyoutPrice() * (1 - discountPercent / 100))
+                : 0;
+
+        // Get current relist count and increment
+        String relistKey = "auto-relist.count." + listing.getId();
+        int relistCount = config.getInt(relistKey, 0);
+        config.set(relistKey, relistCount + 1);
+        plugin.saveConfig();
+
+        // Create new listing with same item but new prices
+        Player seller = Bukkit.getPlayer(listing.getSellerUUID());
+        if (seller != null && seller.isOnline()) {
+            String newId = createListing(seller, listing.getItem().clone(), newStartPrice, newBuyoutPrice,
+                    config.getInt("general.default-duration", 300));
+            if (newId != null) {
+                MessageUtil.send(seller, "auto-relist-success", Map.of(
+                        "old_id", listing.getId(),
+                        "new_id", newId,
+                        "discount", String.valueOf(discountPercent)));
+            }
+        }
+
+        // Resolve the old listing as expired
+        listing.setActive(false);
+        activeListings.remove(listing.getId());
+        storage.saveListing(listing);
+
+        // Return item to seller via storage
+        storage.savePendingDelivery(listing.getSellerUUID(), listing.getItem().clone());
     }
 }

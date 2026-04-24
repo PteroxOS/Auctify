@@ -58,6 +58,12 @@ public class AdminSubCommand implements SubCommand {
             return;
         }
 
+        if (args[1].equalsIgnoreCase("npc")) {
+            handleNPC(sender, args);
+            return;
+        }
+
+        // Unknown admin subcommand — show help
         MessageUtil.send(sender, "admin-commands-title", null);
         MessageUtil.send(sender, "admin-cmd-admin", null);
         MessageUtil.send(sender, "admin-cmd-blacklist-add", null);
@@ -134,6 +140,49 @@ public class AdminSubCommand implements SubCommand {
                 }
             });
         });
+    }
+
+    private void handleNPC(CommandSender sender, String[] args) {
+        if (!(sender instanceof Player player)) {
+            MessageUtil.send(sender, "player-only", null);
+            return;
+        }
+        if (!player.hasPermission("auctify.admin.npc")) {
+            MessageUtil.send(player, "no-permission", null);
+            return;
+        }
+        if (args.length < 3) {
+            MessageUtil.send(player, "admin-npc-usage", null);
+            return;
+        }
+
+        String action = args[2].toLowerCase();
+        if (action.equals("spawn")) {
+            String name = args.length >= 4 ? String.join(" ", java.util.Arrays.copyOfRange(args, 3, args.length))
+                    : null;
+            var npc = plugin.getAuctionNPC().spawn(player.getLocation(), name);
+            MessageUtil.send(player, "admin-npc-spawned", java.util.Map.of("id", String.valueOf(npc.getEntityId())));
+        } else if (action.equals("remove")) {
+            org.bukkit.entity.Entity nearest = null;
+            double nearestDist = 5.0;
+            for (org.bukkit.entity.Entity entity : player.getWorld().getNearbyEntities(player.getLocation(), 5, 5, 5)) {
+                if (dev.auctify.npc.AuctionNPC.isAuctionNPC(entity)) {
+                    double dist = entity.getLocation().distance(player.getLocation());
+                    if (dist < nearestDist) {
+                        nearestDist = dist;
+                        nearest = entity;
+                    }
+                }
+            }
+            if (nearest != null) {
+                nearest.remove();
+                MessageUtil.send(player, "admin-npc-removed", null);
+            } else {
+                MessageUtil.send(player, "admin-npc-not-found", null);
+            }
+        } else {
+            MessageUtil.send(player, "admin-npc-usage", null);
+        }
     }
 
     @Override

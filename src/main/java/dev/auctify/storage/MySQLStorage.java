@@ -629,6 +629,35 @@ public class MySQLStorage implements StorageManager {
         return java.util.Collections.emptyList();
     }
 
+    // ─── Watchlist Implementation ───────────────────
+
+    @Override
+    public void addToWatchlist(UUID playerUUID, String listingId) {
+        // TODO: Implement watchlist storage
+    }
+
+    @Override
+    public void removeFromWatchlist(UUID playerUUID, String listingId) {
+        // TODO: Implement watchlist removal
+    }
+
+    @Override
+    public boolean isInWatchlist(UUID playerUUID, String listingId) {
+        // TODO: Implement watchlist check
+        return false;
+    }
+
+    @Override
+    public java.util.List<String> getWatchlist(UUID playerUUID) {
+        // TODO: Implement watchlist retrieval
+        return java.util.Collections.emptyList();
+    }
+
+    @Override
+    public void clearWatchlist(UUID playerUUID) {
+        // TODO: Implement watchlist clear
+    }
+
     /** {@inheritDoc} */
     @Override
     public void shutdown() {

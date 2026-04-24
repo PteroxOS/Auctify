@@ -275,6 +275,42 @@ public class MemoryStorage implements StorageManager {
                 .collect(Collectors.toList());
     }
 
+    /** Watchlist storage: playerUUID -> Set of listingIds */
+    private final Map<UUID, Set<String>> watchlists = new ConcurrentHashMap<>();
+
+    @Override
+    public void addToWatchlist(UUID playerUUID, String listingId) {
+        watchlists.computeIfAbsent(playerUUID, k -> ConcurrentHashMap.newKeySet()).add(listingId);
+    }
+
+    @Override
+    public void removeFromWatchlist(UUID playerUUID, String listingId) {
+        Set<String> watchlist = watchlists.get(playerUUID);
+        if (watchlist != null) {
+            watchlist.remove(listingId);
+            if (watchlist.isEmpty()) {
+                watchlists.remove(playerUUID);
+            }
+        }
+    }
+
+    @Override
+    public boolean isInWatchlist(UUID playerUUID, String listingId) {
+        Set<String> watchlist = watchlists.get(playerUUID);
+        return watchlist != null && watchlist.contains(listingId);
+    }
+
+    @Override
+    public List<String> getWatchlist(UUID playerUUID) {
+        Set<String> watchlist = watchlists.get(playerUUID);
+        return watchlist != null ? new ArrayList<>(watchlist) : new ArrayList<>();
+    }
+
+    @Override
+    public void clearWatchlist(UUID playerUUID) {
+        watchlists.remove(playerUUID);
+    }
+
     @Override
     public void shutdown() {
         // No cleanup needed — data is transient
@@ -284,5 +320,6 @@ public class MemoryStorage implements StorageManager {
         pendingRefunds.clear();
         bidHistory.clear();
         buyOrders.clear();
+        watchlists.clear();
     }
 }
