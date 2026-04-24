@@ -78,6 +78,12 @@ public class SQLiteStorage implements StorageManager {
 
     private void migrateSchema() {
         try (Connection conn = dataSource.getConnection(); Statement st = conn.createStatement()) {
+            // Add bin_only column if missing (schema migration)
+            try {
+                st.execute("ALTER TABLE auctify_listings ADD COLUMN bin_only INTEGER NOT NULL DEFAULT 0");
+            } catch (SQLException ignored) {
+                // Column already exists
+            }
             // Add tax_exempt column if missing (schema migration)
             try {
                 st.execute("ALTER TABLE auctify_listings ADD COLUMN tax_exempt INTEGER NOT NULL DEFAULT 0");
