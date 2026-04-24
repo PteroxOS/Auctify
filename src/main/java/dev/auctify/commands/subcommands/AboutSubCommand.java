@@ -30,28 +30,28 @@ public class AboutSubCommand implements SubCommand {
 
         // Simplified about card with aligned borders
         MessageUtil.sendRaw(sender, "");
-        MessageUtil.sendRaw(sender, "§8╔══════════════════════════════════════════════════╗");
-        MessageUtil.sendRaw(sender, "§8║                                                  ║");
-        MessageUtil.sendRaw(sender, "§8║         §6✦ §e§lA U C T I F Y §6✦ §fv" + version + "        §8║");
-        MessageUtil.sendRaw(sender, "§8║                                                  ║");
-        MessageUtil.sendRaw(sender, "§8╠══════════════════════════════════════════════════╣");
-        MessageUtil.sendRaw(sender, "§8║ §6§lServer Status                               §8║");
-        MessageUtil.sendRaw(sender, "§8║                                                  ║");
+        MessageUtil.sendRaw(sender, "§8|==================================================");
+        MessageUtil.sendRaw(sender, "§8|                                                 ");
+        MessageUtil.sendRaw(sender, "§8|       §6✦ §e§lA U C T I F Y §6✦ §fv" + version);
+        MessageUtil.sendRaw(sender, "§8|                                                 ");
+        MessageUtil.sendRaw(sender, "§8|==================================================");
+        MessageUtil.sendRaw(sender, "§8| §6§lServer Status");
+        MessageUtil.sendRaw(sender, "§8|                                                 ");
         MessageUtil.sendRaw(sender,
-                "§8║  §7Economy:§8      " + formatStatus(economyStatus, "Connected", "Offline") + "            §8║");
-        MessageUtil.sendRaw(sender, "§8║  §7Storage:§8       §f" + padRight(storageType, 28) + "§8║");
+                "§8|  §7Economy:§8      " + formatStatus(economyStatus, "Connected", "Offline"));
+        MessageUtil.sendRaw(sender, "§8|  §7Storage:§8       §f" + storageType);
         MessageUtil.sendRaw(sender,
-                "§8║  §7Discord:§8      " + formatStatus(discordEnabled, "Connected", "Disabled") + "            §8║");
-        MessageUtil.sendRaw(sender, "§8║  §7Listings:§8      §a" + padRight(activeListings + " active", 28) + "§8║");
+                "§8|  §7Discord:§8      " + formatStatus(discordEnabled, "Connected", "Disabled"));
+        MessageUtil.sendRaw(sender, "§8|  §7Listings:§8      §a" + activeListings + " active");
         MessageUtil.sendRaw(sender,
-                "§8║  §7Players:§8       §f" + padRight(Bukkit.getOnlinePlayers().size() + " online", 28) + "§8║");
-        MessageUtil.sendRaw(sender, "§8║                                                  ║");
-        MessageUtil.sendRaw(sender, "§8╠══════════════════════════════════════════════════╣");
-        MessageUtil.sendRaw(sender, "§8║ §6§lLinks                                        §8║");
-        MessageUtil.sendRaw(sender, "§8║                                                  ║");
-        MessageUtil.sendRaw(sender, "§8║  §7GitHub: §fgithub.com/PteroxOS/Auctify          §8║");
-        MessageUtil.sendRaw(sender, "§8║                                                  ║");
-        MessageUtil.sendRaw(sender, "§8╚══════════════════════════════════════════════════╝");
+                "§8|  §7Players:§8       §f" + Bukkit.getOnlinePlayers().size() + " online");
+        MessageUtil.sendRaw(sender, "§8|                                                 ");
+        MessageUtil.sendRaw(sender, "§8|==================================================");
+        MessageUtil.sendRaw(sender, "§8| §6§lLinks");
+        MessageUtil.sendRaw(sender, "§8|                                                 ");
+        MessageUtil.sendRaw(sender, "§8|  §7GitHub: §fgithub.com/PteroxOS/Auctify");
+        MessageUtil.sendRaw(sender, "§8|                                                 ");
+        MessageUtil.sendRaw(sender, "§8|==================================================");
         MessageUtil.sendRaw(sender, "");
     }
 

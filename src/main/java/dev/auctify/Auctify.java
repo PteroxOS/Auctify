@@ -278,15 +278,15 @@ public class Auctify extends JavaPlugin {
         String discordStatus = !discordWebhook.isEmpty() ? "§a✔ Connected" : "§c✗ Disabled";
 
         log.info("");
-        log.info("§8╔══════════════════════════════════════════════════╗");
-        log.info("§8║ §a§l✓ §fAuctify enabled successfully!                §8║");
-        log.info("§8╠══════════════════════════════════════════════════╣");
-        log.info("§8║ §7Time:§8    §f" + padLog(elapsedMs + "ms", 36) + "§8║");
-        log.info("§8║ §7Storage:§8  §f" + padLog(storageType, 36) + "§8║");
-        log.info("§8║ §7Economy:§8  " + padLog(economyStatus, 38) + "§8║");
-        log.info("§8║ §7Discord:§8  " + padLog(discordStatus, 38) + "§8║");
-        log.info("§8║ §7Loaded:§8   §f" + padLog(listings + " listing(s)", 36) + "§8║");
-        log.info("§8╚══════════════════════════════════════════════════╝");
+        log.info("§8|==================================================");
+        log.info("§8| §a§l✓ §fAuctify enabled successfully!");
+        log.info("§8|==================================================");
+        log.info("§8| §7Time:§8    §f" + elapsedMs + "ms");
+        log.info("§8| §7Storage:§8  §f" + storageType);
+        log.info("§8| §7Economy:§8  " + economyStatus);
+        log.info("§8| §7Discord:§8  " + discordStatus);
+        log.info("§8| §7Loaded:§8   §f" + listings + " listing(s)");
+        log.info("§8|==================================================");
         log.info("");
     }
 

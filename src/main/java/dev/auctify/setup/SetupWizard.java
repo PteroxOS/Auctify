@@ -192,14 +192,14 @@ public class SetupWizard {
 
     private void showWelcomeMessage(Player player) {
         MessageUtil.sendPlain(player, "");
-        MessageUtil.sendPlain(player, "§8|================================================|");
+        MessageUtil.sendPlain(player, "§8|================================================");
         MessageUtil.sendPlain(player, "§8|                                                |");
-        MessageUtil.sendPlain(player, "§8|       §6✦ §e§lWELCOME TO AUCTIFY §6✦            §8|");
+        MessageUtil.sendPlain(player, "§8|       §6✦ §e§lWELCOME TO AUCTIFY §6✦");
         MessageUtil.sendPlain(player, "§8|                                                |");
-        MessageUtil.sendPlain(player, "§8| §7This is your first time installing Auctify!  §8|");
-        MessageUtil.sendPlain(player, "§8| §7Would you like to run the setup wizard?      §8|");
+        MessageUtil.sendPlain(player, "§8| §7This is your first time installing Auctify!");
+        MessageUtil.sendPlain(player, "§8| §7Would you like to run the setup wizard?");
         MessageUtil.sendPlain(player, "§8|                                                |");
-        MessageUtil.sendPlain(player, "§8|================================================|");
+        MessageUtil.sendPlain(player, "§8|================================================");
         MessageUtil.sendPlain(player, "");
 
         // Clickable buttons
@@ -229,12 +229,12 @@ public class SetupWizard {
             return;
 
         MessageUtil.sendPlain(player, "");
-        MessageUtil.sendPlain(player, "§8|================================================|");
+        MessageUtil.sendPlain(player, "§8|================================================");
         MessageUtil.sendPlain(player, "§8|          §6§lSETUP WIZARD §7(Step 1/7)            §8|");
         MessageUtil.sendPlain(player, "§8|                                                §8|");
         MessageUtil.sendPlain(player, "§8|  §eSelect your language / Pilih bahasa:        §8|");
         MessageUtil.sendPlain(player, "§8|                                                §8|");
-        MessageUtil.sendPlain(player, "§8|================================================|");
+        MessageUtil.sendPlain(player, "§8|================================================");
         MessageUtil.sendPlain(player, "");
 
         sendClickableOption(player, "  [ §aEnglish §r]", "en",
@@ -254,13 +254,13 @@ public class SetupWizard {
         String prompt = state.locale.equals("id") ? "Pilih tipe penyimpanan:" : "Choose storage type:";
 
         MessageUtil.sendPlain(player, "");
-        MessageUtil.sendPlain(player, "§8|================================================|");
-        MessageUtil.sendPlain(player, "§8|           §6§l" + title + "         §8|");
-        MessageUtil.sendPlain(player, "§8|================================================|");
-        MessageUtil.sendPlain(player, "§8|                                                |");
-        MessageUtil.sendPlain(player, "§8|  §e" + padRight(prompt, 38) + "§8|");
-        MessageUtil.sendPlain(player, "§8|                                                |");
-        MessageUtil.sendPlain(player, "§8|================================================|");
+        MessageUtil.sendPlain(player, "§8|================================================");
+        MessageUtil.sendPlain(player, "§8|           §6§l" + title);
+        MessageUtil.sendPlain(player, "§8|================================================");
+        MessageUtil.sendPlain(player, "§8|                                                ");
+        MessageUtil.sendPlain(player, "§8|  §e" + padRight(prompt, 38));
+        MessageUtil.sendPlain(player, "§8|                                                ");
+        MessageUtil.sendPlain(player, "§8|================================================");
         MessageUtil.sendPlain(player, "");
 
         sendClickableOption(player, "  [ §aSQLite §r]§7 - File-based, easy setup", "sqlite",
@@ -283,13 +283,13 @@ public class SetupWizard {
         String prompt = isId ? "Pengaturan pajak penjual:" : "Seller tax settings:";
 
         MessageUtil.sendPlain(player, "");
-        MessageUtil.sendPlain(player, "§8|================================================|");
-        MessageUtil.sendPlain(player, "§8|           §6§l" + title + "         §8|");
-        MessageUtil.sendPlain(player, "§8|================================================|");
-        MessageUtil.sendPlain(player, "§8|                                                |");
-        MessageUtil.sendPlain(player, "§8|  §e" + padRight(prompt, 38) + "§8|");
-        MessageUtil.sendPlain(player, "§8|                                                |");
-        MessageUtil.sendPlain(player, "§8|================================================|");
+        MessageUtil.sendPlain(player, "§8|================================================");
+        MessageUtil.sendPlain(player, "§8|           §6§l" + title);
+        MessageUtil.sendPlain(player, "§8|================================================");
+        MessageUtil.sendPlain(player, "§8|                                                ");
+        MessageUtil.sendPlain(player, "§8|  §e" + padRight(prompt, 38));
+        MessageUtil.sendPlain(player, "§8|                                                ");
+        MessageUtil.sendPlain(player, "§8|================================================");
         MessageUtil.sendPlain(player, "");
 
         sendClickableOption(player, "  [ §a0% §r]§7 - No tax", "0",
@@ -316,13 +316,13 @@ public class SetupWizard {
         String prompt = isId ? "Pengaturan umum lelang:" : "General auction settings:";
 
         MessageUtil.sendPlain(player, "");
-        MessageUtil.sendPlain(player, "§8|================================================|");
-        MessageUtil.sendPlain(player, "§8|           §6§l" + title + "         §8|");
-        MessageUtil.sendPlain(player, "§8|================================================|");
-        MessageUtil.sendPlain(player, "§8|                                                |");
-        MessageUtil.sendPlain(player, "§8|  §e" + padRight(prompt, 38) + "§8|");
-        MessageUtil.sendPlain(player, "§8|                                                |");
-        MessageUtil.sendPlain(player, "§8|================================================|");
+        MessageUtil.sendPlain(player, "§8|================================================");
+        MessageUtil.sendPlain(player, "§8|           §6§l" + title);
+        MessageUtil.sendPlain(player, "§8|================================================");
+        MessageUtil.sendPlain(player, "§8|                                                ");
+        MessageUtil.sendPlain(player, "§8|  §e" + padRight(prompt, 38));
+        MessageUtil.sendPlain(player, "§8|                                                ");
+        MessageUtil.sendPlain(player, "§8|================================================");
         MessageUtil.sendPlain(player, "");
 
         sendClickableOption(player, "  [ §a5 min §r]§7 - Quick auctions", "300",
@@ -346,14 +346,14 @@ public class SetupWizard {
         String desc = isId ? "Waktu untuk memasukkan harga bid via chat" : "Time to enter bid price via chat";
 
         MessageUtil.sendPlain(player, "");
-        MessageUtil.sendPlain(player, "§8|================================================|");
-        MessageUtil.sendPlain(player, "§8|           §6§l" + title + "         §8|");
-        MessageUtil.sendPlain(player, "§8|================================================|");
-        MessageUtil.sendPlain(player, "§8|                                                |");
-        MessageUtil.sendPlain(player, "§8|  §e" + padRight(prompt, 38) + "§8|");
-        MessageUtil.sendPlain(player, "§8|  §7" + padRight(desc, 38) + "§8|");
-        MessageUtil.sendPlain(player, "§8|                                                |");
-        MessageUtil.sendPlain(player, "§8|================================================|");
+        MessageUtil.sendPlain(player, "§8|================================================");
+        MessageUtil.sendPlain(player, "§8|           §6§l" + title);
+        MessageUtil.sendPlain(player, "§8|================================================");
+        MessageUtil.sendPlain(player, "§8|                                                ");
+        MessageUtil.sendPlain(player, "§8|  §e" + padRight(prompt, 38));
+        MessageUtil.sendPlain(player, "§8|  §7" + padRight(desc, 38));
+        MessageUtil.sendPlain(player, "§8|                                                ");
+        MessageUtil.sendPlain(player, "§8|================================================");
         MessageUtil.sendPlain(player, "");
 
         sendClickableOption(player, "  [ §a15 sec §r]§7 - Fast", "15",
@@ -376,13 +376,13 @@ public class SetupWizard {
         String prompt = isId ? "Notifikasi Discord (opsional):" : "Discord notifications (optional):";
 
         MessageUtil.sendPlain(player, "");
-        MessageUtil.sendPlain(player, "§8|================================================|");
-        MessageUtil.sendPlain(player, "§8|           §6§l" + title + "         §8|");
-        MessageUtil.sendPlain(player, "§8|================================================|");
-        MessageUtil.sendPlain(player, "§8|                                                |");
-        MessageUtil.sendPlain(player, "§8|  §e" + padRight(prompt, 38) + "§8|");
-        MessageUtil.sendPlain(player, "§8|                                                |");
-        MessageUtil.sendPlain(player, "§8|================================================|");
+        MessageUtil.sendPlain(player, "§8|================================================");
+        MessageUtil.sendPlain(player, "§8|           §6§l" + title);
+        MessageUtil.sendPlain(player, "§8|================================================");
+        MessageUtil.sendPlain(player, "§8|                                                ");
+        MessageUtil.sendPlain(player, "§8|  §e" + padRight(prompt, 38));
+        MessageUtil.sendPlain(player, "§8|                                                ");
+        MessageUtil.sendPlain(player, "§8|================================================");
         MessageUtil.sendPlain(player, "");
 
         sendClickableOption(player, "  [ §cSkip §r]§7 - No Discord", "skip",
@@ -405,13 +405,13 @@ public class SetupWizard {
         String prompt = isId ? "Pengaturan backup otomatis:" : "Automatic backup settings:";
 
         MessageUtil.sendPlain(player, "");
-        MessageUtil.sendPlain(player, "§8|================================================|");
-        MessageUtil.sendPlain(player, "§8|           §6§l" + title + "         §8|");
-        MessageUtil.sendPlain(player, "§8|================================================|");
-        MessageUtil.sendPlain(player, "§8|                                                |");
-        MessageUtil.sendPlain(player, "§8|  §e" + padRight(prompt, 38) + "§8|");
-        MessageUtil.sendPlain(player, "§8|                                                |");
-        MessageUtil.sendPlain(player, "§8|================================================|");
+        MessageUtil.sendPlain(player, "§8|================================================");
+        MessageUtil.sendPlain(player, "§8|           §6§l" + title);
+        MessageUtil.sendPlain(player, "§8|================================================");
+        MessageUtil.sendPlain(player, "§8|                                                ");
+        MessageUtil.sendPlain(player, "§8|  §e" + padRight(prompt, 38));
+        MessageUtil.sendPlain(player, "§8|                                                ");
+        MessageUtil.sendPlain(player, "§8|================================================");
         MessageUtil.sendPlain(player, "");
 
         sendClickableOption(player, "  [ §cDisable §r]§7 - No backup", "disable",
@@ -455,16 +455,16 @@ public class SetupWizard {
 
         boolean isId = state.locale.equals("id");
         MessageUtil.sendPlain(player, "");
-        MessageUtil.sendPlain(player, "§8|================================================|");
-        MessageUtil.sendPlain(player, "§8|                                                |");
-        MessageUtil.sendPlain(player, "§8|      §a§l✓ SETUP COMPLETED SUCCESSFULLY!        §8|");
-        MessageUtil.sendPlain(player, "§8|                                                §8|");
+        MessageUtil.sendPlain(player, "§8|================================================");
+        MessageUtil.sendPlain(player, "§8|                                                ");
+        MessageUtil.sendPlain(player, "§8|      §a§l✓ SETUP COMPLETED SUCCESSFULLY!");
+        MessageUtil.sendPlain(player, "§8|                                                ");
         MessageUtil.sendPlain(player,
-                "§8|  §7" + padRight(isId ? "Semua pengaturan telah disimpan!" : "All settings saved!", 38) + "§8|");
+                "§8|  §7" + padRight(isId ? "Semua pengaturan telah disimpan!" : "All settings saved!", 38));
         MessageUtil.sendPlain(player,
-                "§8|  §7" + padRight(isId ? "Plugin akan di-reload..." : "Reloading plugin...", 38) + "§8|");
-        MessageUtil.sendPlain(player, "§8|                                                §8|");
-        MessageUtil.sendPlain(player, "§8|================================================|");
+                "§8|  §7" + padRight(isId ? "Plugin akan di-reload..." : "Reloading plugin...", 38));
+        MessageUtil.sendPlain(player, "§8|                                                ");
+        MessageUtil.sendPlain(player, "§8|================================================");
         MessageUtil.sendPlain(player, "");
 
         // Log to console
