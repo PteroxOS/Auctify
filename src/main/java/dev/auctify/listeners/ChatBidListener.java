@@ -124,6 +124,28 @@ public class ChatBidListener implements Listener {
     @EventHandler(priority = EventPriority.LOWEST)
     public void onAsyncChat(AsyncChatEvent event) {
         Player player = event.getPlayer();
+
+        // Check if player is in setup wizard webhook input mode first
+        if (plugin.getSetupWizard().isWaitingForWebhookInput(player)) {
+            event.setCancelled(true);
+            String message = PlainTextComponentSerializer.plainText().serialize(event.message()).trim();
+
+            // Handle skip
+            if (message.equalsIgnoreCase("skip")) {
+                Bukkit.getScheduler().runTask(plugin, () -> {
+                    plugin.getSetupWizard().skipWebhookInput(player);
+                    MessageUtil.sendPlain(player, "§7Skipped Discord webhook setup.");
+                });
+                return;
+            }
+
+            // Process webhook URL input
+            Bukkit.getScheduler().runTask(plugin, () -> {
+                plugin.getSetupWizard().onPlayerChat(player, message);
+            });
+            return;
+        }
+
         String listingId = awaitingBid.get(player.getUniqueId());
 
         // Only intercept if this player is in bid mode

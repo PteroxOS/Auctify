@@ -11,8 +11,13 @@ import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 /**
@@ -23,9 +28,107 @@ public class SetupWizard {
 
     private final Auctify plugin;
     private final Map<UUID, SetupState> activeSetups = new HashMap<>();
+    private final Set<UUID> waitingForWebhookInput = new HashSet<>();
 
     public SetupWizard(Auctify plugin) {
         this.plugin = plugin;
+    }
+
+    /**
+     * Called when player sends chat message while in setup webhook input mode.
+     */
+    public void onPlayerChat(Player player, String message) {
+        if (!waitingForWebhookInput.contains(player.getUniqueId()))
+            return;
+
+        // Cancel the chat event from broadcasting
+        // This is called from ChatBidListener which cancels the event
+
+        String url = message.trim();
+
+        // Validate URL format
+        if (!isValidDiscordWebhook(url)) {
+            MessageUtil.sendPlain(player, "§cInvalid webhook URL!");
+            MessageUtil.sendPlain(player, "§7URL must start with: §fhttps://discord.com/api/webhooks/");
+            MessageUtil.sendPlain(player, "§ePlease enter a valid Discord webhook URL:");
+            return;
+        }
+
+        // Test the webhook
+        MessageUtil.sendPlain(player, "§eTesting webhook connection...");
+
+        testDiscordWebhook(url, success -> {
+            if (success) {
+                waitingForWebhookInput.remove(player.getUniqueId());
+                SetupState state = activeSetups.get(player.getUniqueId());
+                if (state != null) {
+                    state.discordWebhook = url;
+                    MessageUtil.sendPlain(player, "§a✓ Webhook test successful!");
+                    showStep7_Backup(player);
+                }
+            } else {
+                MessageUtil.sendPlain(player, "§c✗ Webhook test failed!");
+                MessageUtil.sendPlain(player, "§7Possible causes:");
+                MessageUtil.sendPlain(player, "§7- Invalid webhook URL");
+                MessageUtil.sendPlain(player, "§7- Discord rate limiting");
+                MessageUtil.sendPlain(player, "§7- Network issues");
+                MessageUtil.sendPlain(player, "");
+                MessageUtil.sendPlain(player, "§eEnter a different webhook URL or type §fskip §eto skip:");
+            }
+        });
+    }
+
+    /**
+     * Checks if player is currently in webhook input mode.
+     */
+    public boolean isWaitingForWebhookInput(Player player) {
+        return waitingForWebhookInput.contains(player.getUniqueId());
+    }
+
+    /**
+     * Skips webhook setup and proceeds to next step.
+     */
+    public void skipWebhookInput(Player player) {
+        waitingForWebhookInput.remove(player.getUniqueId());
+        SetupState state = activeSetups.get(player.getUniqueId());
+        if (state != null) {
+            showStep7_Backup(player);
+        }
+    }
+
+    private boolean isValidDiscordWebhook(String url) {
+        return url.startsWith("https://discord.com/api/webhooks/") ||
+                url.startsWith("https://discordapp.com/api/webhooks/");
+    }
+
+    private void testDiscordWebhook(String webhookUrl, java.util.function.Consumer<Boolean> callback) {
+        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+            boolean success = false;
+            try {
+                URL url = new URL(webhookUrl);
+                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                conn.setRequestMethod("POST");
+                conn.setRequestProperty("Content-Type", "application/json");
+                conn.setDoOutput(true);
+                conn.setConnectTimeout(5000);
+                conn.setReadTimeout(5000);
+
+                // Send test payload
+                String payload = "{\"content\":\"✓ Auctify webhook test successful!\"}";
+                try (OutputStream os = conn.getOutputStream()) {
+                    os.write(payload.getBytes("utf-8"));
+                }
+
+                int responseCode = conn.getResponseCode();
+                success = (responseCode == 204 || responseCode == 200);
+                conn.disconnect();
+            } catch (Exception e) {
+                plugin.getLogger().warning("[Auctify] Webhook test failed: " + e.getMessage());
+            }
+
+            final boolean result = success;
+            Bukkit.getScheduler().runTask(plugin, () -> callback.accept(result));
+        });
     }
 
     /**
@@ -416,8 +519,11 @@ public class SetupWizard {
                 if (value.equals("skip")) {
                     showStep7_Backup(player);
                 } else {
+                    waitingForWebhookInput.add(player.getUniqueId());
                     MessageUtil.sendPlain(player, "§ePlease enter your Discord webhook URL in chat:");
-                    // Would need chat listener
+                    MessageUtil.sendPlain(player,
+                            "§7(The URL should look like: §fhttps://discord.com/api/webhooks/...§7)");
+                    MessageUtil.sendPlain(player, "§7Type §fskip §7to skip this step.");
                 }
             }
             case 7 -> {
