@@ -2,6 +2,8 @@ package dev.auctify.setup;
 
 import dev.auctify.Auctify;
 import dev.auctify.util.MessageUtil;
+import io.papermc.paper.event.player.AsyncChatEvent;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.ComponentBuilder;
@@ -10,6 +12,9 @@ import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
 
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
@@ -24,7 +29,7 @@ import java.util.UUID;
  * Interactive chat-based setup wizard for first-time installation.
  * Guides admin through configuration with clickable options.
  */
-public class SetupWizard {
+public class SetupWizard implements Listener {
 
     private final Auctify plugin;
     private final Map<UUID, SetupState> activeSetups = new HashMap<>();
@@ -32,6 +37,43 @@ public class SetupWizard {
 
     public SetupWizard(Auctify plugin) {
         this.plugin = plugin;
+        // Register this as a listener for chat events (webhook input protection)
+        Bukkit.getPluginManager().registerEvents(this, plugin);
+    }
+
+    /**
+     * Dedicated chat listener for webhook input with HIGH priority.
+     * This provides a second layer of protection to ensure webhook URLs are never
+     * broadcast to other players. Cancels the event if player is in webhook input
+     * mode.
+     */
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = false)
+    public void onAsyncChat(AsyncChatEvent event) {
+        Player player = event.getPlayer();
+
+        // Check if player is waiting for webhook input
+        if (waitingForWebhookInput.contains(player.getUniqueId())) {
+            // Always cancel the event to prevent URL from being broadcast
+            event.setCancelled(true);
+
+            // Process the webhook URL privately
+            String message = PlainTextComponentSerializer.plainText().serialize(event.message()).trim();
+
+            // Handle skip
+            if (message.equalsIgnoreCase("skip")) {
+                Bukkit.getScheduler().runTask(plugin, () -> {
+                    waitingForWebhookInput.remove(player.getUniqueId());
+                    showStep9_Backup(player);
+                    MessageUtil.sendPlain(player, "§7Skipped Discord webhook setup.");
+                });
+                return;
+            }
+
+            // Process webhook URL on main thread
+            Bukkit.getScheduler().runTask(plugin, () -> {
+                onPlayerChat(player, message);
+            });
+        }
     }
 
     /**
@@ -230,17 +272,26 @@ public class SetupWizard {
 
         MessageUtil.sendPlain(player, "");
         MessageUtil.sendPlain(player, "§8|================================================");
-        MessageUtil.sendPlain(player, "§8|          §6§lSETUP WIZARD §7(Step 1/7)            §8|");
+        MessageUtil.sendPlain(player, "§8|          §6§lSETUP WIZARD §7(Step 1/9)            §8|");
         MessageUtil.sendPlain(player, "§8|                                                §8|");
-        MessageUtil.sendPlain(player, "§8|  §eSelect your language / Pilih bahasa:        §8|");
+        MessageUtil.sendPlain(player, "§8|  §eSelect your language / Dil seçin:           §8|");
         MessageUtil.sendPlain(player, "§8|                                                §8|");
         MessageUtil.sendPlain(player, "§8|================================================");
         MessageUtil.sendPlain(player, "");
 
-        sendClickableOption(player, "  [ §aEnglish §r]", "en",
-                "Click to select English", "/ac setup step1 en");
-        sendClickableOption(player, "  [ §2Bahasa Indonesia §r]", "id",
-                "Klik untuk pilih Indonesia", "/ac setup step1 id");
+        sendClickableOption(player, "  [ §aEnglish §r]", "en", "Click to select English", "/ac setup step1 en");
+        sendClickableOption(player, "  [ §2Indonesia §r]", "id", "Bahasa Indonesia", "/ac setup step1 id");
+        sendClickableOption(player, "  [ §6Español §r]", "es", "Spanish", "/ac setup step1 es");
+        sendClickableOption(player, "  [ §aPortuguês §r]", "pt_br", "Portuguese", "/ac setup step1 pt_br");
+        sendClickableOption(player, "  [ §9Русский §r]", "ru", "Russian", "/ac setup step1 ru");
+        sendClickableOption(player, "  [ §eDeutsch §r]", "de", "German", "/ac setup step1 de");
+        sendClickableOption(player, "  [ §bFrançais §r]", "fr", "French", "/ac setup step1 fr");
+        sendClickableOption(player, "  [ §cPolski §r]", "pl", "Polish", "/ac setup step1 pl");
+        sendClickableOption(player, "  [ §6Türkçe §r]", "tr", "Turkish", "/ac setup step1 tr");
+        sendClickableOption(player, "  [ §c中文 §r]", "zh_cn", "Chinese", "/ac setup step1 zh_cn");
+        sendClickableOption(player, "  [ §d日本語 §r]", "ja", "Japanese", "/ac setup step1 ja");
+        sendClickableOption(player, "  [ §b한국어 §r]", "ko", "Korean", "/ac setup step1 ko");
+        sendClickableOption(player, "  [ §aNederlands §r]", "nl", "Dutch", "/ac setup step1 nl");
         MessageUtil.sendPlain(player, "");
     }
 
@@ -250,7 +301,7 @@ public class SetupWizard {
         if (state == null)
             return;
 
-        String title = state.locale.equals("id") ? "SETUP WIZARD (Step 2/7)" : "SETUP WIZARD (Step 2/7)";
+        String title = state.locale.equals("id") ? "SETUP WIZARD (Step 2/9)" : "SETUP WIZARD (Step 2/9)";
         String prompt = state.locale.equals("id") ? "Pilih tipe penyimpanan:" : "Choose storage type:";
 
         MessageUtil.sendPlain(player, "");
@@ -279,7 +330,7 @@ public class SetupWizard {
             return;
 
         boolean isId = state.locale.equals("id");
-        String title = isId ? "SETUP WIZARD (Step 3/7)" : "SETUP WIZARD (Step 3/7)";
+        String title = isId ? "SETUP WIZARD (Step 3/9)" : "SETUP WIZARD (Step 3/9)";
         String prompt = isId ? "Pengaturan pajak penjual:" : "Seller tax settings:";
 
         MessageUtil.sendPlain(player, "");
@@ -312,7 +363,7 @@ public class SetupWizard {
             return;
 
         boolean isId = state.locale.equals("id");
-        String title = isId ? "SETUP WIZARD (Step 4/7)" : "SETUP WIZARD (Step 4/7)";
+        String title = isId ? "SETUP WIZARD (Step 4/9)" : "SETUP WIZARD (Step 4/9)";
         String prompt = isId ? "Pengaturan umum lelang:" : "General auction settings:";
 
         MessageUtil.sendPlain(player, "");
@@ -341,7 +392,7 @@ public class SetupWizard {
             return;
 
         boolean isId = state.locale.equals("id");
-        String title = isId ? "SETUP WIZARD (Step 5/7)" : "SETUP WIZARD (Step 5/7)";
+        String title = isId ? "SETUP WIZARD (Step 5/9)" : "SETUP WIZARD (Step 5/9)";
         String prompt = isId ? "Waktu timeout input bid:" : "Bid input timeout:";
         String desc = isId ? "Waktu untuk memasukkan harga bid via chat" : "Time to enter bid price via chat";
 

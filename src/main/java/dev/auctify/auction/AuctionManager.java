@@ -228,32 +228,42 @@ public class AuctionManager {
         activeListings.put(id, listing);
         storage.saveListing(listing);
 
+        // Get item name for notifications
+        String itemName = ItemUtil.getDisplayName(item);
+
+        // Log the transaction
+        plugin.getLoggerManager().logListing(seller.getName(), itemName, startPrice, id);
+
+        // Play sound
+        plugin.getSoundManager().playListingCreated(seller);
+
         // Notify seller
         MessageUtil.send(seller, "listing-created", Map.of("listing_id", id));
 
         // Broadcast if enabled
-        String itemName = ItemUtil.getDisplayName(item);
         if (config.getBoolean("general.broadcast-listings", true)) {
             if (buyoutPrice > 0) {
-                MessageUtil.broadcast("listing-broadcast-buyout", Map.of(
-                        "seller", seller.getName(),
-                        "item", itemName,
-                        "start", economy.format(startPrice),
-                        "buyout", economy.format(buyoutPrice)));
+                MessageUtil.broadcast("listing-broadcast-buyout",
+                        Map.of("seller", seller.getName(), "item", itemName, "buyout", economy.format(buyoutPrice)));
             } else {
-                MessageUtil.broadcast("listing-broadcast", Map.of(
-                        "seller", seller.getName(),
-                        "item", itemName,
-                        "start", economy.format(startPrice)));
+                MessageUtil.broadcast("listing-broadcast",
+                        Map.of("seller", seller.getName(), "item", itemName));
             }
         }
 
-        // Discord webhook
+        // Discord webhook notification
         plugin.getDiscordWebhookUtil().sendNewListingEmbed(
                 seller.getName(),
                 itemName,
                 economy.format(startPrice),
-                buyoutPrice > 0 ? economy.format(buyoutPrice) : "None");
+                economy.format(buyoutPrice));
+
+        // Schedule expiration warning if enabled
+        int warningMinutes = config.getInt("notifications.expiration-warning-minutes", 5);
+        int durationMinutes = durationSeconds / 60;
+        if (warningMinutes > 0 && durationMinutes > warningMinutes) {
+            plugin.getNotificationManager().scheduleExpirationWarning(listing, warningMinutes);
+        }
 
         return id;
     }
@@ -309,6 +319,11 @@ public class AuctionManager {
         var config = plugin.getConfig();
         double minIncrement = config.getDouble("bidding.min-increment", 10);
 
+        // Variables for tracking previous bidder (needed outside lock for sound)
+        UUID previousBidder = null;
+        double previousAmount = 0;
+        boolean hadPreviousBid = false;
+
         // CRITICAL-1: Entire bid flow under per-listing lock
         synchronized (listing) {
             if (!listing.isActive() || listing.isExpired()) {
@@ -330,9 +345,9 @@ public class AuctionManager {
             }
 
             // Save previous state for rollback
-            UUID previousBidder = listing.getTopBidderUUID();
-            double previousAmount = listing.getCurrentBid();
-            boolean hadPreviousBid = listing.hasBids();
+            previousBidder = listing.getTopBidderUUID();
+            previousAmount = listing.getCurrentBid();
+            hadPreviousBid = listing.hasBids();
 
             // HIGH-1: Fire event BEFORE mutating listing state so cancellation is clean
             AuctifyBidEvent event = new AuctifyBidEvent(listing, bidder, amount);
@@ -353,11 +368,11 @@ public class AuctionManager {
             // Refund previous top bidder
             if (hadPreviousBid && previousBidder != null) {
                 safeDeposit(previousBidder, previousAmount, "Outbid refund on listing " + listingId);
-                Player prevPlayer = Bukkit.getPlayer(previousBidder);
-                if (prevPlayer != null && prevPlayer.isOnline()) {
-                    MessageUtil.send(prevPlayer, "auction-lost",
-                            Map.of("item", ItemUtil.getDisplayName(listing.getItem())));
-                }
+                // Send outbid notification
+                plugin.getNotificationManager().notifyOutbid(listing, previousBidder, amount);
+
+                // Check for auto-bid and trigger if configured
+                triggerAutoBid(listing, previousBidder);
             }
 
             storage.saveListing(listing);
@@ -385,6 +400,22 @@ public class AuctionManager {
                     "amount", economy.format(amount),
                     "item", ItemUtil.getDisplayName(listing.getItem())));
         }
+
+        // Log the bid
+        plugin.getLoggerManager().logBid(bidder.getName(), listing.getSellerName(),
+                ItemUtil.getDisplayName(listing.getItem()), amount, listingId);
+
+        // Play success sound
+        plugin.getSoundManager().playBidSuccess(bidder);
+
+        // Play outbid sound to previous bidder
+        if (hadPreviousBid && previousBidder != null) {
+            Player prevPlayer = Bukkit.getPlayer(previousBidder);
+            if (prevPlayer != null && prevPlayer.isOnline()) {
+                plugin.getSoundManager().playOutbid(prevPlayer);
+            }
+        }
+
         return true;
     }
 
@@ -456,9 +487,23 @@ public class AuctionManager {
         listing.applyBid(buyer.getUniqueId(), buyer.getName(), price, 0);
         resolveAuction(listing);
 
+        // Send buyout notification to seller
+        plugin.getNotificationManager().notifyBuyout(listing, buyer.getUniqueId(), buyer.getName());
+
         MessageUtil.send(buyer, "buyout-success",
                 Map.of("item", ItemUtil.getDisplayName(listing.getItem()),
                         "amount", economy.format(price)));
+
+        // Log the buyout
+        plugin.getLoggerManager().logBuyout(buyer.getName(), listing.getSellerName(),
+                ItemUtil.getDisplayName(listing.getItem()), price, listingId);
+
+        // Play sounds
+        plugin.getSoundManager().playBuyoutSuccess(buyer);
+        Player seller = Bukkit.getPlayer(listing.getSellerUUID());
+        if (seller != null && seller.isOnline()) {
+            plugin.getSoundManager().playMoneyReceived(seller);
+        }
 
         // Prompt buyer to rate the seller
         plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
@@ -528,6 +573,11 @@ public class AuctionManager {
 
         MessageUtil.send(player, "listing-cancelled", null);
         plugin.getLogger().info("Player " + player.getName() + " cancelled listing " + listingId);
+
+        // Log the cancellation
+        plugin.getLoggerManager().logCancel(player.getName(),
+                ItemUtil.getDisplayName(listing.getItem()), listingId);
+
         return true;
     }
 
@@ -566,6 +616,10 @@ public class AuctionManager {
                     listing.getSellerName(),
                     ItemUtil.getDisplayName(listing.getItem()),
                     economy.format(listing.getStartPrice()));
+
+            // Log the expired auction
+            plugin.getLoggerManager().logExpired(listing.getSellerName(),
+                    ItemUtil.getDisplayName(listing.getItem()), listing.getId());
         } else {
             // Has a winner — deliver item and pay seller
             UUID winnerUUID = listing.getTopBidderUUID();
@@ -607,17 +661,26 @@ public class AuctionManager {
                 // "void" = tax is deleted, no action needed
             }
 
-            // Notify winner
+            // Notify winner and play sound
             Player winner = Bukkit.getPlayer(winnerUUID);
             if (winner != null && winner.isOnline()) {
                 MessageUtil.send(winner, "auction-won",
                         Map.of("item", ItemUtil.getDisplayName(listing.getItem()),
                                 "amount", economy.format(finalPrice)));
+                plugin.getSoundManager().playAuctionWon(winner);
             }
+
+            // Send auction won notification
+            plugin.getNotificationManager().notifyAuctionWon(listing, winnerUUID);
+
+            // Log the successful sale
+            plugin.getLoggerManager().logSale(listing.getSellerName(), winnerName,
+                    ItemUtil.getDisplayName(listing.getItem()), finalPrice, listing.getId());
 
             // Notify seller (they may be offline — check current online status)
             Player sellerPlayer = Bukkit.getPlayer(listing.getSellerUUID());
             if (sellerPlayer != null && sellerPlayer.isOnline()) {
+                plugin.getSoundManager().playAuctionSold(sellerPlayer);
                 MessageUtil.send(sellerPlayer, "auction-sold",
                         Map.of("item", ItemUtil.getDisplayName(listing.getItem()),
                                 "winner", winnerName,
@@ -630,6 +693,21 @@ public class AuctionManager {
                         ItemUtil.getDisplayName(listing.getItem()), winnerName,
                         economy.format(finalPrice), economy.format(netAmount));
             }
+
+            // Send item sold notification
+            plugin.getNotificationManager().notifyItemSold(listing, winnerUUID, winnerName, finalPrice, taxPercent,
+                    netAmount);
+
+            // Record price history
+            dev.auctify.auction.PriceHistory priceHistory = new dev.auctify.auction.PriceHistory(
+                    listing.getId(),
+                    listing.getItem().getType().name(),
+                    dev.auctify.util.ItemUtil.getDisplayName(listing.getItem()),
+                    finalPrice,
+                    listing.getSellerName(),
+                    winnerName,
+                    System.currentTimeMillis());
+            storage.savePriceHistory(priceHistory);
 
             // Broadcast if enabled
             if (config.getBoolean("general.broadcast-wins", true)) {
@@ -720,6 +798,15 @@ public class AuctionManager {
      */
     public Optional<AuctionListing> getListingById(String id) {
         return Optional.ofNullable(activeListings.get(id));
+    }
+
+    /**
+     * Gets the economy manager.
+     *
+     * @return the EconomyManager
+     */
+    public EconomyManager getEconomy() {
+        return economy;
     }
 
     /**
@@ -928,5 +1015,74 @@ public class AuctionManager {
 
         // Return item to seller via storage
         storage.savePendingDelivery(listing.getSellerUUID(), listing.getItem().clone());
+    }
+
+    /**
+     * Triggers auto-bid for a player who was just outbid.
+     *
+     * @param listing      the auction listing
+     * @param outbidPlayer the UUID of the player who was outbid
+     */
+    private void triggerAutoBid(AuctionListing listing, UUID outbidPlayer) {
+        dev.auctify.auction.AutoBid autoBid = storage.getAutoBid(listing.getId(), outbidPlayer);
+        if (autoBid == null) {
+            return; // No auto-bid configured
+        }
+
+        // Check if auto-bid can still bid
+        if (!autoBid.canBid(listing.getCurrentBid())) {
+            // Auto-bid exhausted - delete it
+            storage.deleteAutoBid(listing.getId(), outbidPlayer);
+            Player player = Bukkit.getPlayer(outbidPlayer);
+            if (player != null && player.isOnline()) {
+                MessageUtil.send(player, "autobid-exhausted", Map.of(
+                        "item", dev.auctify.util.ItemUtil.getDisplayName(listing.getItem()),
+                        "max_bid", economy.format(autoBid.getMaxBidAmount())));
+            }
+            return;
+        }
+
+        // Calculate bid amount (current bid + min increment, up to max)
+        double minIncrement = plugin.getConfig().getDouble("general.min-bid-increment", 1.0);
+        double newBidAmount = listing.getCurrentBid() + minIncrement;
+        double maxBidAmount = autoBid.getMaxBidAmount();
+
+        // Cap at max bid amount
+        if (newBidAmount > maxBidAmount) {
+            newBidAmount = maxBidAmount;
+        }
+
+        // Check if new bid is valid
+        if (newBidAmount <= listing.getCurrentBid()) {
+            return; // Bid would be invalid
+        }
+
+        // Check if player has sufficient funds
+        Player bidder = Bukkit.getPlayer(outbidPlayer);
+        if (bidder == null || !bidder.isOnline()) {
+            return; // Player offline, can't auto-bid
+        }
+
+        // Place the bid automatically
+        double balance = economy.getBalance(outbidPlayer);
+        if (balance < newBidAmount) {
+            // Insufficient funds - delete auto-bid
+            storage.deleteAutoBid(listing.getId(), outbidPlayer);
+            MessageUtil.send(bidder, "autobid-insufficient-funds", Map.of(
+                    "amount", economy.format(newBidAmount)));
+            return;
+        }
+
+        // Place the bid
+        boolean success = placeBid(bidder, listing.getId(), newBidAmount);
+        if (success) {
+            MessageUtil.send(bidder, "autobid-placed", Map.of(
+                    "item", dev.auctify.util.ItemUtil.getDisplayName(listing.getItem()),
+                    "amount", economy.format(newBidAmount),
+                    "remaining", economy.format(maxBidAmount - newBidAmount)));
+        } else {
+            // Bid failed - delete auto-bid
+            storage.deleteAutoBid(listing.getId(), outbidPlayer);
+        }
     }
 }

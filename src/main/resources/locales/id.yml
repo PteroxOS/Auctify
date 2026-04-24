@@ -1,10 +1,31 @@
-# ─────────────────────────────────────────────
-# Auctify — Bahasa Indonesia Locale File
-# Semua teks GUI dan pesan chat bisa diatur di sini.
-# Variabel: {item}, {amount}, {winner}, {tax}, {net}, {listing_id}, {min_bid}, {max}
-# ─────────────────────────────────────────────
+# ═══════════════════════════════════════════════════════════════════════════════
+# Auctify — Bahasa Indonesia Locale File (id)
+# ═══════════════════════════════════════════════════════════════════════════════
+# 
+# Variabel yang tersedia:
+#   {item}        - Nama/material item
+#   {amount}      - Jumlah/quantity
+#   {winner}      - Username pemenang
+#   {tax}         - Persentase pajak
+#   {net}         - Jumlah bersih setelah pajak
+#   {listing_id}  - ID lelang
+#   {min_bid}     - Minimum bid
+#   {max}         - Nilai maksimum
+#   {price}       - Harga
+#   {buyer}       - Username pembeli
+#   {seller}      - Username penjual
+#   {payment}     - Jumlah pembayaran
+#   {count}       - Jumlah/angka
+#   {stacks}      - Jumlah stack
+#   {player}      - Nama player
+#   {id}          - ID umum
+#   {date}        - String tanggal
+#
+# ═══════════════════════════════════════════════════════════════════════════════
 
-# ─── PESAN CHAT ─────────────────────────────
+# ═══════════════════════════════════════════════════════════════════════════════
+# PESAN CHAT
+# ═══════════════════════════════════════════════════════════════════════════════
 no-permission: "§cKamu tidak punya izin untuk melakukan itu."
 player-only: "§cPerintah ini hanya bisa dijalankan oleh pemain."
 listing-created: "§aLelang berhasil dibuat! §7ID: §f{listing_id}"
@@ -33,7 +54,12 @@ invalid-price: "§cHarga tidak valid. Masukkan angka positif."
 invalid-duration: "§cDurasi tidak valid. Harus antara §f{min} §cdan §f{max} §cdetik."
 config-reloaded: "§aKonfigurasi dan locale Auctify berhasil dimuat ulang."
 economy-not-found: "§cPenyedia ekonomi tidak ditemukan. Pasang EssentialsX atau sejenisnya."
-chat-prompt-bid: "§6[Auctify] §7Ketik jumlah tawaranmu di chat untuk §f{item}§7. Ketik §cbatal §7untuk membatalkan."
+chat-prompt-bid: "§7Ketik jumlah tawaranmu di chat untuk §f{item}§7. Ketik §cbatal §7untuk membatalkan."
+search-prompt: "§7Ketik query pencarian di chat. Ketik §cbatal §7untuk membatalkan."
+search-cancelled: "§cPencarian dibatalkan."
+search-timeout: "§cWaktu pencarian habis."
+search-empty: "§cQuery pencarian tidak boleh kosong."
+search-results: "§aMenampilkan hasil untuk: §f{query}"
 chat-cancelled: "§7Tawaran dibatalkan."
 buyout-success: "§aKamu langsung membeli §f{item} §aseharga §6{amount}§a!"
 chat-bid-retry: "§7Ketik jumlah yang lebih tinggi, atau ketik §fbatal §7untuk membatalkan."
@@ -49,7 +75,9 @@ auto-relist-success: "§aAuto-relist: §f{old_id} §arelisted sebagai §f{new_id
 world-blacklisted: "§cAuction house dinonaktifkan di world ini."
 blacklisted-material: "§cItem ini di-blacklist dan tidak bisa dijual."
 
-# ─── GUI UTAMA ──────────────────────────────
+# ═══════════════════════════════════════════════════════════════════════════════
+# GUI UTAMA
+# ═══════════════════════════════════════════════════════════════════════════════
 gui-previous-page: "§a◀ Halaman Sebelumnya"
 gui-next-page: "§aHalaman Berikutnya ▶"
 gui-page-info: "§6Halaman {current}§7/§6{total}"
@@ -75,7 +103,9 @@ gui-history-title: "§eRiwayat Lelang"
 gui-history-lore-1: "§7Klik untuk melihat"
 gui-history-lore-2: "§7riwayat lelangmu."
 
-# ─── GUI KONFIRMASI TAWARAN ─────────────────
+# ═══════════════════════════════════════════════════════════════════════════════
+# GUI KONFIRMASI TAWARAN
+# ═══════════════════════════════════════════════════════════════════════════════
 gui-confirm-title: "§8✦ §6Konfirmasi Tawaran §8✦"
 gui-confirm-bid: "§a✔ Konfirmasi Tawaran"
 gui-confirm-min-bid: "§7Tawaran minimum: §a{min_bid}"
@@ -94,7 +124,9 @@ gui-buyout-title: "§6⚡ Beli Sekarang!"
 gui-buyout-price: "§7Harga beli langsung: §6{price}"
 gui-buyout-click: "§7Klik untuk langsung membeli item ini."
 
-# ─── GUI DETAIL ITEM ────────────────────────
+# ═══════════════════════════════════════════════════════════════════════════════
+# GUI DETAIL ITEM
+# ═══════════════════════════════════════════════════════════════════════════════
 gui-detail-title: "§8✦ §6Detail Item §8✦"
 gui-detail-seller-title: "§6Informasi Penjual"
 gui-detail-seller: "§7Penjual: §f{seller}"
@@ -108,7 +140,9 @@ gui-detail-buyout-title: "§6Harga Beli Langsung"
 gui-detail-buyout-price: "§7Beli langsung: §6{price}"
 gui-detail-back: "§c◀ Kembali ke Balai Lelang"
 
-# ─── GUI KELOLA LELANG ──────────────────────
+# ═══════════════════════════════════════════════════════════════════════════════
+# GUI KELOLA LELANG
+# ═══════════════════════════════════════════════════════════════════════════════
 gui-manage-title: "§8✦ §9Kelola Lelang §8✦"
 gui-manage-stats-title: "§bStatistik Lelang"
 gui-manage-current-bid: "§7Tawaran saat ini: §a{bid}"
@@ -122,7 +156,9 @@ gui-manage-cancel-lore-2: "§7Item akan dikembalikan kepadamu,"
 gui-manage-cancel-lore-3: "§7dan semua tawaran akan dikembalikan."
 gui-manage-back: "§a◀ Kembali ke Balai Lelang"
 
-# ─── MAILBOX / CLAIM GUI ────────────────────
+# ═══════════════════════════════════════════════════════════════════════════════
+# MAILBOX / CLAIM GUI
+# ═══════════════════════════════════════════════════════════════════════════════
 gui-claim-title: "§8✦ §6Kotak Surat §8✦"
 gui-claim-item-lore: "§7Klik untuk mengambil"
 gui-claim-collect-all: "§a📥 Ambil Semua"
@@ -131,7 +167,9 @@ gui-claim-no-items: "§cMailbox Kosong"
 gui-claim-no-items-lore: "§7Tidak ada item pending."
 no-pending-items: "§7Kamu tidak punya item pending untuk diklaim."
 
-# ─── Watchlist ──────────────────────────────
+# ═══════════════════════════════════════════════════════════════════════════════
+# WATCHLIST
+# ═══════════════════════════════════════════════════════════════════════════════
 watchlist-added: "§aMenambahkan §f{id} §a(§f{item}§a) ke watchlist!"
 watchlist-removed: "§eMenghapus §f{id} §edari watchlist."
 watchlist-empty: "§7Watchlist kamu kosong. §e/ac watchlist <id> §7untuk menambah."
@@ -139,11 +177,15 @@ watchlist-header: "§6§lWatchlist Kamu §8(§f{count}§8)"
 watchlist-entry: "§8• §f{id} §8- §7{item} §8| §a{bid}"
 gui-claim-close: "§c✘ Tutup"
 
-# ─── SHULKER PREVIEW GUI ────────────────────
+# ═══════════════════════════════════════════════════════════════════════════════
+# SHULKER PREVIEW GUI
+# ═══════════════════════════════════════════════════════════════════════════════
 gui-shulker-title: "§8✦ §5Pratinjau Shulker §8✦"
 gui-shulker-back: "§a◀ Kembali"
 
-# ─── RATE GUI ───────────────────────────────
+# ═══════════════════════════════════════════════════════════════════════════════
+# RATE GUI
+# ═══════════════════════════════════════════════════════════════════════════════
 gui-rate-title: "§8✦ §eNilai {seller} §8✦"
 gui-rate-star: "§6{stars} Bintang"
 gui-rate-click: "§7Klik untuk memberi {stars} bintang"
@@ -154,7 +196,12 @@ gui-rate-count: "§7Total Penilaian: §f{count}"
 gui-rate-skip: "§c✘ Lewati Penilaian"
 gui-rate-skip-lore: "§7Klik untuk menutup."
 
-# ─── ADMIN GUI ──────────────────────────────
+# ═══════════════════════════════════════════════════════════════════════════════
+# ADMIN GUI
+# ═══════════════════════════════════════════════════════════════════════════════
+# ═══════════════════════════════════════════════════════════════════════════════
+# ADMIN GUI
+# ═══════════════════════════════════════════════════════════════════════════════
 gui-admin-title: "§8✦ §4Moderasi Admin §8✦"
 gui-admin-cancel-listing: "§cPaksa Batal Lelang"
 gui-admin-cancel-lore: "§7Klik untuk membatalkan lelang ini."
@@ -166,7 +213,9 @@ pending-refunds-received: "§a§f{amount} §adari refund tertunda telah dikredit
 pending-items-received: "§a§f{count} §aitem tertunda telah ditambahkan ke inventaris kamu."
 pending-item-dropped: "§7§f{item} §7tidak muat di inventaris dan dijatuhkan di kakimu."
 
-# ─── SORT & BIN SETTINGS ────────────────────
+# ═══════════════════════════════════════════════════════════════════════════════
+# SORT & BIN SETTINGS
+# ═══════════════════════════════════════════════════════════════════════════════
 gui-sort-title: "§bUrutkan Lelang"
 gui-sort-time-asc: "§7Waktu (Cepat Selesai)"
 gui-sort-time-desc: "§7Waktu (Paling Lama)"
@@ -175,24 +224,9 @@ gui-sort-price-desc: "§7Harga (Termahal)"
 gui-sort-bids: "§7Bid Terbanyak"
 bin-only-label: "§c[HANYA BIN]"
 
-# ─── FITUR BARU v1.0.1 ─────────────────────
-# --- Bid History ---
-bid-history-header: "§6=== Riwayat Bid untuk §e{id} §6==="
-bid-history-entry: "§7{bidder} §7bid §a{amount} §7pada §f{time}"
-bid-history-empty: "§7Belum ada bid untuk lelang ini."
-# --- Notifikasi Lelang ---
-auction-sold-offline: "§aLelang §f{item} §aterjual saat kamu offline! Pemenang: §e{winner} §aharga §f{amount} §a(Bersih: §f{net}§a)"
-# --- Perpanjangan ---
-cannot-extend-has-bids: "§cTidak bisa perpanjang lelang yang sudah punya bid."
-extension-too-long: "§cPerpanjangan terlalu lama. Maks: §f{max} §cmenit."
-auction-extended: "§aLelang §f{id} §adiperpanjang §f{minutes} §amenit."
-# --- Lelang Private ---
-auction-private: "§cLelang ini privat. Kamu tidak ada di whitelist."
-# --- Bulk Cancel ---
-bulk-cancel-success: "§aMembatalkan §f{count} §alelang."
-bulk-cancel-none: "§7Tidak ada lelang yang bisa dibatalkan (hanya yang belum punya bid)."
-
-# --- Pesan Command (sebelumnya hardcoded) ---
+# ═══════════════════════════════════════════════════════════════════════════════
+# PESAN COMMAND
+# ═══════════════════════════════════════════════════════════════════════════════
 # History
 history-empty: "§7Kamu belum punya riwayat lelang."
 history-empty-other: "§7{player} belum punya riwayat lelang."
@@ -225,7 +259,7 @@ cancel-usage: "§cPenggunaan: §f/ac cancel <id_lelang>"
 extend-usage: "§cPenggunaan: §f/ac extend <id_lelang> <menit>"
 extend-invalid-minutes: "§cMenit harus angka positif."
 
-# Bid History Command
+# Bid History
 bidhistory-usage: "§cPenggunaan: §f/ac bidhistory <id_lelang>"
 bidhistory-header: "§8|================================================"
 bidhistory-title: "§8|  §6§lRIWAYAT BID §7— §e{id}"
@@ -238,6 +272,26 @@ bidhistory-entry: "§8|  §f{number}. §e{bidder} §7bid §a{amount} §8({time})
 bidhistory-current-top: "§8|  §6Bid tertinggi: §a{amount} §7oleh §e{bidder}"
 bidhistory-starting-price: "§8|  §7Harga awal: §a{price}"
 bidhistory-footer: "§8|================================================"
+
+# Extension
+cannot-extend-has-bids: "§cTidak bisa perpanjang lelang yang sudah punya bid."
+extension-too-long: "§cPerpanjangan terlalu lama. Maks: §f{max} §cmenit."
+auction-extended: "§aLelang §f{id} §adiperpanjang §f{minutes} §amenit."
+
+# Private Auction
+auction-private: "§cLelang ini privat. Kamu tidak ada di whitelist."
+
+# Bulk Cancel
+bulk-cancel-success: "§aMembatalkan §f{count} §alelang."
+bulk-cancel-none: "§7Tidak ada lelang yang bisa dibatalkan (hanya yang belum punya bid)."
+
+# Bid History (GUI)
+bid-history-header: "§6=== Riwayat Bid untuk §e{id} §6==="
+bid-history-entry: "§7{bidder} §7bid §a{amount} §7pada §f{time}"
+bid-history-empty: "§7Belum ada bid untuk lelang ini."
+
+# Offline Notifications
+auction-sold-offline: "§aLelang §f{item} §aterjual saat kamu offline! Pemenang: §e{winner} §aharga §f{amount} §a(Bersih: §f{net}§a)"
 
 # Admin
 player-not-found: "§cPlayer tidak ditemukan atau offline."
@@ -257,3 +311,47 @@ blacklist-entry: "§7- §f{uuid} §8(oleh {by}) §7Alasan: §f{reason}"
 backup-starting: "§eMemulai backup database..."
 admin-backup-success: "§aBackup database berhasil!"
 admin-backup-fail: "§cBackup database gagal."
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# BUY ORDERS (WTB SYSTEM)
+# ═══════════════════════════════════════════════════════════════════════════════
+buyorder-disabled: "§cSistem buy order sedang dinonaktifkan."
+buyorder-no-item: "§cPegang item yang ingin kamu buat buy order!"
+buyorder-max-reached: "§cKamu hanya bisa punya {max} buy order aktif."
+buyorder-created: "§aBuy order dibuat! §8(§f{id}§8) §7Membeli {amount}x {item} di harga §a{price} §7per item. Total: §6{total}"
+buyorder-list-empty: "§7Kamu tidak punya buy order aktif."
+buyorder-list-header: "§6§lBuy Order Kamu §8(§f{count}§8)"
+buyorder-list-entry: "§8• §f{id} §8| §7{buyer} §8| §7{amount}x {item} @ §a{price}"
+buyorder-cancelled: "§eBuy order §f{id} §edibatalkan. Refund diproses."
+buyorder-not-found: "§cBuy order tidak ditemukan atau sudah terisi/dibatalkan."
+buyorder-usage-title: "§6Perintah Buy Order:"
+buyorder-usage-create: "§e/ac buyorder create <harga per item> §8— §7Buat buy order untuk item yang dipegang"
+buyorder-usage-list: "§e/ac buyorder list §8— §7Lihat buy order aktif kamu"
+buyorder-usage-cancel: "§e/ac buyorder cancel <id> §8— §7Batalkan buy order"
+buyorder-usage-browse: "§e/ac buyorder browse §8— §7Lihat buy order aktif"
+buyorder-usage-sell: "§e/ac buyorder sell <order_id> §8— §7Jual item ke buy order"
+buyorder-sell-usage: "§cPenggunaan: §f/ac buyorder sell <order_id>"
+buyorder-sell-no-item: "§cPegang item yang ingin kamu jual!"
+buyorder-browse-empty: "§7Tidak ada buy order aktif."
+buyorder-browse-header: "§6§lBuy Order Aktif §8(§f{count}§8)"
+buyorder-browse-entry: "§8• §f{id} §8| §7{buyer} ingin {amount}x {item} @ §a{price} §8(§a{total}§8)"
+buyorder-filled: "§aBuy order kamu terisi! Menerima {amount}x {item}."
+buyorder-sold: "§aTerjual {amount}x {item} ke {buyer} seharga §6{payment}"
+buyorder-offline-delivery: "§e{buyer} sedang offline. Item diantre untuk pengiriman saat login."
+buyorder-delivered: "§a{count} item buy order pending dikirim ke inventori kamu!"
+buyorder-expired: "§eBuy order §f{id} §ekadaluarsa. Refund diproses."
+not-your-order: "§cIni bukan buy order kamu!"
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# BULK SELLING
+# ═══════════════════════════════════════════════════════════════════════════════
+bulksell-usage: "§cPenggunaan: /ac bulksell <harga_awal> <harga_buyout> [durasi_menit]"
+bulksell-max-reached: "§eMaksimal {max} stack terdaftar. Item lain tidak didaftarkan."
+bulksell-success: "§aBerhasil mendaftarkan {stacks} stack ({amount}x {item})!"
+bulksell-no-items: "§cTidak ada item yang cocok di inventori."
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# STATISTICS
+# ═══════════════════════════════════════════════════════════════════════════════
+stats-usage: "§cPenggunaan: /ac stats [player]"
+stats-viewing: "§eMelihat statistik untuk §f{player}"

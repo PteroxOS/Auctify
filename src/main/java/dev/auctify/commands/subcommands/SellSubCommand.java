@@ -23,7 +23,14 @@ public class SellSubCommand implements SubCommand {
     /** {@inheritDoc} */
     @Override
     public void execute(CommandSender sender, String[] args) {
-        Player player = (Player) sender;
+        if (!(sender instanceof Player player)) {
+            return;
+        }
+
+        if (!player.hasPermission("auctify.sell")) {
+            MessageUtil.send(player, "no-permission", null);
+            return;
+        }
 
         // Check economy availability
         if (!plugin.getEconomyManager().isAvailable()) {
@@ -41,6 +48,10 @@ public class SellSubCommand implements SubCommand {
         double startPrice;
         try {
             startPrice = Double.parseDouble(args[1]);
+            if (startPrice <= 0 || Double.isNaN(startPrice) || Double.isInfinite(startPrice)) {
+                MessageUtil.send(player, "invalid-price", null);
+                return;
+            }
         } catch (NumberFormatException e) {
             MessageUtil.send(player, "invalid-price", null);
             return;
@@ -51,6 +62,10 @@ public class SellSubCommand implements SubCommand {
         if (args.length >= 3) {
             try {
                 buyoutPrice = Double.parseDouble(args[2]);
+                if (buyoutPrice < 0 || Double.isNaN(buyoutPrice) || Double.isInfinite(buyoutPrice)) {
+                    MessageUtil.send(player, "sell-invalid-buyout", null);
+                    return;
+                }
             } catch (NumberFormatException e) {
                 MessageUtil.send(player, "sell-invalid-buyout", null);
                 return;
@@ -62,6 +77,10 @@ public class SellSubCommand implements SubCommand {
         if (args.length >= 4) {
             try {
                 duration = Integer.parseInt(args[3]);
+                if (duration <= 0 || duration > 10080) { // Max 7 days
+                    MessageUtil.send(player, "sell-invalid-duration", null);
+                    return;
+                }
             } catch (NumberFormatException e) {
                 MessageUtil.send(player, "sell-invalid-duration", null);
                 return;

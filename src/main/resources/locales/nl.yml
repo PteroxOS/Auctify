@@ -1,0 +1,57 @@
+# ─────────────────────────────────────────────
+# Auctify — Dutch Locale File
+# Variables: {item}, {amount}, {winner}, {tax}, {net}, {listing_id}, {min_bid}, {max}
+# ─────────────────────────────────────────────
+
+no-permission: "§cJe hebt geen toestemming om dit te doen."
+player-only: "§cDit commando kan alleen door een speler worden uitgevoerd."
+listing-created: "§aJe aanbieding is aangemaakt! §7ID: §f{listing_id}"
+bid-success: "§aJe bent nu de hoogste bieder op §f{item}§a!"
+buyout-success: "§aJe hebt §f{item} §adirect gekocht voor §6{amount}§a!"
+auction-won: "§aJe hebt de veiling voor §f{item} §agewonnen met een bod van §6{amount}§a!"
+auction-sold: "§aJe §f{item} §ais verkocht aan §e{winner} §avoor §6{amount}§a!"
+insufficient-funds: "§cOnvoldoende fondsen. Je hebt §f{amount}§c nodig."
+listing-cancelled: "§aAanbieding geannuleerd. Je item is teruggegeven."
+
+# GUI
+gui-previous-page: "§a◀ Vorige Pagina"
+gui-next-page: "§aVolgende Pagina ▶"
+gui-page-info: "§6Pagina {current}§7/§6{total}"
+gui-search-title: "§eZoek Veilingen"
+gui-button-bid: "§a§lBIED"
+gui-button-buyout: "§c§lKOOP NU"
+
+# ─── Buy Orders (WTB System) ─────────────────
+buyorder-disabled: "§cHet kooporder systeem is uitgeschakeld."
+buyorder-no-item: "§cHoud het item vast waarvoor je een kooporder wilt maken!"
+buyorder-max-reached: "§cJe kunt maximaal {max} actieve kooporders hebben."
+buyorder-created: "§aKooporder aangemaakt! §8(§f{id}§8) §7Koop {amount}x {item} voor §a{price} §7per stuk. Totaal: §6{total}"
+buyorder-list-empty: "§7Je hebt geen actieve kooporders."
+buyorder-list-header: "§6§lJouw Kooporders §8(§f{count}§8)"
+buyorder-list-entry: "§8• §f{id} §8| §7{amount}x {item} @ §a{price}"
+buyorder-cancelled: "§eKooporder §f{id} §egeannuleerd. Terugbetaling verwerkt."
+buyorder-not-found: "§cKooporder niet gevonden of al voltooid/geannuleerd."
+buyorder-usage-title: "§6Kooporder Commando's:"
+buyorder-usage-create: "§e/ac buyorder create <prijs per stuk> §8— §7Maak kooporder voor vastgehouden item"
+buyorder-usage-list: "§e/ac buyorder list §8— §7Bekijk je actieve kooporders"
+buyorder-usage-cancel: "§e/ac buyorder cancel <id> §8— §7Annuleer een kooporder"
+buyorder-usage-browse: "§e/ac buyorder browse §8— §7Bekijk alle actieve kooporders"
+buyorder-browse-empty: "§7Geen actieve kooporders."
+buyorder-browse-header: "§6§lActieve Kooporders §8(§f{count}§8)"
+buyorder-browse-entry: "§8• §f{id} §8| §7{buyer} wil {amount}x {item} voor §a{price} §8(§a{total}§8)"
+buyorder-filled: "§aJe kooporder is voltooid! Ontvangen {amount}x {item}."
+buyorder-sold: "§a{amount}x {item} verkocht aan {buyer} voor §6{payment}"
+buyorder-offline-delivery: "§e{buyer} is offline. Items in wachtrij voor levering."
+buyorder-delivered: "§a{count} wachtende kooporder item(s) geleverd in je inventaris!"
+buyorder-expired: "§eKooporder §f{id} §everlopen. Terugbetaling verwerkt."
+not-your-order: "§cDit is niet jouw kooporder!"
+
+# ─── Bulk Selling ──────────────────────────
+bulksell-usage: "§cGebruik: /ac bulksell <start_prijs> <koop_prijs> [duur_minuten]"
+bulksell-max-reached: "§eMaximaal {max} stacks gelist. Resterende items niet gelist."
+bulksell-success: "§aSuccesvol {stacks} stacks ({amount}x {item}) gelist!"
+bulksell-no-items: "§cGeen overeenkomende items gevonden in inventaris."
+
+# ─── Statistics ───────────────────────────
+stats-usage: "§cGebruik: /ac stats [speler]"
+stats-viewing: "§eBekijk statistieken van §f{player}"

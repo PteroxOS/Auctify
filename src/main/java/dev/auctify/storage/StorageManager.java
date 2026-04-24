@@ -2,6 +2,8 @@ package dev.auctify.storage;
 
 import dev.auctify.auction.AuctionHistory;
 import dev.auctify.auction.AuctionListing;
+import dev.auctify.auction.AutoBid;
+import dev.auctify.auction.PriceHistory;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.Collections;
@@ -246,6 +248,67 @@ public interface StorageManager {
      */
     double[] getPriceStats(String itemType);
 
+    // ─── Price History System ─────────────────────────
+
+    /**
+     * Saves a price history record when an auction completes.
+     */
+    void savePriceHistory(PriceHistory priceHistory);
+
+    /**
+     * Gets price history for a specific item type.
+     *
+     * @param itemType the item material type
+     * @param limit    maximum number of records to return
+     * @return list of price history records, most recent first
+     */
+    java.util.List<PriceHistory> getPriceHistory(String itemType, int limit);
+
+    /**
+     * Gets all price history records.
+     *
+     * @param limit maximum number of records to return
+     * @return list of all price history records, most recent first
+     */
+    java.util.List<PriceHistory> getAllPriceHistory(int limit);
+
+    // ─── Auto-Bid System ───────────────────────────────
+
+    /**
+     * Saves an auto-bid configuration.
+     */
+    void saveAutoBid(AutoBid autoBid);
+
+    /**
+     * Gets an auto-bid for a specific listing and player.
+     */
+    AutoBid getAutoBid(String listingId, UUID playerUUID);
+
+    /**
+     * Gets all auto-bids for a specific listing.
+     */
+    java.util.List<AutoBid> getAutoBidsForListing(String listingId);
+
+    /**
+     * Gets all auto-bids for a specific player.
+     */
+    java.util.List<AutoBid> getAutoBidsForPlayer(UUID playerUUID);
+
+    /**
+     * Deletes an auto-bid.
+     */
+    void deleteAutoBid(String listingId, UUID playerUUID);
+
+    /**
+     * Deletes all auto-bids for a listing (when it ends).
+     */
+    void deleteAutoBidsForListing(String listingId);
+
+    /**
+     * Clears all auto-bids for a player.
+     */
+    void clearAutoBidsForPlayer(UUID playerUUID);
+
     // ─── Pending Notification System ────────────────
 
     /**
@@ -308,4 +371,21 @@ public interface StorageManager {
      * Clears all watchlist entries for a player.
      */
     void clearWatchlist(UUID playerUUID);
+
+    // ─── Pending Buy Order Deliveries ───────────────
+
+    /**
+     * Saves an item for later delivery to an offline buy order buyer.
+     */
+    void addPendingBuyDelivery(UUID playerUUID, ItemStack item, String orderId);
+
+    /**
+     * Retrieves all pending buy order deliveries for a player.
+     */
+    java.util.List<ItemStack> getPendingBuyDeliveries(UUID playerUUID);
+
+    /**
+     * Clears all pending buy order deliveries for a player.
+     */
+    void clearPendingBuyDeliveries(UUID playerUUID);
 }

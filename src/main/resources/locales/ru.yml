@@ -1,0 +1,202 @@
+# ─────────────────────────────────────────────
+# Auctify — Russian Locale File
+# Variables: {item}, {amount}, {winner}, {tax}, {net}, {listing_id}, {min_bid}, {max}
+# ─────────────────────────────────────────────
+
+# ─── CHAT MESSAGES ──────────────────────────
+no-permission: "§cУ вас нет разрешения на это."
+player-only: "§cЭту команду может выполнить только игрок."
+listing-created: "§aВаш лот создан! §7ID: §f{listing_id}"
+listing-broadcast: "§e{seller} §7выставил §f{item} §7начиная с §a{start}§7!"
+listing-broadcast-buyout: "§e{seller} §7выставил §f{item} §7начиная с §a{start} §7с выкупом §c{buyout}§7!"
+buyout-min-price: "§cЦена выкупа должна быть не менее §f{min}§c."
+buyout-not-set: "§cУ этого лота нет цены выкупа."
+buyout-not-available: "Недоступно"
+no-bids-yet: "Ставок пока нет"
+inventory-full-items-dropped: "§7Ваш инвентарь был полон. Некоторые предметы выпали к вашим ногам."
+unknown-item: "Неизвестный Предмет"
+listing-cancelled: "§aЛот отменен. Ваш предмет возвращен."
+listing-not-found: "§cЛот §f{listing_id} §cне найден или уже завершен."
+bid-success: "§aТеперь вы лидируете по ставкам на §f{item}§a!"
+bid-too-low: "§cВаша ставка слишком низкая. Минимальная ставка: §f{min_bid}§c."
+bid-own-listing: "§cВы не можете делать ставки на свой собственный лот."
+auction-won: "§aВы выиграли аукцион на §f{item} §aсо ставкой §6{amount}§a!"
+auction-lost: "§7Вас перебили на §f{item}§7. Ваши деньги возвращены."
+auction-sold: "§aВаш §f{item} §aпродан §e{winner} §aза §6{amount}§a! §7(После §c{tax}% §7налога: §a{net}§7)"
+auction-expired-no-bids: "§7Ваш лот на §f{item} §7истек без ставок. Предмет возвращен."
+max-listings-reached: "§cВы достигли максимума в §f{max} §cактивных лотов."
+listing-fee-insufficient: "§cНедостаточно средств для комиссии §f{fee}§c."
+listing-fee-deducted: "§eКомиссия §f{fee} §eудержана."
+hold-item-to-sell: "§cВы должны держать предмет в руке, чтобы продать его."
+invalid-price: "§cНеверная цена. Пожалуйста, введите положительное число."
+invalid-duration: "§cНеверная длительность. Должна быть между §f{min} §cи §f{max} §cсекунд."
+config-reloaded: "§aКонфигурация и локали Auctify успешно перезагружены."
+economy-not-found: "§cПоставщик экономики не найден. Установите EssentialsX или аналог."
+chat-prompt-bid: "§6[Auctify] §7Введите сумму ставки в чат для §f{item}§7. Введите §cотмена §7для отмены."
+chat-cancelled: "§7Ставка отменена."
+buyout-success: "§aВы мгновенно купили §f{item} §aза §6{amount}§a!"
+chat-bid-retry: "§7Введите большую сумму, или введите §fотмена §7для отмены."
+chat-invalid-number: "§cНеверная сумма. Введите число или введите §fотмена§c."
+
+chat-bid-timeout: "§cВремя ввода ставки для §f{item} §cистекло. Используйте /ac open, чтобы попробовать снова."
+already-top-bidder: "§cВы уже лидируете по ставкам на этот предмет."
+insufficient-funds: "§cНедостаточно средств. Вам нужно §f{amount}§c."
+bid-broadcast: "§e{bidder} §7ставит §a{amount} §7на §f{item}§7!"
+auction-sniping-extended: "§aАукцион §f{id} §aпродлен на §f{seconds} §aсекунд (защита от снайпинга)!"
+auto-relist-success: "§aАвто-перевыставление: §f{old_id} §aперевыставлен как §f{new_id} §aсо скидкой §c{discount}%"
+world-blacklisted: "§cАукционный дом отключен в этом мире."
+blacklisted-material: "§cЭтот тип предмета в черном списке и не может быть выставлен."
+
+# ─── MAIN GUI ───────────────────────────────
+gui-previous-page: "§a◀ Предыдущая Страница"
+gui-next-page: "§aСледующая Страница ▶"
+gui-page-info: "§6Страница {current}§7/§6{total}"
+gui-page-listings: "§7Лотов: §f{count}"
+gui-search-title: "§eПоиск Аукционов"
+gui-search-lore-1: "§7Используйте §f/ac search <запрос> §7в чате"
+gui-search-lore-2: "§7для поиска конкретных предметов или продавцов."
+gui-category-title: "§bФильтр Категории"
+gui-category-current: "§7Текущая: §f{category}"
+
+# ─── ITEM DETAILS GUI ───────────────────────
+gui-item-detail-title: "§8Детали Предмета"
+gui-current-bid: "§6Текущая Ставка"
+gui-starting-bid: "§aНачальная Ставка"
+gui-buyout-price: "§cЦена Выкупа"
+gui-top-bidder: "§7Лидер: §f{bidder}"
+gui-seller: "§7Продавец: §f{seller}"
+gui-time-remaining: "§7Осталось: §f{time}"
+gui-listing-id: "§7ID: §8{listing_id}"
+
+# ─── BUTTONS ────────────────────────────────
+gui-button-bid: "§a§lСТАВКА"
+gui-button-bid-lore: "§7Нажмите, чтобы сделать ставку\n§7на этот предмет."
+gui-button-buyout: "§c§lВЫКУПИТЬ СЕЙЧАС"
+gui-button-buyout-lore: "§7Купите мгновенно\n§7по указанной цене."
+gui-button-cancel: "§c§lОТМЕНИТЬ ЛОТ"
+gui-button-cancel-lore: "§7Вернуть предмет в инвентарь."
+gui-button-refresh: "§e§lОБНОВИТЬ"
+gui-button-refresh-lore: "§7Обновить список аукционов."
+
+# ─── CONFIRM BID GUI ────────────────────────
+gui-confirm-bid-title: "§8Подтвердить Ставку"
+gui-confirm-bid-lore: "§7Нажмите для подтверждения\n§7вашей ставки §a{amount}§7."
+
+# ─── MANAGE LISTING GUI ─────────────────────
+gui-manage-title: "§8Управление Лотом"
+gui-manage-extend: "§a§lПРОДЛИТЬ ВРЕМЯ"
+gui-manage-extend-lore: "§7Добавить время к вашему аукциону."
+gui-manage-cancel: "§c§lОТМЕНИТЬ АУКЦИОН"
+gui-manage-cancel-lore: "§7Вернуть предмет в инвентарь."
+
+# ─── CLAIM GUI ──────────────────────────────
+gui-claim-title: "§8Ожидающие Предметы"
+gui-claim-items: "§a§lЗАБРАТЬ ПРЕДМЕТЫ"
+gui-claim-items-lore: "§7Ваши выигранные предметы или\n§7предметы отмененных лотов."
+gui-claim-money: "§e§lЗАБРАТЬ ДЕНЬГИ"
+gui-claim-money-lore: "§7Возврат ставок\n§7или ожидающие продажи."
+gui-no-pending: "§7У вас нет ожидающих предметов или денег."
+
+# ─── MISC ───────────────────────────────────
+bid-history-title: "История Ставок"
+bid-history-empty: "§7На этот лот еще нет ставок."
+bid-history-entry: "§f{bidder} §7- §a{amount} §7@ §e{time}"
+search-results-title: "Результаты Поиска"
+search-no-results: "§cАукционы, соответствующие вашему запросу, не найдены."
+
+# ─── WATCHLIST ──────────────────────────────
+watchlist-title: "Список Отслеживания"
+watchlist-empty: "§7Вы не следите ни за одним аукционом.\n\n§7Используйте §f/ac watchlist <id> §7для отслеживания."
+watchlist-added: "§aДобавлено в список отслеживания."
+watchlist-removed: "§7Удалено из списка отслеживания."
+watchlist-listing-ended: "§7Аукцион, за которым вы следили, завершился."
+
+# ─── BULK CANCEL ────────────────────────────
+bulk-cancel-success: "§a§lВсе ваши активные лоты были отменены."
+bulk-cancel-none: "§cУ вас нет активных лотов для отмены."
+
+# ─── ADMIN GUI ──────────────────────────────
+admin-gui-title: "§4Панель Администратора"
+admin-gui-back: "§7Назад"
+admin-gui-next: "§7Далее"
+admin-gui-close: "§cЗакрыть"
+admin-gui-player-auctions: "§eАукционы {player}"
+admin-gui-end-confirm: "§aЗавершить Аукцион"
+admin-gui-end-all: "§cЗавершить Все"
+admin-gui-cancel-confirm: "§cОтменить Аукцион"
+admin-gui-blacklist: "§4Черный Список"
+admin-gui-history: "§bИстория"
+
+# ─── ADMIN COMMANDS ─────────────────────────
+admin-commands-title: "§6Команды Админа:"
+admin-cmd-admin: "§f/ac admin §7- Открыть панель администратора"
+admin-cmd-blacklist-add: "§f/ac admin blacklist add <игрок> §7- Добавить в черный список"
+admin-cmd-blacklist-remove: "§f/ac admin blacklist remove <игрок> §7- Удалить из черного списка"
+admin-cmd-blacklist-list: "§f/ac admin blacklist list §7- Просмотреть черный список"
+admin-cmd-cancel: "§f/ac admin cancel <id> §7- Отменить аукцион"
+admin-cmd-backup: "§f/ac admin backup §7- Резервная копия базы данных"
+
+admin-blacklist-add: "§a{player} §aдобавлен в черный список."
+admin-blacklist-remove: "§a{player} §aудален из черного списка."
+admin-blacklist-list: "§7Игроки в черном списке: §f{players}"
+admin-blacklist-empty: "§7Черный список пуст."
+admin-cancel-success: "§aАукцион §f{id} §aуспешно отменен."
+admin-backup-success: "§aРезервная копия базы данных успешно создана!"
+admin-backup-fail: "§cОшибка резервной копии базы данных."
+
+# ─── SETUP WIZARD ───────────────────────────
+setup-welcome: "§6Добро пожаловать в Auctify!\n\n§7Этот мастер настройки поможет\n§7вам настроить плагин за несколько шагов."
+setup-complete: "§aНастройка завершена!\n\n§7Плагин настроен.\n§7Используйте §f/ac reload §7для применения ручных изменений."
+
+# ─── EXTEND ─────────────────────────────────
+extend-success: "§aВремя успешно продлено!"
+extend-fail: "§cНе удалось продлить время."
+extend-usage: "§7Использование: §f/ac extend <id> <минуты>"
+extend-invalid-minutes: "§cНеверное количество минут. Должно быть больше 0."
+extension-too-long: "§cВы не можете продлить более чем на §f{max} §cминут."
+cannot-extend-has-bids: "§cВы не можете продлить аукцион, на котором уже есть ставки."
+
+# ─── SNIPING PROTECTION ─────────────────────
+sniping-protection-active: "§aАктивна защита от снайпинга: добавлено §f{seconds} §aсекунд."
+
+# ─── ETC ────────────────────────────────────
+not-your-listing: "§cЭто не ваш лот."
+invalid-listing-id: "§cНеверный ID лота."
+auction-ended: "§cЭтот аукцион уже завершен."
+auction-private: "§cЭтот аукцион приватный. Вы не можете делать ставки."
+bin-only: "§cЭтот лот допускает только мгновенную покупку."
+
+# ─── Buy Orders (WTB System) ─────────────────
+buyorder-disabled: "§cСистема заказов на покупку отключена."
+buyorder-no-item: "§cДержите предмет, для которого хотите создать заказ!"
+buyorder-max-reached: "§cУ вас может быть только {max} активных заказов."
+buyorder-created: "§aЗаказ создан! §8(§f{id}§8) §7Покупка {amount}x {item} по §a{price} §7за штуку. Итого: §6{total}"
+buyorder-list-empty: "§7У вас нет активных заказов."
+buyorder-list-header: "§6§lВаши Заказы §8(§f{count}§8)"
+buyorder-list-entry: "§8• §f{id} §8| §7{amount}x {item} @ §a{price}"
+buyorder-cancelled: "§eЗаказ §f{id} §eотменен. Возврат средств."
+buyorder-not-found: "§cЗаказ не найден или уже выполнен/отменен."
+buyorder-usage-title: "§6Команды Заказов:"
+buyorder-usage-create: "§e/ac buyorder create <цена за штуку> §8— §7Создать заказ для предмета в руке"
+buyorder-usage-list: "§e/ac buyorder list §8— §7Список ваших заказов"
+buyorder-usage-cancel: "§e/ac buyorder cancel <id> §8— §7Отменить заказ"
+buyorder-usage-browse: "§e/ac buyorder browse §8— §7Смотреть все активные заказы"
+buyorder-browse-empty: "§7Нет активных заказов."
+buyorder-browse-header: "§6§lАктивные Заказы §8(§f{count}§8)"
+buyorder-browse-entry: "§8• §f{id} §8| §7{buyer} хочет {amount}x {item} @ §a{price} §8(§a{total}§8)"
+buyorder-filled: "§aВаш заказ выполнен! Получено {amount}x {item}."
+buyorder-sold: "§aПродано {amount}x {item} игроку {buyer} за §6{payment}"
+buyorder-offline-delivery: "§e{buyer} офлайн. Предметы в очереди на доставку."
+buyorder-delivered: "§a{count} предмет(ов) заказа доставлено в инвентарь!"
+buyorder-expired: "§eЗаказ §f{id} §eистек. Возврат средств."
+not-your-order: "§cЭто не ваш заказ!"
+
+# ─── Bulk Selling ──────────────────────────
+bulksell-usage: "§cИспользование: /ac bulksell <начальная_цена> <цена_выкупа> [длительность_минут]"
+bulksell-max-reached: "§eМаксимум {max} стаков зарегистрировано. Остальные предметы не зарегистрированы."
+bulksell-success: "§aУспешно зарегистрировано {stacks} стаков ({amount}x {item})!"
+bulksell-no-items: "§cПодходящих предметов в инвентаре не найдено."
+
+# ─── Statistics ───────────────────────────
+stats-usage: "§cИспользование: /ac stats [игрок]"
+stats-viewing: "§eПросмотр статистики игрока §f{player}"

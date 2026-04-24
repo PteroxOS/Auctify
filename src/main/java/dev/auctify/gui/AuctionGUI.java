@@ -56,6 +56,18 @@ public class AuctionGUI {
      * Opens the main auction GUI with sort mode.
      */
     public void open(Player player, int page, String category, String sortMode) {
+        open(player, page, category, sortMode, null);
+    }
+
+    /**
+     * Opens the main auction GUI with search query.
+     */
+    public void open(Player player, int page, String category, String sortMode, String query) {
+        open(player, page, category, sortMode, query, null, null, null, null);
+    }
+
+    public void open(Player player, int page, String category, String sortMode, String query,
+            Double minPrice, Double maxPrice, String sellerName, Long maxEndTime) {
         var config = plugin.getConfig();
         int rows = config.getInt("gui.rows", 6);
         if (rows < 3)
@@ -68,6 +80,11 @@ public class AuctionGUI {
         holder.setPage(page);
         holder.setCategory(category);
         holder.setSortMode(sortMode);
+        holder.setQuery(query);
+        holder.setMinPrice(minPrice);
+        holder.setMaxPrice(maxPrice);
+        holder.setSellerName(sellerName);
+        holder.setMaxEndTime(maxEndTime);
         Inventory inv = Bukkit.createInventory(holder, rows * 9, ColorUtil.toComponent(title));
 
         int itemsPerPage = config.getInt("gui.items-per-page", -1);
@@ -77,7 +94,16 @@ public class AuctionGUI {
 
         List<AuctionListing> listings = plugin.getAuctionManager().getActiveListings().stream()
                 .filter(l -> !l.isExpired())
-                .filter(l -> matchesCategory(l.getItem().getType(), category))
+                .filter(l -> l.getItem() != null && matchesCategory(l.getItem().getType(), category))
+                .filter(l -> query == null || query.isEmpty() || l.getItem() == null ||
+                        l.getItem().getType().name().toLowerCase().contains(query.toLowerCase()) ||
+                        (l.getItem().hasItemMeta() && l.getItem().getItemMeta().hasDisplayName() &&
+                                l.getItem().getItemMeta().getDisplayName().toLowerCase().contains(query.toLowerCase())))
+                .filter(l -> minPrice == null || l.getCurrentBid() >= minPrice)
+                .filter(l -> maxPrice == null || l.getCurrentBid() <= maxPrice)
+                .filter(l -> sellerName == null || sellerName.isEmpty()
+                        || l.getSellerName().toLowerCase().contains(sellerName.toLowerCase()))
+                .filter(l -> maxEndTime == null || l.getEndTime() <= maxEndTime)
                 .sorted(getSortComparator(sortMode))
                 .collect(Collectors.toList());
 
@@ -114,19 +140,25 @@ public class AuctionGUI {
         int prevSlot = config.getInt("gui.navigation.previous-page-slot", 45);
         int nextSlot = config.getInt("gui.navigation.next-page-slot", 53);
         int infoSlot = config.getInt("gui.navigation.info-slot", 49);
+        int claimSlot = config.getInt("gui.buttons.claim-slot", 46);
+        int categorySlot = config.getInt("gui.buttons.category-cycle-slot", 47);
+        int refreshSlot = config.getInt("gui.buttons.refresh-slot", 48);
+        int watchlistSlot = config.getInt("gui.buttons.watchlist-slot", 50);
+        int historySlot = config.getInt("gui.buttons.history-slot", 51);
+        int sortSlot = config.getInt("gui.buttons.sort-slot", 52);
 
         if (page > 0) {
             inv.setItem(prevSlot, createNavItem(Material.ARROW, MessageUtil.get("gui-previous-page")));
         }
 
-        // Claim/Mailbox Button (Slot 46)
+        // Claim/Mailbox Button
         int pendingCount = plugin.getStorageManager().getPendingDeliveries(player.getUniqueId()).size();
         if (pendingCount > 0) {
-            inv.setItem(46, createNavItem(Material.CHEST,
+            inv.setItem(claimSlot, createNavItem(Material.CHEST,
                     MessageUtil.get("gui-claim-button"),
                     MessageUtil.get("gui-claim-button-lore", Map.of("count", String.valueOf(pendingCount)))));
         } else {
-            inv.setItem(46, createNavItem(Material.NAME_TAG,
+            inv.setItem(claimSlot, createNavItem(Material.NAME_TAG,
                     MessageUtil.get("gui-search-title"),
                     MessageUtil.get("gui-search-lore-1"),
                     MessageUtil.get("gui-search-lore-2")));
@@ -141,7 +173,7 @@ public class AuctionGUI {
             case "MISC" -> Material.APPLE;
             default -> Material.HOPPER;
         };
-        inv.setItem(47, createNavItem(catMat,
+        inv.setItem(categorySlot, createNavItem(catMat,
                 MessageUtil.get("gui-category-title"),
                 MessageUtil.get("gui-category-current", Map.of("category", catDisplayName)),
                 "",
@@ -157,8 +189,8 @@ public class AuctionGUI {
                 category.equals("MISC") ? "§a▶ " + MessageUtil.get("gui-category-misc")
                         : "§7- " + MessageUtil.get("gui-category-misc")));
 
-        // Refresh Button (Slot 48)
-        inv.setItem(48, createNavItem(Material.SUNFLOWER,
+        // Refresh Button
+        inv.setItem(refreshSlot, createNavItem(Material.SUNFLOWER,
                 MessageUtil.get("gui-refresh-title"),
                 MessageUtil.get("gui-refresh-lore-1"),
                 MessageUtil.get("gui-refresh-lore-2")));
@@ -175,14 +207,14 @@ public class AuctionGUI {
                 MessageUtil.get("gui-profile-listings",
                         Map.of("active", String.valueOf(activeCount), "max", String.valueOf(maxListings)))));
 
-        // History Button (Slot 51)
-        inv.setItem(51, createNavItem(Material.CLOCK,
+        // History Button
+        inv.setItem(historySlot, createNavItem(Material.CLOCK,
                 MessageUtil.get("gui-history-title"),
                 MessageUtil.get("gui-history-lore-1"),
                 MessageUtil.get("gui-history-lore-2")));
 
-        // Sort Button (Slot 52)
-        inv.setItem(52, createNavItem(Material.COMPARATOR,
+        // Sort Button
+        inv.setItem(sortSlot, createNavItem(Material.COMPARATOR,
                 MessageUtil.get("gui-sort-title"),
                 MessageUtil.get("gui-sort-lore-1"),
                 MessageUtil.get("gui-sort-lore-2")));
@@ -225,7 +257,7 @@ public class AuctionGUI {
         Inventory inv = player.getOpenInventory().getTopInventory();
         if (inv == null)
             return;
-        if (!(inv.getHolder() instanceof AuctifyHolder))
+        if (!(inv.getHolder() instanceof AuctifyHolder holder))
             return;
 
         var config = plugin.getConfig();
@@ -239,10 +271,27 @@ public class AuctionGUI {
         if (itemsPerPage <= 0)
             itemsPerPage = (rows - 1) * 9;
 
+        // Get filter values from holder
+        String query = holder.getQuery();
+        Double minPrice = holder.getMinPrice();
+        Double maxPrice = holder.getMaxPrice();
+        String sellerName = holder.getSellerName();
+        Long maxEndTime = holder.getMaxEndTime();
+        String sortMode = holder.getSortMode();
+
         List<AuctionListing> listings = plugin.getAuctionManager().getActiveListings().stream()
                 .filter(l -> !l.isExpired())
-                .filter(l -> matchesCategory(l.getItem().getType(), category))
-                .sorted((a, b) -> Long.compare(a.getEndTime(), b.getEndTime()))
+                .filter(l -> l.getItem() != null && matchesCategory(l.getItem().getType(), category))
+                .filter(l -> query == null || query.isEmpty() || l.getItem() == null ||
+                        l.getItem().getType().name().toLowerCase().contains(query.toLowerCase()) ||
+                        (l.getItem().hasItemMeta() && l.getItem().getItemMeta().hasDisplayName() &&
+                                l.getItem().getItemMeta().getDisplayName().toLowerCase().contains(query.toLowerCase())))
+                .filter(l -> minPrice == null || l.getCurrentBid() >= minPrice)
+                .filter(l -> maxPrice == null || l.getCurrentBid() <= maxPrice)
+                .filter(l -> sellerName == null || sellerName.isEmpty()
+                        || l.getSellerName().toLowerCase().contains(sellerName.toLowerCase()))
+                .filter(l -> maxEndTime == null || l.getEndTime() <= maxEndTime)
+                .sorted(getSortComparator(sortMode))
                 .collect(Collectors.toList());
 
         int totalPages = Math.max(1, (int) Math.ceil((double) listings.size() / itemsPerPage));
@@ -264,31 +313,22 @@ public class AuctionGUI {
             }
         }
 
-        // Refresh nav items
-        inv.setItem(46, createNavItem(Material.NAME_TAG,
-                MessageUtil.get("gui-search-title"),
-                MessageUtil.get("gui-search-lore-1"),
-                MessageUtil.get("gui-search-lore-2")));
-
-        inv.setItem(48, createNavItem(Material.SUNFLOWER,
-                MessageUtil.get("gui-refresh-title"),
-                MessageUtil.get("gui-refresh-lore-1"),
-                MessageUtil.get("gui-refresh-lore-2")));
-
         // Profile
         double balance = plugin.getEconomyManager().getBalance(player.getUniqueId());
         long activeCount = plugin.getAuctionManager().getActiveListings().stream()
                 .filter(l -> l.getSellerUUID().equals(player.getUniqueId()) && l.isActive())
                 .count();
         int maxListings = plugin.getAuctionManager().getMaxListingsForPlayer(player);
-        inv.setItem(50, createNavItem(Material.PLAYER_HEAD,
+        int watchlistSlot = config.getInt("gui.buttons.watchlist-slot", 50);
+        int historySlot = config.getInt("gui.buttons.history-slot", 51);
+        inv.setItem(watchlistSlot, createNavItem(Material.PLAYER_HEAD,
                 MessageUtil.get("gui-profile-title", Map.of("player", player.getName())),
                 MessageUtil.get("gui-profile-balance", Map.of("balance", plugin.getEconomyManager().format(balance))),
                 MessageUtil.get("gui-profile-listings",
                         Map.of("active", String.valueOf(activeCount), "max", String.valueOf(maxListings)))));
 
         // History
-        inv.setItem(51, createNavItem(Material.CLOCK,
+        inv.setItem(historySlot, createNavItem(Material.CLOCK,
                 MessageUtil.get("gui-history-title"),
                 MessageUtil.get("gui-history-lore-1"),
                 MessageUtil.get("gui-history-lore-2")));
@@ -368,6 +408,8 @@ public class AuctionGUI {
             case "PRICE_ASC" -> (a, b) -> Double.compare(a.getCurrentBid(), b.getCurrentBid());
             case "PRICE_DESC" -> (a, b) -> Double.compare(b.getCurrentBid(), a.getCurrentBid());
             case "BIDS" -> (a, b) -> Integer.compare(b.getBidHistory().size(), a.getBidHistory().size());
+            case "NEWEST" -> (a, b) -> Long.compare(b.getCreatedAt(), a.getCreatedAt());
+            case "ENDING_SOON" -> (a, b) -> Long.compare(a.getEndTime(), b.getEndTime());
             default -> (a, b) -> Long.compare(a.getEndTime(), b.getEndTime()); // TIME_ASC
         };
     }

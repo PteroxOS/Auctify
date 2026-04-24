@@ -40,7 +40,7 @@ public class DiscordWebhookUtil {
         String title = config.getString("discord.on-new-listing.title", "\uD83C\uDFF7\uFE0F New Auction Listing!");
         int color = config.getInt("discord.on-new-listing.color", 3447003);
 
-        String jsonPayload = buildJson(title, color,
+        String jsonPayload = buildJson(title, color, seller,
                 field("Seller", seller, true),
                 field("Item", item, true),
                 field("Start Price", startPrice, true),
@@ -66,7 +66,7 @@ public class DiscordWebhookUtil {
         String title = config.getString("discord.on-sale.title", "\uD83D\uDCB0 Item Sold!");
         int color = config.getInt("discord.on-sale.color", 3066993);
 
-        String jsonPayload = buildJson(title, color,
+        String jsonPayload = buildJson(title, color, seller,
                 field("Seller", seller, true),
                 field("Winner", winner, true),
                 field("Item", item, true),
@@ -92,7 +92,7 @@ public class DiscordWebhookUtil {
         String title = config.getString("discord.on-expire.title", "⏰ Auction Expired");
         int color = config.getInt("discord.on-expire.color", 10070709); // Gray
 
-        String jsonPayload = buildJson(title, color,
+        String jsonPayload = buildJson(title, color, seller,
                 field("Seller", seller, true),
                 field("Item", item, true),
                 field("Start Price", startPrice, true),
@@ -123,9 +123,9 @@ public class DiscordWebhookUtil {
     }
 
     /**
-     * Builds a JSON embed payload with professional formatting.
+     * Builds a JSON embed payload with player head as icon.
      */
-    private String buildJson(String title, int color, String... fields) {
+    private String buildJson(String title, int color, String playerName, String... fields) {
         StringBuilder fieldsJson = new StringBuilder();
         for (int i = 0; i < fields.length; i++) {
             if (i > 0)
@@ -137,14 +137,17 @@ public class DiscordWebhookUtil {
         String version = plugin.getPluginMeta().getVersion();
         String footerText = "🏛️ " + serverName + " • Auctify v" + version;
 
+        // Use player head as icon (mc-heads.net - front facing avatar)
+        String playerHeadUrl = "https://mc-heads.net/avatar/" + escapeJson(playerName) + "/128.png";
+
         return "{\"embeds\":[{"
                 + "\"title\":\"" + escapeJson(title) + "\","
                 + "\"color\":" + color + ","
                 + "\"fields\":[" + fieldsJson + "],"
                 + "\"footer\":{\"text\":\"" + escapeJson(footerText)
-                + "\",\"icon_url\":\"https://github.com/PteroxOS/Auctify/raw/main/assets/icon.png\"},"
+                + "\",\"icon_url\":\"" + playerHeadUrl + "\"},"
                 + "\"timestamp\":\"" + java.time.Instant.now().toString() + "\","
-                + "\"author\":{\"name\":\"Auctify Auction House\",\"url\":\"https://github.com/PteroxOS/Auctify\",\"icon_url\":\"https://github.com/PteroxOS/Auctify/raw/main/assets/icon.png\"}"
+                + "\"thumbnail\":{\"url\":\"" + playerHeadUrl + "\"}"
                 + "}]}";
     }
 

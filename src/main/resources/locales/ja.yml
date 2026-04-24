@@ -1,0 +1,57 @@
+# ─────────────────────────────────────────────
+# Auctify — Japanese Locale File
+# Variables: {item}, {amount}, {winner}, {tax}, {net}, {listing_id}, {min_bid}, {max}
+# ─────────────────────────────────────────────
+
+no-permission: "§c権限がありません。"
+player-only: "§cこのコマンドはプレイヤーのみ実行できます。"
+listing-created: "§a出品が作成されました！ §7ID: §f{listing_id}"
+bid-success: "§aあなたは §f{item} §aの最高入札者です！"
+buyout-success: "§a§6{amount} §aで §f{item} §aを即座に購入しました！"
+auction-won: "§a§f{item} §aのオークションを §6{amount} §aで落札しました！"
+auction-sold: "§aあなたの §f{item} §aが §e{winner} §aに §6{amount} §aで売れました！"
+insufficient-funds: "§c資金不足です。 §f{amount} §cが必要です。"
+listing-cancelled: "§a出品がキャンセルされました。アイテムが返却されました。"
+
+# GUI
+gui-previous-page: "§a◀ 前のページ"
+gui-next-page: "§a次のページ ▶"
+gui-page-info: "§6{current}§7/§6{total} ページ"
+gui-search-title: "§eオークションを検索"
+gui-button-bid: "§a§l入札する"
+gui-button-buyout: "§c§l即購入"
+
+# ─── Buy Orders (WTB System) ─────────────────
+buyorder-disabled: "§c買い注文システムは無効です。"
+buyorder-no-item: "§c買い注文を作成したいアイテムを持ってください！"
+buyorder-max-reached: "§c買い注文は最大 {max} つまでです。"
+buyorder-created: "§a買い注文が作成されました！ §8(§f{id}§8) §7{amount}x {item} を §a{price} §7で購入。合計：§6{total}"
+buyorder-list-empty: "§7買い注文はありません。"
+buyorder-list-header: "§6§lあなたの買い注文 §8(§f{count}§8)"
+buyorder-list-entry: "§8• §f{id} §8| §7{amount}x {item} @ §a{price}"
+buyorder-cancelled: "§e買い注文 §f{id} §eがキャンセルされました。返金されました。"
+buyorder-not-found: "§c買い注文が見つからないか、既に成立/キャンセルされています。"
+buyorder-usage-title: "§6買い注文コマンド："
+buyorder-usage-create: "§e/ac buyorder create <単価> §8— §7手持ちのアイテムで買い注文を作成"
+buyorder-usage-list: "§e/ac buyorder list §8— §7自分の買い注文を表示"
+buyorder-usage-cancel: "§e/ac buyorder cancel <id> §8— §7買い注文をキャンセル"
+buyorder-usage-browse: "§e/ac buyorder browse §8— §7すべての買い注文を表示"
+buyorder-browse-empty: "§7買い注文はありません。"
+buyorder-browse-header: "§6§lアクティブな買い注文 §8(§f{count}§8)"
+buyorder-browse-entry: "§8• §f{id} §8| §7{buyer} が {amount}x {item} を §a{price} §8(§a{total}§8) で求めています"
+buyorder-filled: "§a買い注文が成立しました！ {amount}x {item} を受け取りました。"
+buyorder-sold: "§a{buyer} に {amount}x {item} を §6{payment} §aで販売しました"
+buyorder-offline-delivery: "§e{buyer} はオフラインです。アイテムは配達待ちです。"
+buyorder-delivered: "§a{count} 個の買い注文アイテムがインベントリに配達されました！"
+buyorder-expired: "§e買い注文 §f{id} §eの期限が切れました。返金されました。"
+not-your-order: "§cこれはあなたの買い注文ではありません！"
+
+# ─── Bulk Selling ──────────────────────────
+bulksell-usage: "§c使い方：/ac bulksell <開始価格> <即購入価格> [期間_分]"
+bulksell-max-reached: "§e最大 {max} スタックが出品されました。残りのアイテムは出品されませんでした。"
+bulksell-success: "§a{stacks} スタック ({amount}x {item}) の出品に成功しました！"
+bulksell-no-items: "§cインベントリに一致するアイテムがありません。"
+
+# ─── Statistics ───────────────────────────
+stats-usage: "§c使い方：/ac stats [プレイヤー]"
+stats-viewing: "§e§f{player} §eの統計を表示中"

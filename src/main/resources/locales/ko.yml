@@ -1,0 +1,57 @@
+# ─────────────────────────────────────────────
+# Auctify — Korean Locale File
+# Variables: {item}, {amount}, {winner}, {tax}, {net}, {listing_id}, {min_bid}, {max}
+# ─────────────────────────────────────────────
+
+no-permission: "§c권한이 없습니다."
+player-only: "§c이 명령어는 플레이어만 실행할 수 있습니다."
+listing-created: "§a상품이 등록되었습니다! §7ID: §f{listing_id}"
+bid-success: "§a당신은 이제 §f{item} §a의 최고 입찰자입니다!"
+buyout-success: "§a§6{amount} §a에 §f{item}§a을(를) 즉시 구매했습니다!"
+auction-won: "§a§f{item} §a경매를 §6{amount} §a에 낙찰받았습니다!"
+auction-sold: "§a당신의 §f{item}§a이(가) §e{winner}§a에게 §6{amount}§a에 판매되었습니다!"
+insufficient-funds: "§c자금이 부족합니다. §f{amount}§c이(가) 필요합니다."
+listing-cancelled: "§a상품이 취소되었습니다. 아이템이 반환되었습니다."
+
+# GUI
+gui-previous-page: "§a◀ 이전 페이지"
+gui-next-page: "§a다음 페이지 ▶"
+gui-page-info: "§6{current}§7/§6{total} 페이지"
+gui-search-title: "§e경매 검색"
+gui-button-bid: "§a§l입찰하기"
+gui-button-buyout: "§c§l즉시 구매"
+
+# ─── Buy Orders (WTB System) ─────────────────
+buyorder-disabled: "§c구매 주문 시스템이 비활성화되었습니다."
+buyorder-no-item: "§c구매 주문을 생성할 아이템을 들고 있으세요!"
+buyorder-max-reached: "§c활성 구매 주문은 최대 {max}개까지 가능합니다."
+buyorder-created: "§a구매 주문이 생성되었습니다! §8(§f{id}§8) §7{amount}x {item}을(를) §a{price}§7에 구매. 총액: §6{total}"
+buyorder-list-empty: "§7활성 구매 주문이 없습니다."
+buyorder-list-header: "§6§l당신의 구매 주문 §8(§f{count}§8)"
+buyorder-list-entry: "§8• §f{id} §8| §7{amount}x {item} @ §a{price}"
+buyorder-cancelled: "§e구매 주문 §f{id}§e이(가) 취소되었습니다. 환불되었습니다."
+buyorder-not-found: "§c구매 주문을 찾을 수 없거나 이미 완료/취소되었습니다."
+buyorder-usage-title: "§6구매 주문 명령어:"
+buyorder-usage-create: "§e/ac buyorder create <개당 가격> §8— §7들고 있는 아이템으로 구매 주문 생성"
+buyorder-usage-list: "§e/ac buyorder list §8— §7내 구매 주문 보기"
+buyorder-usage-cancel: "§e/ac buyorder cancel <id> §8— §7구매 주문 취소"
+buyorder-usage-browse: "§e/ac buyorder browse §8— §7모든 활성 구매 주문 보기"
+buyorder-browse-empty: "§7활성 구매 주문이 없습니다."
+buyorder-browse-header: "§6§l활성 구매 주문 §8(§f{count}§8)"
+buyorder-browse-entry: "§8• §f{id} §8| §7{buyer}님이 {amount}x {item}을(를) §a{price} §8(§a{total}§8)에 구매 희망"
+buyorder-filled: "§a구매 주문이 체결되었습니다! {amount}x {item}을(를) 받았습니다."
+buyorder-sold: "§a{buyer}님에게 {amount}x {item}을(를) §6{payment}§a에 판매했습니다"
+buyorder-offline-delivery: "§e{buyer}님이 오프라인입니다. 아이템이 배송 대기 중입니다."
+buyorder-delivered: "§a{count}개의 대기 중인 구매 주문 아이템이 인벤토리에 배송되었습니다!"
+buyorder-expired: "§e구매 주문 §f{id}§e이(가) 만료되었습니다. 환불되었습니다."
+not-your-order: "§c이것은 당신의 구매 주문이 아닙니다!"
+
+# ─── Bulk Selling ──────────────────────────
+bulksell-usage: "§c사용법: /ac bulksell <시작가> <즉시구매가> [기간_분]"
+bulksell-max-reached: "§e최대 {max} 스택이 등록되었습니다. 남은 아이템은 등록되지 않았습니다."
+bulksell-success: "§a{stacks} 스택 ({amount}x {item}) 등록에 성공했습니다!"
+bulksell-no-items: "§c인벤토리에 일치하는 아이템이 없습니다."
+
+# ─── Statistics ───────────────────────────
+stats-usage: "§c사용법: /ac stats [플레이어]"
+stats-viewing: "§e§f{player}§e님의 통계 보기"

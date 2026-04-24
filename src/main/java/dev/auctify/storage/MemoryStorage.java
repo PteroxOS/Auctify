@@ -2,12 +2,15 @@ package dev.auctify.storage;
 
 import dev.auctify.auction.AuctionHistory;
 import dev.auctify.auction.AuctionListing;
+import dev.auctify.auction.AutoBid;
 import dev.auctify.auction.BidRecord;
 import dev.auctify.auction.BuyOrder;
+import dev.auctify.auction.PriceHistory;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 
 /**
@@ -47,13 +50,23 @@ public class MemoryStorage implements StorageManager {
     /** Buy orders: orderId -> BuyOrder. */
     private final Map<String, BuyOrder> buyOrders = new ConcurrentHashMap<>();
 
-    /** {@inheritDoc} */
+    /** Price history records, stored in insertion order. */
+    private final List<PriceHistory> priceHistory = Collections.synchronizedList(new ArrayList<>());
+
+    /** Auto-bids: listingId -> playerUUID -> AutoBid. */
+    private final Map<String, Map<UUID, AutoBid>> autoBids = new ConcurrentHashMap<>();
+
+    /**
+     * Player auto-bids: playerUUID -> listingId -> AutoBid (for quick player
+     * lookup).
+     */
+    private final Map<UUID, Map<String, AutoBid>> playerAutoBids = new ConcurrentHashMap<>();
+
     @Override
     public void initialize() {
         // No initialization needed for in-memory storage
     }
 
-    /** {@inheritDoc} */
     @Override
     public void saveListing(AuctionListing listing) {
         listings.put(listing.getId(), listing);
@@ -311,6 +324,128 @@ public class MemoryStorage implements StorageManager {
         watchlists.remove(playerUUID);
     }
 
+    // ─── Pending Buy Order Deliveries ───────────────
+
+    private final Map<UUID, List<org.bukkit.inventory.ItemStack>> pendingBuyDeliveries = new ConcurrentHashMap<>();
+
+    @Override
+    public void addPendingBuyDelivery(UUID playerUUID, org.bukkit.inventory.ItemStack item, String orderId) {
+        pendingBuyDeliveries.computeIfAbsent(playerUUID, k -> new CopyOnWriteArrayList<>()).add(item);
+    }
+
+    @Override
+    public List<org.bukkit.inventory.ItemStack> getPendingBuyDeliveries(UUID playerUUID) {
+        List<org.bukkit.inventory.ItemStack> list = pendingBuyDeliveries.get(playerUUID);
+        return list != null ? new ArrayList<>(list) : new ArrayList<>();
+    }
+
+    @Override
+    public void clearPendingBuyDeliveries(UUID playerUUID) {
+        pendingBuyDeliveries.remove(playerUUID);
+    }
+
+    // ─── Price History Implementation ────────────────
+
+    @Override
+    public void savePriceHistory(PriceHistory priceHistory) {
+        this.priceHistory.add(priceHistory);
+    }
+
+    @Override
+    public List<PriceHistory> getPriceHistory(String itemType, int limit) {
+        return this.priceHistory.stream()
+                .filter(ph -> ph.getItemMaterial().equals(itemType))
+                .sorted(Comparator.comparingLong(PriceHistory::getTimestamp).reversed())
+                .limit(limit)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<PriceHistory> getAllPriceHistory(int limit) {
+        return this.priceHistory.stream()
+                .sorted(Comparator.comparingLong(PriceHistory::getTimestamp).reversed())
+                .limit(limit)
+                .collect(Collectors.toList());
+    }
+
+    // ─── Auto-Bid Implementation ───────────────────
+
+    @Override
+    public void saveAutoBid(AutoBid autoBid) {
+        autoBids.computeIfAbsent(autoBid.getListingId(), k -> new ConcurrentHashMap<>())
+                .put(autoBid.getPlayerUUID(), autoBid);
+        playerAutoBids.computeIfAbsent(autoBid.getPlayerUUID(), k -> new ConcurrentHashMap<>())
+                .put(autoBid.getListingId(), autoBid);
+    }
+
+    @Override
+    public AutoBid getAutoBid(String listingId, UUID playerUUID) {
+        Map<UUID, AutoBid> listingBids = autoBids.get(listingId);
+        return listingBids != null ? listingBids.get(playerUUID) : null;
+    }
+
+    @Override
+    public List<AutoBid> getAutoBidsForListing(String listingId) {
+        Map<UUID, AutoBid> listingBids = autoBids.get(listingId);
+        return listingBids != null ? new ArrayList<>(listingBids.values()) : Collections.emptyList();
+    }
+
+    @Override
+    public List<AutoBid> getAutoBidsForPlayer(UUID playerUUID) {
+        Map<String, AutoBid> playerBids = playerAutoBids.get(playerUUID);
+        return playerBids != null ? new ArrayList<>(playerBids.values()) : Collections.emptyList();
+    }
+
+    @Override
+    public void deleteAutoBid(String listingId, UUID playerUUID) {
+        Map<UUID, AutoBid> listingBids = autoBids.get(listingId);
+        if (listingBids != null) {
+            listingBids.remove(playerUUID);
+            if (listingBids.isEmpty()) {
+                autoBids.remove(listingId);
+            }
+        }
+        Map<String, AutoBid> playerBids = playerAutoBids.get(playerUUID);
+        if (playerBids != null) {
+            playerBids.remove(listingId);
+            if (playerBids.isEmpty()) {
+                playerAutoBids.remove(playerUUID);
+            }
+        }
+    }
+
+    @Override
+    public void deleteAutoBidsForListing(String listingId) {
+        Map<UUID, AutoBid> listingBids = autoBids.remove(listingId);
+        if (listingBids != null) {
+            for (UUID playerUUID : listingBids.keySet()) {
+                Map<String, AutoBid> playerBids = playerAutoBids.get(playerUUID);
+                if (playerBids != null) {
+                    playerBids.remove(listingId);
+                    if (playerBids.isEmpty()) {
+                        playerAutoBids.remove(playerUUID);
+                    }
+                }
+            }
+        }
+    }
+
+    @Override
+    public void clearAutoBidsForPlayer(UUID playerUUID) {
+        Map<String, AutoBid> playerBids = playerAutoBids.remove(playerUUID);
+        if (playerBids != null) {
+            for (String listingId : playerBids.keySet()) {
+                Map<UUID, AutoBid> listingBids = autoBids.get(listingId);
+                if (listingBids != null) {
+                    listingBids.remove(playerUUID);
+                    if (listingBids.isEmpty()) {
+                        autoBids.remove(listingId);
+                    }
+                }
+            }
+        }
+    }
+
     @Override
     public void shutdown() {
         // No cleanup needed — data is transient
@@ -321,5 +456,9 @@ public class MemoryStorage implements StorageManager {
         bidHistory.clear();
         buyOrders.clear();
         watchlists.clear();
+        pendingBuyDeliveries.clear();
+        priceHistory.clear();
+        autoBids.clear();
+        playerAutoBids.clear();
     }
 }

@@ -11,6 +11,16 @@
 # ╚═══════════════════════════════════════════════════════════════╝
 
 # ─────────────────────────────────────────────
+#  METRICS (bStats)
+# ─────────────────────────────────────────────
+metrics:
+  # Enable anonymous usage statistics via bStats?
+  # This helps plugin development by providing data like:
+  # server version, plugin version, language, storage type
+  # No personal data is collected. Default: false (requires bStats shading)
+  enabled: false
+
+# ─────────────────────────────────────────────
 #  DEPENDENCY SETTINGS
 # ─────────────────────────────────────────────
 dependencies:
@@ -24,7 +34,7 @@ dependencies:
 # ─────────────────────────────────────────────
 general:
   # Language file to use from the 'locales' folder (without .yml)
-  # Examples: en, id
+  # Available: en, id, es, pt_br, ru, de, fr, pl, tr, zh_cn, ja, ko, nl
   language: "en"
 
   # Plugin language prefix shown before all messages
@@ -132,8 +142,18 @@ gui:
   # Navigation row items (bottom row of GUI)
   navigation:
     previous-page-slot: 45
+    search-button-slot: 48
     info-slot: 49
     next-page-slot: 53
+  
+  # GUI button slots (row 5 - second to last row)
+  buttons:
+    category-cycle-slot: 47
+    claim-slot: 46
+    history-slot: 51
+    sort-slot: 52
+    refresh-slot: 48
+    watchlist-slot: 50
 
   # Bid input timeout in seconds (how long a player has to type their bid in chat)
   # After this time, the input session is automatically cancelled
@@ -172,6 +192,74 @@ system:
   # First-run flag (DO NOT EDIT - set automatically)
   # When true, setup wizard will prompt admins on next startup
   first-run: true
+
+# ─────────────────────────────────────────────
+#  SOUND EFFECTS
+# ─────────────────────────────────────────────
+sounds:
+  # Enable sound effects for auction events?
+  enabled: true
+  # Sounds enhance UX: bid success, auction won, outbid alerts, etc.
+
+# ─────────────────────────────────────────────
+#  NOTIFICATIONS
+# ─────────────────────────────────────────────
+notifications:
+  # Enable notification sounds
+  sound: true
+  # Notification sound volume (0.0 to 1.0)
+  volume: 0.5
+  # Notification sound pitch (0.5 to 2.0)
+  pitch: 1.0
+  # Expiration warning notification (minutes before auction ends)
+  expiration-warning-minutes: 5
+
+# ─────────────────────────────────────────────
+#  AUTO-BID
+# ─────────────────────────────────────────────
+autobid:
+  # Enable auto-bid feature?
+  enabled: true
+  # Maximum auto-bids per player
+  max-per-player: 10
+  # Minimum bid increment for auto-bids
+  min-increment: 1.0
+
+# ─────────────────────────────────────────────
+#  ALERTS (Title & Action Bar)
+# ─────────────────────────────────────────────
+alerts:
+  # Title alerts for major events (auction won, sold, outbid)
+  titles:
+    enabled: true
+  # Action bar notifications for auction activity
+  actionbar:
+    enabled: true
+  # Broadcast high-value listings (expensive items)
+  broadcast-high-value: true
+  # Minimum price to trigger high-value broadcast
+  high-value-threshold: 10000
+
+# ─────────────────────────────────────────────
+#  BUY ORDERS (Want-to-Buy / WTB System)
+# ─────────────────────────────────────────────
+buyorders:
+  # Enable the buy order system?
+  enabled: true
+  # Default duration for buy orders (in seconds)
+  # Default: 7 days (604800 seconds)
+  duration: 604800
+  # Maximum buy orders per player
+  max-per-player: 5
+
+# ─────────────────────────────────────────────
+#  BULK SELLING
+# ─────────────────────────────────────────────
+bulksell:
+  # Enable bulk selling feature?
+  enabled: true
+  # Maximum number of stacks to list at once
+  max-stacks: 9
 
 # ─────────────────────────────────────────────
 #  STORAGE SETTINGS

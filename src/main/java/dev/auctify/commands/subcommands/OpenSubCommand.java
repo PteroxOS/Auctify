@@ -1,6 +1,7 @@
 package dev.auctify.commands.subcommands;
 
 import dev.auctify.Auctify;
+import dev.auctify.util.MessageUtil;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
@@ -19,7 +20,15 @@ public class OpenSubCommand implements SubCommand {
     /** {@inheritDoc} */
     @Override
     public void execute(CommandSender sender, String[] args) {
-        Player player = (Player) sender;
+        if (!(sender instanceof Player player)) {
+            return;
+        }
+
+        if (!player.hasPermission("auctify.open")) {
+            MessageUtil.send(player, "no-permission", null);
+            return;
+        }
+
         plugin.getAuctionGUI().open(player);
     }
 

@@ -1,0 +1,57 @@
+# ─────────────────────────────────────────────
+# Auctify — Turkish Locale File
+# Variables: {item}, {amount}, {winner}, {tax}, {net}, {listing_id}, {min_bid}, {max}
+# ─────────────────────────────────────────────
+
+no-permission: "§cBunun için izniniz yok."
+player-only: "§cBu komut sadece oyuncular tarafından çalıştırılabilir."
+listing-created: "§aİlanınız oluşturuldu! §7ID: §f{listing_id}"
+bid-success: "§aArtık §f{item} §aiçin en yüksek teklif sizsiniz!"
+buyout-success: "§a§f{item} §aürününü §6{amount} §akarşılığında anında satın aldınız!"
+auction-won: "§a§f{item} §amüzayedesini §6{amount} §ateklifle kazandınız!"
+auction-sold: "§a§f{item} §aürününüz §e{winner} §akullanıcısına §6{amount} §akarşılığında satıldı!"
+insufficient-funds: "§cYetersiz bakiye. §f{amount} §cgerekli."
+listing-cancelled: "§aİlan iptal edildi. Eşyanız iade edildi."
+
+# GUI
+gui-previous-page: "§a◀ Önceki Sayfa"
+gui-next-page: "§aSonraki Sayfa ▶"
+gui-page-info: "§6Sayfa {current}§7/§6{total}"
+gui-search-title: "§eMüzayede Ara"
+gui-button-bid: "§a§lTEKLİF VER"
+gui-button-buyout: "§c§lHEMEN AL"
+
+# ─── Buy Orders (WTB System) ─────────────────
+buyorder-disabled: "§cSatın alma emri sistemi devre dışı."
+buyorder-no-item: "§cSatın alma emri oluşturmak istediğiniz eşyayı tutun!"
+buyorder-max-reached: "§cSadece {max} aktif satın alma emriniz olabilir."
+buyorder-created: "§aSatın alma emri oluşturuldu! §8(§f{id}§8) §7{amount}x {item} ürününü §a{price} §7fiyatından alıyor. Toplam: §6{total}"
+buyorder-list-empty: "§7Aktif satın alma emriniz yok."
+buyorder-list-header: "§6§lSatın Alma Emirleriniz §8(§f{count}§8)"
+buyorder-list-entry: "§8• §f{id} §8| §7{amount}x {item} @ §a{price}"
+buyorder-cancelled: "§eSatın alma emri §f{id} §eiptal edildi. Para iadesi yapıldı."
+buyorder-not-found: "§cSatın alma emri bulunamadı veya zaten doldurulmuş/iptal edilmiş."
+buyorder-usage-title: "§6Satın Alma Emri Komutları:"
+buyorder-usage-create: "§e/ac buyorder create <birim fiyat> §8— §7Tutulan eşya için emir oluştur"
+buyorder-usage-list: "§e/ac buyorder list §8— §7Aktif emirlerinizi görüntüle"
+buyorder-usage-cancel: "§e/ac buyorder cancel <id> §8— §7Emir iptal et"
+buyorder-usage-browse: "§e/ac buyorder browse §8— §7Tüm aktif emirleri görüntüle"
+buyorder-browse-empty: "§7Aktif satın alma emri yok."
+buyorder-browse-header: "§6§lAktif Satın Alma Emirleri §8(§f{count}§8)"
+buyorder-browse-entry: "§8• §f{id} §8| §7{buyer}, {amount}x {item} ürününü §a{price} §8(§a{total}§8) fiyatından istiyor"
+buyorder-filled: "§aSatın alma emriniz dolduruldu! {amount}x {item} alındı."
+buyorder-sold: "§a{buyer} kullanıcısına {amount}x {item} ürünü §6{payment} §akarşılığında satıldı"
+buyorder-offline-delivery: "§e{buyer} çevrimdışı. Eşyalar teslimat için sıraya alındı."
+buyorder-delivered: "§a{count} adet bekleyen satın alma emri eşyası envanterinize teslim edildi!"
+buyorder-expired: "§eSatın alma emri §f{id} §esüresi doldu. Para iadesi yapıldı."
+not-your-order: "§cBu sizin satın alma emriniz değil!"
+
+# ─── Bulk Selling ──────────────────────────
+bulksell-usage: "§cKullanım: /ac bulksell <başlangıç_fiyat> <anında_alım_fiyat> [süre_dakika]"
+bulksell-max-reached: "§eMaksimum {max} stack listelendi. Kalan eşyalar listelenmedi."
+bulksell-success: "§a{stacks} stack ({amount}x {item}) başarıyla listelendi!"
+bulksell-no-items: "§cEnvanterde eşleşen eşya bulunamadı."
+
+# ─── Statistics ───────────────────────────
+stats-usage: "§cKullanım: /ac stats [oyuncu]"
+stats-viewing: "§e{player} kullanıcısının istatistikleri görüntüleniyor"

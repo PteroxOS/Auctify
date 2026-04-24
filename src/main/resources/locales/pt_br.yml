@@ -1,0 +1,202 @@
+# ─────────────────────────────────────────────
+# Auctify — Portuguese (Brazil) Locale File
+# Variables: {item}, {amount}, {winner}, {tax}, {net}, {listing_id}, {min_bid}, {max}
+# ─────────────────────────────────────────────
+
+# ─── CHAT MESSAGES ──────────────────────────
+no-permission: "§cVocê não tem permissão para fazer isso."
+player-only: "§cEste comando só pode ser executado por um jogador."
+listing-created: "§aSeu anúncio foi criado! §7ID: §f{listing_id}"
+listing-broadcast: "§e{seller} §7anunciou §f{item} §7começando em §a{start}§7!"
+listing-broadcast-buyout: "§e{seller} §7anunciou §f{item} §7começando em §a{start} §7com compra imediata §c{buyout}§7!"
+buyout-min-price: "§cO preço de compra imediata deve ser pelo menos §f{min}§c."
+buyout-not-set: "§cEste anúncio não tem preço de compra imediata."
+buyout-not-available: "Não disponível"
+no-bids-yet: "Sem lances ainda"
+inventory-full-items-dropped: "§7Seu inventário estava cheio. Alguns itens foram dropados aos seus pés."
+unknown-item: "Item Desconhecido"
+listing-cancelled: "§aAnúncio cancelado. Seu item foi devolvido."
+listing-not-found: "§cAnúncio §f{listing_id} §cnão encontrado ou já terminou."
+bid-success: "§aVocê agora é o maior licitante em §f{item}§a!"
+bid-too-low: "§cSeu lance é muito baixo. Lance mínimo: §f{min_bid}§c."
+bid-own-listing: "§cVocê não pode dar lance em seu próprio anúncio."
+auction-won: "§aVocê ganhou o leilão de §f{item} §acom um lance de §6{amount}§a!"
+auction-lost: "§7Você foi superado em §f{item}§7. Seu dinheiro foi reembolsado."
+auction-sold: "§aSeu §f{item} §afoi vendido para §e{winner} §apor §6{amount}§a! §7(Após §c{tax}% §7de imposto: §a{net}§7)"
+auction-expired-no-bids: "§7Seu anúncio de §f{item} §7expirou sem lances. Item devolvido."
+max-listings-reached: "§cVocê atingiu o máximo de §f{max} §canúncios ativos."
+listing-fee-insufficient: "§cFundos insuficientes para a taxa de anúncio §f{fee}§c."
+listing-fee-deducted: "§eTaxa de anúncio §f{fee} §edescontada."
+hold-item-to-sell: "§cVocê deve estar segurando um item para vendê-lo."
+invalid-price: "§cPreço inválido. Por favor insira um número positivo."
+invalid-duration: "§cDuração inválida. Deve estar entre §f{min} §ce §f{max} §csegundos."
+config-reloaded: "§aConfiguração e idiomas do Auctify recarregados com sucesso."
+economy-not-found: "§cNenhum provedor de economia encontrado. Instale EssentialsX ou similar."
+chat-prompt-bid: "§6[Auctify] §7Digite o valor do seu lance no chat para §f{item}§7. Digite §ccancelar §7para abortar."
+chat-cancelled: "§7Lance cancelado."
+buyout-success: "§aVocê comprou instantaneamente §f{item} §apor §6{amount}§a!"
+chat-bid-retry: "§7Digite um valor maior, ou digite §fcancelar §7para abortar."
+chat-invalid-number: "§cValor inválido. Digite um número ou digite §fcancelar§c."
+
+chat-bid-timeout: "§cSua entrada de lance para §f{item} §cespirou. Use /ac open para tentar novamente."
+already-top-bidder: "§cVocê já é o maior licitante neste item."
+insufficient-funds: "§cFundos insuficientes. Você precisa §f{amount}§c."
+bid-broadcast: "§e{bidder} §7deu lance de §a{amount} §7em §f{item}§7!"
+auction-sniping-extended: "§aLeilão §f{id} §aestendido §f{seconds} §asegundos (proteção contra sniping)!"
+auto-relist-success: "§aAuto-relistagem: §f{old_id} §arelistado como §f{new_id} §acom §c{discount}% §ade desconto"
+world-blacklisted: "§cA casa de leilões está desativada neste mundo."
+blacklisted-material: "§cEste tipo de item está na lista negra e não pode ser anunciado."
+
+# ─── MAIN GUI ───────────────────────────────
+gui-previous-page: "§a◀ Página Anterior"
+gui-next-page: "§aPróxima Página ▶"
+gui-page-info: "§6Página {current}§7/§6{total}"
+gui-page-listings: "§7Anúncios: §f{count}"
+gui-search-title: "§eBuscar Leilões"
+gui-search-lore-1: "§7Use §f/ac search <consulta> §7no chat"
+gui-search-lore-2: "§7para encontrar itens ou vendedores específicos."
+gui-category-title: "§bFiltro de Categoria"
+gui-category-current: "§7Atual: §f{category}"
+
+# ─── ITEM DETAILS GUI ───────────────────────
+gui-item-detail-title: "§8Detalhes do Item"
+gui-current-bid: "§6Lance Atual"
+gui-starting-bid: "§aLance Inicial"
+gui-buyout-price: "§cPreço de Compra"
+gui-top-bidder: "§7Maior Licitante: §f{bidder}"
+gui-seller: "§7Vendedor: §f{seller}"
+gui-time-remaining: "§7Tempo Restante: §f{time}"
+gui-listing-id: "§7ID: §8{listing_id}"
+
+# ─── BUTTONS ────────────────────────────────
+gui-button-bid: "§a§lDAR LANCE"
+gui-button-bid-lore: "§7Clique para dar lance\n§7neste item."
+gui-button-buyout: "§c§lCOMPRAR AGORA"
+gui-button-buyout-lore: "§7Compre instantaneamente\n§7pelo preço indicado."
+gui-button-cancel: "§c§lCANCELAR ANÚNCIO"
+gui-button-cancel-lore: "§7Devolve o item ao seu inventário."
+gui-button-refresh: "§e§lATUALIZAR"
+gui-button-refresh-lore: "§7Atualiza a lista de leilões."
+
+# ─── CONFIRM BID GUI ────────────────────────
+gui-confirm-bid-title: "§8Confirmar Lance"
+gui-confirm-bid-lore: "§7Clique para confirmar\n§7seu lance de §a{amount}§7."
+
+# ─── MANAGE LISTING GUI ─────────────────────
+gui-manage-title: "§8Gerenciar Anúncio"
+gui-manage-extend: "§a§lESTENDER TEMPO"
+gui-manage-extend-lore: "§7Adiciona tempo ao seu leilão."
+gui-manage-cancel: "§c§lCANCELAR LEILÃO"
+gui-manage-cancel-lore: "§7Devolve o item ao seu inventário."
+
+# ─── CLAIM GUI ──────────────────────────────
+gui-claim-title: "§8Itens Pendentes"
+gui-claim-items: "§a§lPEGAR ITENS"
+gui-claim-items-lore: "§7Seus itens ganhos ou\n§7itens de anúncios cancelados."
+gui-claim-money: "§e§lPEGAR DINHEIRO"
+gui-claim-money-lore: "§7Reembolsos de lances\n§7ou vendas pendentes."
+gui-no-pending: "§7Você não tem itens ou dinheiro pendente."
+
+# ─── MISC ───────────────────────────────────
+bid-history-title: "Histórico de Lances"
+bid-history-empty: "§7Ainda não há lances neste anúncio."
+bid-history-entry: "§f{bidder} §7- §a{amount} §7@ §e{time}"
+search-results-title: "Resultados da Busca"
+search-no-results: "§cNenhum leilão encontrado correspondente à sua busca."
+
+# ─── WATCHLIST ──────────────────────────────
+watchlist-title: "Lista de Observação"
+watchlist-empty: "§7Você não está seguindo nenhum leilão.\n\n§7Use §f/ac watchlist <id> §7para seguir."
+watchlist-added: "§aAdicionado à sua lista de observação."
+watchlist-removed: "§7Removido da sua lista de observação."
+watchlist-listing-ended: "§7Um anúncio que você seguia terminou."
+
+# ─── BULK CANCEL ────────────────────────────
+bulk-cancel-success: "§a§lTodos os seus anúncios ativos foram cancelados."
+bulk-cancel-none: "§cVocê não tem anúncios ativos para cancelar."
+
+# ─── ADMIN GUI ──────────────────────────────
+admin-gui-title: "§4Painel de Administração"
+admin-gui-back: "§7Voltar"
+admin-gui-next: "§7Próximo"
+admin-gui-close: "§cFechar"
+admin-gui-player-auctions: "§eLeilões de {player}"
+admin-gui-end-confirm: "§aFinalizar Leilão"
+admin-gui-end-all: "§cFinalizar Todos"
+admin-gui-cancel-confirm: "§cCancelar Leilão"
+admin-gui-blacklist: "§4Lista Negra"
+admin-gui-history: "§bHistórico"
+
+# ─── ADMIN COMMANDS ─────────────────────────
+admin-commands-title: "§6Comandos de Admin:"
+admin-cmd-admin: "§f/ac admin §7- Abrir painel de administração"
+admin-cmd-blacklist-add: "§f/ac admin blacklist add <jogador> §7- Adicionar à lista negra"
+admin-cmd-blacklist-remove: "§f/ac admin blacklist remove <jogador> §7- Remover da lista negra"
+admin-cmd-blacklist-list: "§f/ac admin blacklist list §7- Ver lista negra"
+admin-cmd-cancel: "§f/ac admin cancel <id> §7- Cancelar leilão"
+admin-cmd-backup: "§f/ac admin backup §7- Backup do banco de dados"
+
+admin-blacklist-add: "§a{player} §aadicionado à lista negra."
+admin-blacklist-remove: "§a{player} §aremovido da lista negra."
+admin-blacklist-list: "§7Jogadores na lista negra: §f{players}"
+admin-blacklist-empty: "§7A lista negra está vazia."
+admin-cancel-success: "§aLeilão §f{id} §acancelado com sucesso."
+admin-backup-success: "§aBackup do banco de dados bem-sucedido!"
+admin-backup-fail: "§cErro no backup do banco de dados."
+
+# ─── SETUP WIZARD ───────────────────────────
+setup-welcome: "§6Bem-vindo ao Auctify!\n\n§7Este assistente guiado ajudará\n§7você a configurar o plugin em poucos passos."
+setup-complete: "§aConfiguração completa!\n\n§7O plugin foi configurado.\n§7Use §f/ac reload §7para aplicar alterações manuais."
+
+# ─── EXTEND ─────────────────────────────────
+extend-success: "§aTempo estendido com sucesso!"
+extend-fail: "§cNão foi possível estender o tempo."
+extend-usage: "§7Uso: §f/ac extend <id> <minutos>"
+extend-invalid-minutes: "§cMinutos inválidos. Deve ser maior que 0."
+extension-too-long: "§cVocê não pode estender mais de §f{max} §cminutos."
+cannot-extend-has-bids: "§cVocê não pode estender um leilão que já tem lances."
+
+# ─── SNIPING PROTECTION ─────────────────────
+sniping-protection-active: "§aProteção contra sniping ativa: §f{seconds} §asegundos adicionados."
+
+# ─── ETC ────────────────────────────────────
+not-your-listing: "§cEste não é seu anúncio."
+invalid-listing-id: "§cID de anúncio inválido."
+auction-ended: "§cEste leilão já terminou."
+auction-private: "§cEste leilão é privado. Você não pode dar lance."
+bin-only: "§cEste anúncio só permite compra imediata."
+
+# ─── Buy Orders (WTB System) ─────────────────
+buyorder-disabled: "§cSistema de ordens de compra desativado."
+buyorder-no-item: "§cSegure o item para criar uma ordem de compra!"
+buyorder-max-reached: "§cVocê só pode ter {max} ordens de compra ativas."
+buyorder-created: "§aOrdem de compra criada! §8(§f{id}§8) §7Comprando {amount}x {item} a §a{price} §7cada. Total: §6{total}"
+buyorder-list-empty: "§7Você não tem ordens de compra ativas."
+buyorder-list-header: "§6§lSuas Ordens de Compra §8(§f{count}§8)"
+buyorder-list-entry: "§8• §f{id} §8| §7{amount}x {item} @ §a{price}"
+buyorder-cancelled: "§eOrdem de compra §f{id} §ecancelada. Reembolso processado."
+buyorder-not-found: "§cOrdem de compra não encontrada ou já preenchida/cancelada."
+buyorder-usage-title: "§6Comandos de Ordem de Compra:"
+buyorder-usage-create: "§e/ac buyorder create <preço por unidade> §8— §7Criar ordem para item segurado"
+buyorder-usage-list: "§e/ac buyorder list §8— §7Ver suas ordens ativas"
+buyorder-usage-cancel: "§e/ac buyorder cancel <id> §8— §7Cancelar uma ordem"
+buyorder-usage-browse: "§e/ac buyorder browse §8— §7Ver todas as ordens ativas"
+buyorder-browse-empty: "§7Nenhuma ordem de compra ativa."
+buyorder-browse-header: "§6§lOrdens de Compra Ativas §8(§f{count}§8)"
+buyorder-browse-entry: "§8• §f{id} §8| §7{buyer} quer {amount}x {item} @ §a{price} §8(§a{total}§8)"
+buyorder-filled: "§aSua ordem de compra foi preenchida! Recebeu {amount}x {item}."
+buyorder-sold: "§aVendido {amount}x {item} para {buyer} por §6{payment}"
+buyorder-offline-delivery: "§e{buyer} está offline. Items em fila para entrega ao conectar."
+buyorder-delivered: "§a{count} item(ns) de ordem pendente entregue(s) ao seu inventário!"
+buyorder-expired: "§eOrdem de compra §f{id} §eexpirada. Reembolso processado."
+not-your-order: "§cEsta não é sua ordem de compra!"
+
+# ─── Bulk Selling ──────────────────────────
+bulksell-usage: "§cUso: /ac bulksell <preço_inicial> <preço_compra> [duração_minutos]"
+bulksell-max-reached: "§eMáximo {max} stacks listados. Items restantes não listados."
+bulksell-success: "§aListados {stacks} stacks ({amount}x {item}) com sucesso!"
+bulksell-no-items: "§cNenhum item correspondente encontrado no inventário."
+
+# ─── Statistics ───────────────────────────
+stats-usage: "§cUso: /ac stats [jogador]"
+stats-viewing: "§eVendo estatísticas de §f{player}"

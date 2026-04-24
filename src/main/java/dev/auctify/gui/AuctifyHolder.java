@@ -9,9 +9,11 @@ import org.jetbrains.annotations.NotNull;
  * This is the most reliable way to detect Auctify GUIs because it survives
  * across all inventory events regardless of GUIManager state.
  *
- * <p>Every GUI created by Auctify (Main, Confirm, Detail, Manage) must use
+ * <p>
+ * Every GUI created by Auctify (Main, Confirm, Detail, Manage) must use
  * this holder so that {@link dev.auctify.listeners.GUIClickListener} can
- * unconditionally cancel all clicks, preventing item theft.</p>
+ * unconditionally cancel all clicks, preventing item theft.
+ * </p>
  */
 public class AuctifyHolder implements InventoryHolder {
 
@@ -27,8 +29,26 @@ public class AuctifyHolder implements InventoryHolder {
     /** Optional: The current category filter. */
     private String category = "ALL";
 
-    /** Optional: The current sort mode (TIME_ASC, TIME_DESC, PRICE_ASC, PRICE_DESC, BIDS). */
+    /**
+     * Optional: The current sort mode (TIME_ASC, TIME_DESC, PRICE_ASC, PRICE_DESC,
+     * BIDS).
+     */
     private String sortMode = "TIME_ASC";
+
+    /** Optional: Search query for filtering listings. */
+    private String query;
+
+    /** Optional: Minimum price filter. */
+    private Double minPrice;
+
+    /** Optional: Maximum price filter. */
+    private Double maxPrice;
+
+    /** Optional: Seller name filter. */
+    private String sellerName;
+
+    /** Optional: Maximum end time filter (epoch ms). */
+    private Long maxEndTime;
 
     /** Optional: Target player UUID for admin views. */
     private String targetPlayerUUID;
@@ -36,7 +56,8 @@ public class AuctifyHolder implements InventoryHolder {
     /**
      * Creates a new AuctifyHolder for a specific GUI type.
      *
-     * @param guiType the GUI type identifier (e.g., "MAIN", "CONFIRM", "DETAIL", "MANAGE", "CLAIM", "ADMIN", "SHULKER", "RATE")
+     * @param guiType the GUI type identifier (e.g., "MAIN", "CONFIRM", "DETAIL",
+     *                "MANAGE", "CLAIM", "ADMIN", "SHULKER", "RATE")
      */
     public AuctifyHolder(String guiType) {
         this.guiType = guiType;
@@ -76,6 +97,46 @@ public class AuctifyHolder implements InventoryHolder {
 
     public void setSortMode(String sortMode) {
         this.sortMode = sortMode;
+    }
+
+    public String getQuery() {
+        return query;
+    }
+
+    public void setQuery(String query) {
+        this.query = query;
+    }
+
+    public Double getMinPrice() {
+        return minPrice;
+    }
+
+    public void setMinPrice(Double minPrice) {
+        this.minPrice = minPrice;
+    }
+
+    public Double getMaxPrice() {
+        return maxPrice;
+    }
+
+    public void setMaxPrice(Double maxPrice) {
+        this.maxPrice = maxPrice;
+    }
+
+    public String getSellerName() {
+        return sellerName;
+    }
+
+    public void setSellerName(String sellerName) {
+        this.sellerName = sellerName;
+    }
+
+    public Long getMaxEndTime() {
+        return maxEndTime;
+    }
+
+    public void setMaxEndTime(Long maxEndTime) {
+        this.maxEndTime = maxEndTime;
     }
 
     public String getTargetPlayerUUID() {

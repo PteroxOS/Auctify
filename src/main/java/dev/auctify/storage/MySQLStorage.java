@@ -95,6 +95,18 @@ public class MySQLStorage implements StorageManager {
                 st.execute("ALTER TABLE auctify_listings ADD COLUMN bin_only TINYINT NOT NULL DEFAULT 0");
             } catch (SQLException ignored) {
             }
+            // Create price_history table if not exists
+            try {
+                st.execute(
+                        "CREATE TABLE IF NOT EXISTS auctify_price_history (id INT AUTO_INCREMENT PRIMARY KEY, listing_id VARCHAR(36) NOT NULL, item_material VARCHAR(64) NOT NULL, item_name VARCHAR(255) NOT NULL, final_price DOUBLE NOT NULL, seller_name VARCHAR(36) NOT NULL, winner_name VARCHAR(36) NOT NULL, timestamp BIGINT NOT NULL, INDEX idx_item_material (item_material), INDEX idx_timestamp (timestamp))");
+            } catch (SQLException ignored) {
+            }
+            // Create auto_bid table if not exists
+            try {
+                st.execute(
+                        "CREATE TABLE IF NOT EXISTS auctify_auto_bid (id INT AUTO_INCREMENT PRIMARY KEY, player_uuid VARCHAR(36) NOT NULL, player_name VARCHAR(36) NOT NULL, listing_id VARCHAR(36) NOT NULL, max_bid_amount DOUBLE NOT NULL, created_at BIGINT NOT NULL, UNIQUE KEY unique_player_listing (player_uuid, listing_id), INDEX idx_listing (listing_id), INDEX idx_player (player_uuid))");
+            } catch (SQLException ignored) {
+            }
         } catch (SQLException e) {
             logger.log(Level.SEVERE, "MySQL schema migration failed", e);
         }
@@ -656,6 +668,209 @@ public class MySQLStorage implements StorageManager {
     @Override
     public void clearWatchlist(UUID playerUUID) {
         // TODO: Implement watchlist clear
+    }
+
+    // ─── Pending Buy Order Deliveries ───────────────
+
+    @Override
+    public void addPendingBuyDelivery(UUID playerUUID, org.bukkit.inventory.ItemStack item, String orderId) {
+        // TODO: Implement pending buy delivery storage for MySQL
+    }
+
+    @Override
+    public java.util.List<org.bukkit.inventory.ItemStack> getPendingBuyDeliveries(UUID playerUUID) {
+        // TODO: Implement pending buy delivery retrieval for MySQL
+        return java.util.Collections.emptyList();
+    }
+
+    @Override
+    public void clearPendingBuyDeliveries(UUID playerUUID) {
+        // TODO: Implement pending buy delivery clear for MySQL
+    }
+
+    // ─── Price History System ─────────────────────────
+
+    @Override
+    public void savePriceHistory(dev.auctify.auction.PriceHistory priceHistory) {
+        String sql = "INSERT INTO auctify_price_history (listing_id, item_material, item_name, final_price, seller_name, winner_name, timestamp) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        try (Connection c = dataSource.getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setString(1, priceHistory.getId());
+            ps.setString(2, priceHistory.getItemMaterial());
+            ps.setString(3, priceHistory.getItemName());
+            ps.setDouble(4, priceHistory.getFinalPrice());
+            ps.setString(5, priceHistory.getSellerName());
+            ps.setString(6, priceHistory.getWinnerName());
+            ps.setLong(7, priceHistory.getTimestamp());
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            logger.log(Level.SEVERE, "Failed to save price history", e);
+        }
+    }
+
+    @Override
+    public java.util.List<dev.auctify.auction.PriceHistory> getPriceHistory(String itemType, int limit) {
+        java.util.List<dev.auctify.auction.PriceHistory> result = new java.util.ArrayList<>();
+        String sql = "SELECT listing_id, item_material, item_name, final_price, seller_name, winner_name, timestamp FROM auctify_price_history WHERE item_material = ? ORDER BY timestamp DESC LIMIT ?";
+        try (Connection c = dataSource.getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setString(1, itemType);
+            ps.setInt(2, limit);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    result.add(new dev.auctify.auction.PriceHistory(
+                            rs.getString("listing_id"),
+                            rs.getString("item_material"),
+                            rs.getString("item_name"),
+                            rs.getDouble("final_price"),
+                            rs.getString("seller_name"),
+                            rs.getString("winner_name"),
+                            rs.getLong("timestamp")));
+                }
+            }
+        } catch (SQLException e) {
+            logger.log(Level.SEVERE, "Failed to get price history", e);
+        }
+        return result;
+    }
+
+    @Override
+    public java.util.List<dev.auctify.auction.PriceHistory> getAllPriceHistory(int limit) {
+        java.util.List<dev.auctify.auction.PriceHistory> result = new java.util.ArrayList<>();
+        String sql = "SELECT listing_id, item_material, item_name, final_price, seller_name, winner_name, timestamp FROM auctify_price_history ORDER BY timestamp DESC LIMIT ?";
+        try (Connection c = dataSource.getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setInt(1, limit);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    result.add(new dev.auctify.auction.PriceHistory(
+                            rs.getString("listing_id"),
+                            rs.getString("item_material"),
+                            rs.getString("item_name"),
+                            rs.getDouble("final_price"),
+                            rs.getString("seller_name"),
+                            rs.getString("winner_name"),
+                            rs.getLong("timestamp")));
+                }
+            }
+        } catch (SQLException e) {
+            logger.log(Level.SEVERE, "Failed to get all price history", e);
+        }
+        return result;
+    }
+
+    // ─── Auto-Bid System ─────────────────────────────
+
+    @Override
+    public void saveAutoBid(dev.auctify.auction.AutoBid autoBid) {
+        String sql = "INSERT INTO auctify_auto_bid (player_uuid, player_name, listing_id, max_bid_amount, created_at) VALUES (?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE player_name = VALUES(player_name), max_bid_amount = VALUES(max_bid_amount), created_at = VALUES(created_at)";
+        try (Connection c = dataSource.getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setString(1, autoBid.getPlayerUUID().toString());
+            ps.setString(2, autoBid.getPlayerName());
+            ps.setString(3, autoBid.getListingId());
+            ps.setDouble(4, autoBid.getMaxBidAmount());
+            ps.setLong(5, autoBid.getCreatedAt());
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            logger.log(Level.SEVERE, "Failed to save auto-bid", e);
+        }
+    }
+
+    @Override
+    public dev.auctify.auction.AutoBid getAutoBid(String listingId, java.util.UUID playerUUID) {
+        String sql = "SELECT player_uuid, player_name, listing_id, max_bid_amount, created_at FROM auctify_auto_bid WHERE listing_id = ? AND player_uuid = ?";
+        try (Connection c = dataSource.getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setString(1, listingId);
+            ps.setString(2, playerUUID.toString());
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return new dev.auctify.auction.AutoBid(
+                            java.util.UUID.fromString(rs.getString("player_uuid")),
+                            rs.getString("player_name"),
+                            rs.getString("listing_id"),
+                            rs.getDouble("max_bid_amount"),
+                            rs.getLong("created_at"));
+                }
+            }
+        } catch (SQLException e) {
+            logger.log(Level.SEVERE, "Failed to get auto-bid", e);
+        }
+        return null;
+    }
+
+    @Override
+    public java.util.List<dev.auctify.auction.AutoBid> getAutoBidsForListing(String listingId) {
+        java.util.List<dev.auctify.auction.AutoBid> result = new java.util.ArrayList<>();
+        String sql = "SELECT player_uuid, player_name, listing_id, max_bid_amount, created_at FROM auctify_auto_bid WHERE listing_id = ?";
+        try (Connection c = dataSource.getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setString(1, listingId);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    result.add(new dev.auctify.auction.AutoBid(
+                            java.util.UUID.fromString(rs.getString("player_uuid")),
+                            rs.getString("player_name"),
+                            rs.getString("listing_id"),
+                            rs.getDouble("max_bid_amount"),
+                            rs.getLong("created_at")));
+                }
+            }
+        } catch (SQLException e) {
+            logger.log(Level.SEVERE, "Failed to get auto-bids for listing", e);
+        }
+        return result;
+    }
+
+    @Override
+    public java.util.List<dev.auctify.auction.AutoBid> getAutoBidsForPlayer(java.util.UUID playerUUID) {
+        java.util.List<dev.auctify.auction.AutoBid> result = new java.util.ArrayList<>();
+        String sql = "SELECT player_uuid, player_name, listing_id, max_bid_amount, created_at FROM auctify_auto_bid WHERE player_uuid = ?";
+        try (Connection c = dataSource.getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setString(1, playerUUID.toString());
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    result.add(new dev.auctify.auction.AutoBid(
+                            java.util.UUID.fromString(rs.getString("player_uuid")),
+                            rs.getString("player_name"),
+                            rs.getString("listing_id"),
+                            rs.getDouble("max_bid_amount"),
+                            rs.getLong("created_at")));
+                }
+            }
+        } catch (SQLException e) {
+            logger.log(Level.SEVERE, "Failed to get auto-bids for player", e);
+        }
+        return result;
+    }
+
+    @Override
+    public void deleteAutoBid(String listingId, java.util.UUID playerUUID) {
+        String sql = "DELETE FROM auctify_auto_bid WHERE listing_id = ? AND player_uuid = ?";
+        try (Connection c = dataSource.getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setString(1, listingId);
+            ps.setString(2, playerUUID.toString());
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            logger.log(Level.SEVERE, "Failed to delete auto-bid", e);
+        }
+    }
+
+    @Override
+    public void deleteAutoBidsForListing(String listingId) {
+        String sql = "DELETE FROM auctify_auto_bid WHERE listing_id = ?";
+        try (Connection c = dataSource.getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setString(1, listingId);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            logger.log(Level.SEVERE, "Failed to delete auto-bids for listing", e);
+        }
+    }
+
+    @Override
+    public void clearAutoBidsForPlayer(java.util.UUID playerUUID) {
+        String sql = "DELETE FROM auctify_auto_bid WHERE player_uuid = ?";
+        try (Connection c = dataSource.getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setString(1, playerUUID.toString());
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            logger.log(Level.SEVERE, "Failed to clear auto-bids for player", e);
+        }
     }
 
     /** {@inheritDoc} */

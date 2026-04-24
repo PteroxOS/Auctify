@@ -13,6 +13,7 @@ Auctify uses a **layered, security-first architecture** with strict separation o
 | `gui`          | Inventory GUIs with `AuctifyHolder` state management, click protection                  |
 | `hook`         | PlaceholderAPI expansion with dynamic placeholders                                      |
 | `listeners`    | Event handling: GUI clicks, chat input, join/quit cleanup                               |
+| `notification` | **v1.1.0** — Notification system with per-player preferences                            |
 | `setup`        | **v1.0.1+** — Interactive chat-based setup wizard for first-time configuration          |
 | `storage`      | SQLite/MySQL with HikariCP, atomic transactions, schema migration, backups              |
 | `util`         | Color, config, time formatting, Discord webhooks, dependency download                   |
@@ -32,6 +33,8 @@ Auctify uses a **layered, security-first architecture** with strict separation o
 | `AuctionHistory`  | Completed auction archive                               | Record (immutable)                      |
 | `PendingRefund`   | Failed economy deposit queue entry                      | Record (immutable)                      |
 | `AuctifyBidEvent` | Cancellable event for bid interception                  | Bukkit event system                     |
+| `PriceHistory`    | Price trend data for items (v1.1.0)                     | Record (immutable)                      |
+| `AutoBid`         | Auto-bid configuration (v1.1.0)                         | Record (immutable)                      |
 
 ### State Management
 
@@ -68,6 +71,8 @@ Automatic migration on startup:
 
 - `tax_exempt` column added to `auctify_listings` if missing
 - `auctify_pending_refunds` table created if missing
+- `auctify_price_history` table created if missing (v1.1.0)
+- `auctify_auto_bid` table created if missing (v1.1.0)
 - Graceful handling of "column already exists" errors
 
 ---
@@ -147,10 +152,12 @@ conn.commit();
 | Double refund delivery       | Atomic `claimAndClearRefunds()`                 | All storage backends                        |
 | Economy deposit failure      | `PendingRefund` queue with auto-delivery        | `safeDeposit()`, `PlayerQuitListener`       |
 | Tax bypass at resolution     | `taxExempt` snapshotted at listing creation     | `AuctionListing.setTaxExempt()`             |
-| NaN/Infinity exploits        | Input validation with `Double.isNaN/isInfinite` | `BidSubCommand`, `ChatBidListener`          |
+| NaN/Infinity exploits        | Input validation with `Double.isNaN/isInfinite` | All subcommands with number parsing         |
 | Info leak via tab complete   | Filter by ownership/permissions                 | `TabCompleter`                              |
 | Stale bid input              | Configurable timeout with cleanup               | `ChatBidListener.cleanupExpiredBidInputs()` |
 | Event cancellation state     | Fire event BEFORE state mutation                | `AuctionManager.placeBid()`                 |
+| Auto-bid overflow            | Max bid validation and budget tracking          | `AutoBidSubCommand`, `AuctionManager`       |
+| Notification spam            | Per-player preference system                    | `NotificationManager`                       |
 
 ---
 
@@ -164,6 +171,9 @@ conn.commit();
 | Storage I/O              | HikariCP connection pools             |
 | Chat bid tracking        | `ConcurrentHashMap` for `awaitingBid` |
 | Pending refunds (Memory) | `Collections.synchronizedList`        |
+| Price history data       | `ConcurrentHashMap` for item lookups  |
+| Auto-bid configurations  | `ConcurrentHashMap` for per-listing   |
+| Notification preferences | `ConcurrentHashMap` for player data   |
 
 ---
 

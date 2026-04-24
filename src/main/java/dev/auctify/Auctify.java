@@ -4,8 +4,24 @@ import dev.auctify.auction.AuctionManager;
 import dev.auctify.commands.AuctifyCommand;
 import dev.auctify.commands.TabCompleter;
 import dev.auctify.economy.EconomyManager;
-import dev.auctify.gui.*;
-import dev.auctify.listeners.*;
+import dev.auctify.gui.AuctionGUI;
+import dev.auctify.gui.ConfirmBidGUI;
+import dev.auctify.gui.ClaimGUI;
+import dev.auctify.gui.ItemDetailGUI;
+import dev.auctify.gui.ManageListingGUI;
+import dev.auctify.gui.ShulkerPreviewGUI;
+import dev.auctify.gui.RateGUI;
+import dev.auctify.gui.AdminGUI;
+import dev.auctify.gui.StatsGUI;
+import dev.auctify.gui.GUIManager;
+import dev.auctify.listeners.ChatBidListener;
+import dev.auctify.listeners.ChatSearchListener;
+import dev.auctify.listeners.GUIClickListener;
+import dev.auctify.listeners.InventoryCloseListener;
+import dev.auctify.listeners.PlayerQuitListener;
+import dev.auctify.listeners.PlayerJoinListener;
+import dev.auctify.listeners.StatsGUIListener;
+import dev.auctify.notification.NotificationManager;
 import dev.auctify.scheduler.AuctionExpiryTask;
 import dev.auctify.storage.*;
 import dev.auctify.setup.SetupWizard;
@@ -58,6 +74,9 @@ public class Auctify extends JavaPlugin {
     /** Chat bid input listener (needs direct access for startBidInput). */
     private ChatBidListener chatBidListener;
 
+    /** Chat search input listener (for search via GUI). */
+    private ChatSearchListener chatSearchListener;
+
     /** Discord Webhook util. */
     private dev.auctify.util.DiscordWebhookUtil discordWebhookUtil;
 
@@ -73,20 +92,32 @@ public class Auctify extends JavaPlugin {
     /** Admin moderation GUI builder. */
     private AdminGUI adminGUI;
 
+    /** Statistics GUI builder. */
+    private dev.auctify.gui.StatsGUI statsGUI;
+
     /** World manager for per-world auction house. */
     private dev.auctify.util.WorldManager worldManager;
+
+    /** Logger manager for transaction and activity logs. */
+    private dev.auctify.util.LoggerManager loggerManager;
+
+    /** Notification manager for auction alerts. */
+    private NotificationManager notificationManager;
+
+    /** Sound manager for auction sound effects. */
+    private dev.auctify.util.SoundManager soundManager;
+
+    /** Metrics manager for bStats analytics. */
+    private dev.auctify.util.MetricsManager metricsManager;
+
+    /** Buy order manager for WTB system. */
+    private dev.auctify.auction.BuyOrderManager buyOrderManager;
 
     /** The expiry task for cancellation on disable. */
     private AuctionExpiryTask expiryTask;
 
     /** The auto-save task. */
     private org.bukkit.scheduler.BukkitTask autoSaveTask;
-
-    // TODO: Add per-world or per-region auction house support
-    // TODO: Add item blacklist (prevent listing certain materials)
-    // TODO: Add GUI pagination animation (smooth item transition)
-    // TODO: Add Discord webhook notification on auction end
-    // TODO: Add PlaceholderAPI support for leaderboard placeholders
 
     /**
      * Called when the plugin is enabled. Initializes everything in dependency
@@ -149,7 +180,20 @@ public class Auctify extends JavaPlugin {
         shulkerPreviewGUI = new ShulkerPreviewGUI(this);
         rateGUI = new RateGUI(this);
         adminGUI = new AdminGUI(this);
+        statsGUI = new dev.auctify.gui.StatsGUI(this);
         worldManager = new dev.auctify.util.WorldManager(this);
+        loggerManager = new dev.auctify.util.LoggerManager(this);
+        soundManager = new dev.auctify.util.SoundManager(this);
+        metricsManager = new dev.auctify.util.MetricsManager(this);
+
+        // Initialize bStats metrics
+        metricsManager.init();
+
+        // Initialize Buy Order manager (WTB system)
+        buyOrderManager = new dev.auctify.auction.BuyOrderManager(this);
+
+        // Initialize Notification manager
+        notificationManager = new NotificationManager(this);
 
         discordWebhookUtil = new dev.auctify.util.DiscordWebhookUtil(this);
 
@@ -195,6 +239,7 @@ public class Auctify extends JavaPlugin {
         // Register PlaceholderAPI expansion if available
         if (getServer().getPluginManager().getPlugin("PlaceholderAPI") != null) {
             new dev.auctify.hook.PlaceholderAPIHook(this).register();
+            new dev.auctify.hook.AuctifyPlaceholderExpansion(this).register();
             getLogger().info("§e⚡ §7PlaceholderAPI expansion registered.");
         }
 
@@ -348,9 +393,13 @@ public class Auctify extends JavaPlugin {
      */
     private void registerListeners() {
         chatBidListener = new ChatBidListener(this);
+        chatSearchListener = new ChatSearchListener(this);
         getServer().getPluginManager().registerEvents(new GUIClickListener(this), this);
         getServer().getPluginManager().registerEvents(chatBidListener, this);
+        getServer().getPluginManager().registerEvents(chatSearchListener, this);
         getServer().getPluginManager().registerEvents(new PlayerQuitListener(this), this);
+        getServer().getPluginManager().registerEvents(new StatsGUIListener(), this);
+        getServer().getPluginManager().registerEvents(new PlayerJoinListener(this), this);
         getServer().getPluginManager().registerEvents(new InventoryCloseListener(this), this);
     }
 
@@ -404,6 +453,11 @@ public class Auctify extends JavaPlugin {
         return chatBidListener;
     }
 
+    /** @return the chat search listener (for search via GUI) */
+    public ChatSearchListener getChatSearchListener() {
+        return chatSearchListener;
+    }
+
     public dev.auctify.util.DiscordWebhookUtil getDiscordWebhookUtil() {
         return discordWebhookUtil;
     }
@@ -431,5 +485,30 @@ public class Auctify extends JavaPlugin {
     /** @return the world manager for per-world auction house */
     public dev.auctify.util.WorldManager getWorldManager() {
         return worldManager;
+    }
+
+    /** @return the logger manager for transaction logs */
+    public dev.auctify.util.LoggerManager getLoggerManager() {
+        return loggerManager;
+    }
+
+    /** @return the sound manager for auction sound effects */
+    public dev.auctify.util.SoundManager getSoundManager() {
+        return soundManager;
+    }
+
+    /** @return the buy order manager for WTB system */
+    public dev.auctify.auction.BuyOrderManager getBuyOrderManager() {
+        return buyOrderManager;
+    }
+
+    /** @return the notification manager */
+    public NotificationManager getNotificationManager() {
+        return notificationManager;
+    }
+
+    /** @return the statistics GUI builder */
+    public dev.auctify.gui.StatsGUI getStatsGUI() {
+        return statsGUI;
     }
 }

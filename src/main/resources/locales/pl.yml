@@ -1,0 +1,57 @@
+# ─────────────────────────────────────────────
+# Auctify — Polish Locale File
+# Variables: {item}, {amount}, {winner}, {tax}, {net}, {listing_id}, {min_bid}, {max}
+# ─────────────────────────────────────────────
+
+no-permission: "§cNie masz uprawnień do tego."
+player-only: "§cTej komendy może użyć tylko gracz."
+listing-created: "§aTwoja oferta została utworzona! §7ID: §f{listing_id}"
+bid-success: "§aJesteś teraz najwyższym oferentem na §f{item}§a!"
+buyout-success: "§aNatychmiast kupiłeś §f{item} §aza §6{amount}§a!"
+auction-won: "§aWygrałeś aukcję na §f{item} §aza §6{amount}§a!"
+auction-sold: "§aTwój §f{item} §azostał sprzedany graczowi §e{winner} §aza §6{amount}§a!"
+insufficient-funds: "§cNiewystarczające środki. Potrzebujesz §f{amount}§c."
+listing-cancelled: "§aOferta anulowana. Twój przedmiot został zwrócony."
+
+# GUI
+gui-previous-page: "§a◀ Poprzednia Strona"
+gui-next-page: "§aNastępna Strona ▶"
+gui-page-info: "§6Strona {current}§7/§6{total}"
+gui-search-title: "§eWyszukaj Aukcje"
+gui-button-bid: "§a§lLICYTUJ"
+gui-button-buyout: "§c§lKUP TERAZ"
+
+# ─── Buy Orders (WTB System) ─────────────────
+buyorder-disabled: "§cSystem zleceń zakupu jest wyłączony."
+buyorder-no-item: "§cTrzymaj przedmiot, dla którego chcesz utworzyć zlecenie!"
+buyorder-max-reached: "§cMożesz mieć tylko {max} aktywnych zleceń."
+buyorder-created: "§aZlecenie utworzone! §8(§f{id}§8) §7Kupowanie {amount}x {item} za §a{price} §7sztuka. Razem: §6{total}"
+buyorder-list-empty: "§7Nie masz aktywnych zleceń."
+buyorder-list-header: "§6§lTwoje Zlecenia §8(§f{count}§8)"
+buyorder-list-entry: "§8• §f{id} §8| §7{amount}x {item} @ §a{price}"
+buyorder-cancelled: "§eZlecenie §f{id} §eanulowane. Zwrot środków."
+buyorder-not-found: "§cZlecenie nie znalezione lub już wykonane/anulowane."
+buyorder-usage-title: "§6Komendy Zleceń:"
+buyorder-usage-create: "§e/ac buyorder create <cena za sztukę> §8— §7Utwórz zlecenie dla trzymanego przedmiotu"
+buyorder-usage-list: "§e/ac buyorder list §8— §7Pokaż twoje aktywne zlecenia"
+buyorder-usage-cancel: "§e/ac buyorder cancel <id> §8— §7Anuluj zlecenie"
+buyorder-usage-browse: "§e/ac buyorder browse §8— §7Pokaż wszystkie aktywne zlecenia"
+buyorder-browse-empty: "§7Brak aktywnych zleceń."
+buyorder-browse-header: "§6§lAktywne Zlecenia §8(§f{count}§8)"
+buyorder-browse-entry: "§8• §f{id} §8| §7{buyer} chce {amount}x {item} @ §a{price} §8(§a{total}§8)"
+buyorder-filled: "§aTwoje zlecenie zostało wykonane! Otrzymano {amount}x {item}."
+buyorder-sold: "§aSprzedano {amount}x {item} graczowi {buyer} za §6{payment}"
+buyorder-offline-delivery: "§e{buyer} jest offline. Przedmioty w kolejce do dostarczenia."
+buyorder-delivered: "§a{count} przedmiot(ów) zlecenia dostarczono do ekwipunku!"
+buyorder-expired: "§eZlecenie §f{id} §ewygasło. Zwrot środków."
+not-your-order: "§cTo nie jest twoje zlecenie!"
+
+# ─── Bulk Selling ──────────────────────────
+bulksell-usage: "§cUżycie: /ac bulksell <cena_startowa> <cena_kupna> [czas_minuty]"
+bulksell-max-reached: "§eMaksymalnie {max} staków zlistowanych. Pozostałe przedmioty nie zlistowane."
+bulksell-success: "§aPomyślnie zlistowano {stacks} staków ({amount}x {item})!"
+bulksell-no-items: "§cNie znaleziono pasujących przedmiotów w ekwipunku."
+
+# ─── Statistics ───────────────────────────
+stats-usage: "§cUżycie: /ac stats [gracz]"
+stats-viewing: "§eWyświetlanie statystyk gracza §f{player}"

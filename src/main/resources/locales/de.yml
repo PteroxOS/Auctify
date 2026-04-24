@@ -1,0 +1,202 @@
+# ─────────────────────────────────────────────
+# Auctify — German Locale File
+# Variables: {item}, {amount}, {winner}, {tax}, {net}, {listing_id}, {min_bid}, {max}
+# ─────────────────────────────────────────────
+
+# ─── CHAT MESSAGES ──────────────────────────
+no-permission: "§cDu hast keine Berechtigung dafür."
+player-only: "§cDieser Befehl kann nur von einem Spieler ausgeführt werden."
+listing-created: "§aDein Angebot wurde erstellt! §7ID: §f{listing_id}"
+listing-broadcast: "§e{seller} §7hat §f{item} §7für §a{start} §7eingestellt!"
+listing-broadcast-buyout: "§e{seller} §7hat §f{item} §7für §a{start} §7mit Sofortkauf §c{buyout} §7eingestellt!"
+buyout-min-price: "§cSofortkaufpreis muss mindestens §f{min} §csein."
+buyout-not-set: "§cDieses Angebot hat keinen Sofortkaufpreis."
+buyout-not-available: "Nicht verfügbar"
+no-bids-yet: "Noch keine Gebote"
+inventory-full-items-dropped: "§7Dein Inventar war voll. Einige Gegenstände wurden zu deinen Füßen fallengelassen."
+unknown-item: "Unbekannter Gegenstand"
+listing-cancelled: "§aAngebot storniert. Dein Gegenstand wurde zurückgegeben."
+listing-not-found: "§cAngebot §f{listing_id} §cnicht gefunden oder bereits beendet."
+bid-success: "§aDu bist jetzt Höchstbietender für §f{item}§a!"
+bid-too-low: "§cDein Gebot ist zu niedrig. Mindestgebot: §f{min_bid}§c."
+bid-own-listing: "§cDu kannst nicht auf dein eigenes Angebot bieten."
+auction-won: "§aDu hast die Auktion für §f{item} §amit einem Gebot von §6{amount} §agewonnen!"
+auction-lost: "§7Du wurdest bei §f{item} §7überboten. Dein Geld wurde zurückerstattet."
+auction-sold: "§aDein §f{item} §awurde an §e{winner} §afür §6{amount} §averkauft! §7(Nach §c{tax}% §7Steuer: §a{net}§7)"
+auction-expired-no-bids: "§7Dein Angebot für §f{item} §7ist ohne Gebote abgelaufen. Gegenstand zurückgegeben."
+max-listings-reached: "§cDu hast das Maximum von §f{max} §caktiven Angeboten erreicht."
+listing-fee-insufficient: "§cUnzureichende Mittel für Einstellgebühr §f{fee}§c."
+listing-fee-deducted: "§eEinstellgebühr §f{fee} §eabgezogen."
+hold-item-to-sell: "§cDu musst einen Gegenstand halten, um ihn zu verkaufen."
+invalid-price: "§cUngültiger Preis. Bitte gib eine positive Zahl ein."
+invalid-duration: "§cUngültige Dauer. Muss zwischen §f{min} §cund §f{max} §cSekunden liegen."
+config-reloaded: "§aAuctify Konfiguration und Sprachen erfolgreich neu geladen."
+economy-not-found: "§cKein Wirtschaftsanbieter gefunden. Installiere EssentialsX oder ähnliches."
+chat-prompt-bid: "§6[Auctify] §7Gib dein Gebot im Chat für §f{item} §7ein. Gib §cabbrechen §7ein zum Abbrechen."
+chat-cancelled: "§7Gebot abgebrochen."
+buyout-success: "§aDu hast §f{item} §asofort für §6{amount} §agekauft!"
+chat-bid-retry: "§7Gib einen höheren Betrag ein, oder gib §fabbrechen §7ein zum Abbrechen."
+chat-invalid-number: "§cUngültiger Betrag. Gib eine Zahl ein oder gib §fabbrechen§c ein."
+
+chat-bid-timeout: "§cDeine Gebotseingabe für §f{item} §cist abgelaufen. Verwende /ac open, um es erneut zu versuchen."
+already-top-bidder: "§cDu bist bereits Höchstbietender für diesen Gegenstand."
+insufficient-funds: "§cUnzureichende Mittel. Du brauchst §f{amount}§c."
+bid-broadcast: "§e{bidder} §7bietet §a{amount} §7auf §f{item}§7!"
+auction-sniping-extended: "§aAuktion §f{id} §aum §f{seconds} §aSekunden verlängert (Sniping-Schutz)!"
+auto-relist-success: "§aAuto-Wiedereinstellung: §f{old_id} §awiedereingestellt als §f{new_id} §amit §c{discount}% §aRabatt"
+world-blacklisted: "§cAuktionshaus ist in dieser Welt deaktiviert."
+blacklisted-material: "§cDieser Gegenstandstyp ist auf der schwarzen Liste und kann nicht eingestellt werden."
+
+# ─── MAIN GUI ───────────────────────────────
+gui-previous-page: "§a◀ Vorherige Seite"
+gui-next-page: "§aNächste Seite ▶"
+gui-page-info: "§6Seite {current}§7/§6{total}"
+gui-page-listings: "§7Angebote: §f{count}"
+gui-search-title: "§eAuktionen Suchen"
+gui-search-lore-1: "§7Verwende §f/ac search <Suchbegriff> §7im Chat"
+gui-search-lore-2: "§7um bestimmte Gegenstände oder Verkäufer zu finden."
+gui-category-title: "§bKategoriefilter"
+gui-category-current: "§7Aktuell: §f{category}"
+
+# ─── ITEM DETAILS GUI ───────────────────────
+gui-item-detail-title: "§8Gegenstandsdetails"
+gui-current-bid: "§6Aktuelles Gebot"
+gui-starting-bid: "§aStartgebot"
+gui-buyout-price: "§cSofortkaufpreis"
+gui-top-bidder: "§7Höchstbietender: §f{bidder}"
+gui-seller: "§7Verkäufer: §f{seller}"
+gui-time-remaining: "§7Verbleibende Zeit: §f{time}"
+gui-listing-id: "§7ID: §8{listing_id}"
+
+# ─── BUTTONS ────────────────────────────────
+gui-button-bid: "§a§lGEBOT ABGEBEN"
+gui-button-bid-lore: "§7Klicke, um ein Gebot\n§7auf diesen Gegenstand abzugeben."
+gui-button-buyout: "§c§lSOFORT KAUFEN"
+gui-button-buyout-lore: "§7Sofort kaufen\n§7zum angegebenen Preis."
+gui-button-cancel: "§c§lANGEBOT STORNIEREN"
+gui-button-cancel-lore: "§7Gegenstand an dein Inventar zurückgeben."
+gui-button-refresh: "§e§lAKTUALISIEREN"
+gui-button-refresh-lore: "§7Auktionsliste aktualisieren."
+
+# ─── CONFIRM BID GUI ────────────────────────
+gui-confirm-bid-title: "§8Gebot Bestätigen"
+gui-confirm-bid-lore: "§7Klicke zur Bestätigung\n§7deines Gebots von §a{amount}§7."
+
+# ─── MANAGE LISTING GUI ─────────────────────
+gui-manage-title: "§8Angebot Verwalten"
+gui-manage-extend: "§a§lZEIT VERLÄNGERN"
+gui-manage-extend-lore: "§7Fügt Zeit zu deiner Auktion hinzu."
+gui-manage-cancel: "§c§lAUKTION STORNIEREN"
+gui-manage-cancel-lore: "§7Gegenstand an dein Inventar zurückgeben."
+
+# ─── CLAIM GUI ──────────────────────────────
+gui-claim-title: "§8Ausstehende Gegenstände"
+gui-claim-items: "§a§lGEGENSTÄNDE ABHOLEN"
+gui-claim-items-lore: "§7Deine gewonnenen Gegenstände oder\n§7Gegenstände von stornierten Angeboten."
+gui-claim-money: "§e§lGELD ABHOLEN"
+gui-claim-money-lore: "§7Gebotsrückerstattungen\n§7oder ausstehende Verkäufe."
+gui-no-pending: "§7Du hast keine ausstehenden Gegenstände oder kein ausstehendes Geld."
+
+# ─── MISC ───────────────────────────────────
+bid-history-title: "Gebotsverlauf"
+bid-history-empty: "§7Für dieses Angebot gibt es noch keine Gebote."
+bid-history-entry: "§f{bidder} §7- §a{amount} §7@ §e{time}"
+search-results-title: "Suchergebnisse"
+search-no-results: "§cKeine Auktionen gefunden, die deiner Suche entsprechen."
+
+# ─── WATCHLIST ──────────────────────────────
+watchlist-title: "Beobachtungsliste"
+watchlist-empty: "§7Du beobachtest keine Auktionen.\n\n§7Verwende §f/ac watchlist <id> §7zum Beobachten."
+watchlist-added: "§aZur Beobachtungsliste hinzugefügt."
+watchlist-removed: "§7Aus der Beobachtungsliste entfernt."
+watchlist-listing-ended: "§7Eine Auktion, die du beobachtet hast, ist beendet."
+
+# ─── BULK CANCEL ────────────────────────────
+bulk-cancel-success: "§a§lAlle deine aktiven Angebote wurden storniert."
+bulk-cancel-none: "§cDu hast keine aktiven Angebote zum Stornieren."
+
+# ─── ADMIN GUI ──────────────────────────────
+admin-gui-title: "§4Administrations-Panel"
+admin-gui-back: "§7Zurück"
+admin-gui-next: "§7Weiter"
+admin-gui-close: "§cSchließen"
+admin-gui-player-auctions: "§eAuktionen von {player}"
+admin-gui-end-confirm: "§aAuktion Beenden"
+admin-gui-end-all: "§cAlle Beenden"
+admin-gui-cancel-confirm: "§cAuktion Stornieren"
+admin-gui-blacklist: "§4Schwarze Liste"
+admin-gui-history: "§bVerlauf"
+
+# ─── ADMIN COMMANDS ─────────────────────────
+admin-commands-title: "§6Admin-Befehle:"
+admin-cmd-admin: "§f/ac admin §7- Admin-Panel öffnen"
+admin-cmd-blacklist-add: "§f/ac admin blacklist add <Spieler> §7- Zur schwarzen Liste hinzufügen"
+admin-cmd-blacklist-remove: "§f/ac admin blacklist remove <Spieler> §7- Von schwarzer Liste entfernen"
+admin-cmd-blacklist-list: "§f/ac admin blacklist list §7- Schwarze Liste anzeigen"
+admin-cmd-cancel: "§f/ac admin cancel <id> §7- Auktion stornieren"
+admin-cmd-backup: "§f/ac admin backup §7- Datenbank-Backup"
+
+admin-blacklist-add: "§a{player} §azur schwarzen Liste hinzugefügt."
+admin-blacklist-remove: "§a{player} §avon schwarzer Liste entfernt."
+admin-blacklist-list: "§7Spieler auf der schwarzen Liste: §f{players}"
+admin-blacklist-empty: "§7Die schwarze Liste ist leer."
+admin-cancel-success: "§aAuktion §f{id} §aerfolgreich storniert."
+admin-backup-success: "§aDatenbank-Backup erfolgreich!"
+admin-backup-fail: "§cDatenbank-Backup fehlgeschlagen."
+
+# ─── SETUP WIZARD ───────────────────────────
+setup-welcome: "§6Willkommen bei Auctify!\n\n§7Dieser Einrichtungsassistent hilft dir\n§7bei der Konfiguration des Plugins in wenigen Schritten."
+setup-complete: "§aEinrichtung abgeschlossen!\n\n§7Das Plugin wurde konfiguriert.\n§7Verwende §f/ac reload §7für manuelle Änderungen."
+
+# ─── EXTEND ─────────────────────────────────
+extend-success: "§aZeit erfolgreich verlängert!"
+extend-fail: "§cZeit konnte nicht verlängert werden."
+extend-usage: "§7Verwendung: §f/ac extend <id> <Minuten>"
+extend-invalid-minutes: "§cUngültige Minuten. Muss größer als 0 sein."
+extension-too-long: "§cDu kannst nicht mehr als §f{max} §cMinuten verlängern."
+cannot-extend-has-bids: "§cDu kannst eine Auktion nicht verlängern, auf der bereits Gebote vorhanden sind."
+
+# ─── SNIPING PROTECTION ─────────────────────
+sniping-protection-active: "§aSniping-Schutz aktiv: §f{seconds} §aSekunden hinzugefügt."
+
+# ─── ETC ────────────────────────────────────
+not-your-listing: "§cDas ist nicht dein Angebot."
+invalid-listing-id: "§cUngültige Angebots-ID."
+auction-ended: "§cDiese Auktion ist bereits beendet."
+auction-private: "§cDiese Auktion ist privat. Du kannst nicht bieten."
+bin-only: "§cDieses Angebot erlaubt nur Sofortkauf."
+
+# ─── Buy Orders (WTB System) ─────────────────
+buyorder-disabled: "§cKaufbefehl-System ist deaktiviert."
+buyorder-no-item: "§cHalte das Item, für das du einen Kaufbefehl erstellen möchtest!"
+buyorder-max-reached: "§cDu kannst nur {max} aktive Kaufbefehle haben."
+buyorder-created: "§aKaufbefehl erstellt! §8(§f{id}§8) §7Kaufe {amount}x {item} für §a{price} §7pro Stück. Gesamt: §6{total}"
+buyorder-list-empty: "§7Du hast keine aktiven Kaufbefehle."
+buyorder-list-header: "§6§lDeine Kaufbefehle §8(§f{count}§8)"
+buyorder-list-entry: "§8• §f{id} §8| §7{amount}x {item} @ §a{price}"
+buyorder-cancelled: "§eKaufbefehl §f{id} §estorniert. Rückerstattung verarbeitet."
+buyorder-not-found: "§cKaufbefehl nicht gefunden oder bereits erfüllt/storniert."
+buyorder-usage-title: "§6Kaufbefehl-Befehle:"
+buyorder-usage-create: "§e/ac buyorder create <Preis pro Stück> §8— §7Kaufbefehl für gehaltenes Item erstellen"
+buyorder-usage-list: "§e/ac buyorder list §8— §7Deine aktiven Kaufbefehle anzeigen"
+buyorder-usage-cancel: "§e/ac buyorder cancel <id> §8— §7Kaufbefehl stornieren"
+buyorder-usage-browse: "§e/ac buyorder browse §8— §7Alle aktiven Kaufbefehle anzeigen"
+buyorder-browse-empty: "§7Keine aktiven Kaufbefehle."
+buyorder-browse-header: "§6§lAktive Kaufbefehle §8(§f{count}§8)"
+buyorder-browse-entry: "§8• §f{id} §8| §7{buyer} möchte {amount}x {item} @ §a{price} §8(§a{total}§8)"
+buyorder-filled: "§aDein Kaufbefehl wurde erfüllt! Erhalten {amount}x {item}."
+buyorder-sold: "§a{amount}x {item} an {buyer} verkauft für §6{payment}"
+buyorder-offline-delivery: "§e{buyer} ist offline. Items in Warteschlange für Lieferung."
+buyorder-delivered: "§a{count} Kaufbefehl-Item(s) in dein Inventar geliefert!"
+buyorder-expired: "§eKaufbefehl §f{id} §eabgelaufen. Rückerstattung verarbeitet."
+not-your-order: "§cDas ist nicht dein Kaufbefehl!"
+
+# ─── Bulk Selling ──────────────────────────
+bulksell-usage: "§cVerwendung: /ac bulksell <start_preis> <kauf_preis> [dauer_minuten]"
+bulksell-max-reached: "§eMaximal {max} Stacks gelistet. Restliche Items nicht gelistet."
+bulksell-success: "§aErfolgreich {stacks} Stacks ({amount}x {item}) gelistet!"
+bulksell-no-items: "§cKeine passenden Items im Inventar gefunden."
+
+# ─── Statistics ───────────────────────────
+stats-usage: "§cVerwendung: /ac stats [spieler]"
+stats-viewing: "§eStatistiken anzeigen für §f{player}"

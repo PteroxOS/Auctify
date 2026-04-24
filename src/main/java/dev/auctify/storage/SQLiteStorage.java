@@ -104,6 +104,20 @@ public class SQLiteStorage implements StorageManager {
             } catch (SQLException ignored) {
                 // Table already exists
             }
+            // Create price_history table if not exists
+            try {
+                st.execute(
+                        "CREATE TABLE IF NOT EXISTS auctify_price_history (id INTEGER PRIMARY KEY AUTOINCREMENT, listing_id TEXT NOT NULL, item_material TEXT NOT NULL, item_name TEXT NOT NULL, final_price REAL NOT NULL, seller_name TEXT NOT NULL, winner_name TEXT NOT NULL, timestamp INTEGER NOT NULL)");
+            } catch (SQLException ignored) {
+                // Table already exists
+            }
+            // Create auto_bid table if not exists
+            try {
+                st.execute(
+                        "CREATE TABLE IF NOT EXISTS auctify_auto_bid (id INTEGER PRIMARY KEY AUTOINCREMENT, player_uuid TEXT NOT NULL, player_name TEXT NOT NULL, listing_id TEXT NOT NULL, max_bid_amount REAL NOT NULL, created_at INTEGER NOT NULL, UNIQUE(player_uuid, listing_id))");
+            } catch (SQLException ignored) {
+                // Table already exists
+            }
         } catch (SQLException e) {
             logger.log(Level.SEVERE, "Schema migration failed", e);
         }
@@ -696,53 +710,396 @@ public class SQLiteStorage implements StorageManager {
 
     @Override
     public void saveBuyOrder(dev.auctify.auction.BuyOrder order) {
-        // TODO: Implement buy order storage
+        String sql = "INSERT OR REPLACE INTO auctify_buy_orders (id,buyer_uuid,buyer_name,item_type,amount,price_per_unit,created_at,expiry_time,active) VALUES (?,?,?,?,?,?,?,?,?)";
+        try (Connection c = dataSource.getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setString(1, order.getId());
+            ps.setString(2, order.getBuyerUUID().toString());
+            ps.setString(3, order.getBuyerName());
+            ps.setString(4, order.getItemType().name());
+            ps.setInt(5, order.getAmount());
+            ps.setDouble(6, order.getPricePerUnit());
+            ps.setLong(7, order.getCreatedAt());
+            ps.setLong(8, order.getExpiryTime());
+            ps.setInt(9, order.isActive() ? 1 : 0);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            logger.log(Level.SEVERE, "Failed to save buy order", e);
+        }
     }
 
     @Override
     public void deleteBuyOrder(String orderId) {
-        // TODO: Implement buy order deletion
+        try (Connection c = dataSource.getConnection();
+                PreparedStatement ps = c.prepareStatement("DELETE FROM auctify_buy_orders WHERE id=?")) {
+            ps.setString(1, orderId);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            logger.log(Level.SEVERE, "Failed to delete buy order", e);
+        }
     }
 
     @Override
     public java.util.List<dev.auctify.auction.BuyOrder> getAllBuyOrders() {
-        // TODO: Implement buy order retrieval
-        return java.util.Collections.emptyList();
+        java.util.List<dev.auctify.auction.BuyOrder> res = new java.util.ArrayList<>();
+        try (Connection c = dataSource.getConnection();
+                Statement st = c.createStatement();
+                ResultSet rs = st.executeQuery("SELECT * FROM auctify_buy_orders WHERE active=1")) {
+            while (rs.next()) {
+                dev.auctify.auction.BuyOrder order = deserializeBuyOrder(rs);
+                if (order != null)
+                    res.add(order);
+            }
+        } catch (SQLException e) {
+            logger.log(Level.SEVERE, "Failed to get buy orders", e);
+        }
+        return res;
+    }
+
+    private dev.auctify.auction.BuyOrder deserializeBuyOrder(ResultSet rs) throws SQLException {
+        try {
+            String id = rs.getString("id");
+            UUID buyerUUID = UUID.fromString(rs.getString("buyer_uuid"));
+            String buyerName = rs.getString("buyer_name");
+            org.bukkit.Material itemType = org.bukkit.Material.valueOf(rs.getString("item_type"));
+            int amount = rs.getInt("amount");
+            double pricePerUnit = rs.getDouble("price_per_unit");
+            long createdAt = rs.getLong("created_at");
+            long expiryTime = rs.getLong("expiry_time");
+
+            dev.auctify.auction.BuyOrder order = new dev.auctify.auction.BuyOrder(
+                    id, buyerUUID, buyerName, itemType, amount, pricePerUnit, createdAt, expiryTime);
+            order.setActive(rs.getInt("active") == 1);
+            return order;
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     @Override
     public java.util.List<dev.auctify.auction.BuyOrder> getBuyOrdersByPlayer(UUID playerUUID) {
-        // TODO: Implement buy order retrieval by player
-        return java.util.Collections.emptyList();
+        java.util.List<dev.auctify.auction.BuyOrder> res = new java.util.ArrayList<>();
+        try (Connection c = dataSource.getConnection();
+                PreparedStatement ps = c
+                        .prepareStatement("SELECT * FROM auctify_buy_orders WHERE buyer_uuid=? AND active=1")) {
+            ps.setString(1, playerUUID.toString());
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    dev.auctify.auction.BuyOrder order = deserializeBuyOrder(rs);
+                    if (order != null)
+                        res.add(order);
+                }
+            }
+        } catch (SQLException e) {
+            logger.log(Level.SEVERE, "Failed to get player buy orders", e);
+        }
+        return res;
     }
 
     // ─── Watchlist Implementation ───────────────────
 
     @Override
     public void addToWatchlist(UUID playerUUID, String listingId) {
-        // TODO: Implement watchlist storage
+        String sql = "INSERT OR IGNORE INTO auctify_watchlist (player_uuid,listing_id,added_at) VALUES (?,?,?)";
+        try (Connection c = dataSource.getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setString(1, playerUUID.toString());
+            ps.setString(2, listingId);
+            ps.setLong(3, System.currentTimeMillis());
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            logger.log(Level.SEVERE, "Failed to add to watchlist", e);
+        }
     }
 
     @Override
     public void removeFromWatchlist(UUID playerUUID, String listingId) {
-        // TODO: Implement watchlist removal
+        try (Connection c = dataSource.getConnection();
+                PreparedStatement ps = c
+                        .prepareStatement("DELETE FROM auctify_watchlist WHERE player_uuid=? AND listing_id=?")) {
+            ps.setString(1, playerUUID.toString());
+            ps.setString(2, listingId);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            logger.log(Level.SEVERE, "Failed to remove from watchlist", e);
+        }
     }
 
     @Override
     public boolean isInWatchlist(UUID playerUUID, String listingId) {
-        // TODO: Implement watchlist check
+        try (Connection c = dataSource.getConnection();
+                PreparedStatement ps = c
+                        .prepareStatement("SELECT 1 FROM auctify_watchlist WHERE player_uuid=? AND listing_id=?")) {
+            ps.setString(1, playerUUID.toString());
+            ps.setString(2, listingId);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next();
+            }
+        } catch (SQLException e) {
+            logger.log(Level.SEVERE, "Failed to check watchlist", e);
+        }
         return false;
     }
 
     @Override
     public java.util.List<String> getWatchlist(UUID playerUUID) {
-        // TODO: Implement watchlist retrieval
-        return java.util.Collections.emptyList();
+        java.util.List<String> res = new java.util.ArrayList<>();
+        try (Connection c = dataSource.getConnection();
+                PreparedStatement ps = c.prepareStatement(
+                        "SELECT listing_id FROM auctify_watchlist WHERE player_uuid=? ORDER BY added_at DESC")) {
+            ps.setString(1, playerUUID.toString());
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    res.add(rs.getString("listing_id"));
+                }
+            }
+        } catch (SQLException e) {
+            logger.log(Level.SEVERE, "Failed to get watchlist", e);
+        }
+        return res;
     }
 
     @Override
     public void clearWatchlist(UUID playerUUID) {
-        // TODO: Implement watchlist clear
+        try (Connection c = dataSource.getConnection();
+                PreparedStatement ps = c.prepareStatement("DELETE FROM auctify_watchlist WHERE player_uuid=?")) {
+            ps.setString(1, playerUUID.toString());
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            logger.log(Level.SEVERE, "Failed to clear watchlist", e);
+        }
+    }
+
+    // ─── Pending Buy Order Deliveries ───────────
+
+    @Override
+    public void addPendingBuyDelivery(UUID playerUUID, org.bukkit.inventory.ItemStack item, String orderId) {
+        String sql = "INSERT INTO auctify_pending_buy_deliveries (player_uuid,item_data,order_id,created_at) VALUES (?,?,?,?)";
+        try (Connection c = dataSource.getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setString(1, playerUUID.toString());
+            ps.setString(2, dev.auctify.util.ItemUtil.serializeToBase64(item));
+            ps.setString(3, orderId);
+            ps.setLong(4, System.currentTimeMillis());
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            logger.log(Level.SEVERE, "Failed to save pending buy delivery", e);
+        }
+    }
+
+    @Override
+    public java.util.List<org.bukkit.inventory.ItemStack> getPendingBuyDeliveries(UUID playerUUID) {
+        java.util.List<org.bukkit.inventory.ItemStack> res = new java.util.ArrayList<>();
+        try (Connection c = dataSource.getConnection();
+                PreparedStatement ps = c
+                        .prepareStatement("SELECT item_data FROM auctify_pending_buy_deliveries WHERE player_uuid=?")) {
+            ps.setString(1, playerUUID.toString());
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    org.bukkit.inventory.ItemStack item = dev.auctify.util.ItemUtil
+                            .deserializeFromBase64(rs.getString("item_data"));
+                    if (item != null)
+                        res.add(item);
+                }
+            }
+        } catch (SQLException e) {
+            logger.log(Level.SEVERE, "Failed to get pending buy deliveries", e);
+        }
+        return res;
+    }
+
+    @Override
+    public void clearPendingBuyDeliveries(UUID playerUUID) {
+        try (Connection c = dataSource.getConnection();
+                PreparedStatement ps = c
+                        .prepareStatement("DELETE FROM auctify_pending_buy_deliveries WHERE player_uuid=?")) {
+            ps.setString(1, playerUUID.toString());
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            logger.log(Level.SEVERE, "Failed to clear pending buy deliveries", e);
+        }
+    }
+
+    // ─── Price History System ─────────────────────────
+
+    @Override
+    public void savePriceHistory(dev.auctify.auction.PriceHistory priceHistory) {
+        String sql = "INSERT INTO auctify_price_history (listing_id, item_material, item_name, final_price, seller_name, winner_name, timestamp) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        try (Connection c = dataSource.getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setString(1, priceHistory.getId());
+            ps.setString(2, priceHistory.getItemMaterial());
+            ps.setString(3, priceHistory.getItemName());
+            ps.setDouble(4, priceHistory.getFinalPrice());
+            ps.setString(5, priceHistory.getSellerName());
+            ps.setString(6, priceHistory.getWinnerName());
+            ps.setLong(7, priceHistory.getTimestamp());
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            logger.log(Level.SEVERE, "Failed to save price history", e);
+        }
+    }
+
+    @Override
+    public java.util.List<dev.auctify.auction.PriceHistory> getPriceHistory(String itemType, int limit) {
+        java.util.List<dev.auctify.auction.PriceHistory> result = new java.util.ArrayList<>();
+        String sql = "SELECT listing_id, item_material, item_name, final_price, seller_name, winner_name, timestamp FROM auctify_price_history WHERE item_material = ? ORDER BY timestamp DESC LIMIT ?";
+        try (Connection c = dataSource.getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setString(1, itemType);
+            ps.setInt(2, limit);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    result.add(new dev.auctify.auction.PriceHistory(
+                            rs.getString("listing_id"),
+                            rs.getString("item_material"),
+                            rs.getString("item_name"),
+                            rs.getDouble("final_price"),
+                            rs.getString("seller_name"),
+                            rs.getString("winner_name"),
+                            rs.getLong("timestamp")));
+                }
+            }
+        } catch (SQLException e) {
+            logger.log(Level.SEVERE, "Failed to get price history", e);
+        }
+        return result;
+    }
+
+    @Override
+    public java.util.List<dev.auctify.auction.PriceHistory> getAllPriceHistory(int limit) {
+        java.util.List<dev.auctify.auction.PriceHistory> result = new java.util.ArrayList<>();
+        String sql = "SELECT listing_id, item_material, item_name, final_price, seller_name, winner_name, timestamp FROM auctify_price_history ORDER BY timestamp DESC LIMIT ?";
+        try (Connection c = dataSource.getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setInt(1, limit);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    result.add(new dev.auctify.auction.PriceHistory(
+                            rs.getString("listing_id"),
+                            rs.getString("item_material"),
+                            rs.getString("item_name"),
+                            rs.getDouble("final_price"),
+                            rs.getString("seller_name"),
+                            rs.getString("winner_name"),
+                            rs.getLong("timestamp")));
+                }
+            }
+        } catch (SQLException e) {
+            logger.log(Level.SEVERE, "Failed to get all price history", e);
+        }
+        return result;
+    }
+
+    // ─── Auto-Bid System ─────────────────────────────
+
+    @Override
+    public void saveAutoBid(dev.auctify.auction.AutoBid autoBid) {
+        String sql = "INSERT OR REPLACE INTO auctify_auto_bid (player_uuid, player_name, listing_id, max_bid_amount, created_at) VALUES (?, ?, ?, ?, ?)";
+        try (Connection c = dataSource.getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setString(1, autoBid.getPlayerUUID().toString());
+            ps.setString(2, autoBid.getPlayerName());
+            ps.setString(3, autoBid.getListingId());
+            ps.setDouble(4, autoBid.getMaxBidAmount());
+            ps.setLong(5, autoBid.getCreatedAt());
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            logger.log(Level.SEVERE, "Failed to save auto-bid", e);
+        }
+    }
+
+    @Override
+    public dev.auctify.auction.AutoBid getAutoBid(String listingId, java.util.UUID playerUUID) {
+        String sql = "SELECT player_uuid, player_name, listing_id, max_bid_amount, created_at FROM auctify_auto_bid WHERE listing_id = ? AND player_uuid = ?";
+        try (Connection c = dataSource.getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setString(1, listingId);
+            ps.setString(2, playerUUID.toString());
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return new dev.auctify.auction.AutoBid(
+                            java.util.UUID.fromString(rs.getString("player_uuid")),
+                            rs.getString("player_name"),
+                            rs.getString("listing_id"),
+                            rs.getDouble("max_bid_amount"),
+                            rs.getLong("created_at"));
+                }
+            }
+        } catch (SQLException e) {
+            logger.log(Level.SEVERE, "Failed to get auto-bid", e);
+        }
+        return null;
+    }
+
+    @Override
+    public java.util.List<dev.auctify.auction.AutoBid> getAutoBidsForListing(String listingId) {
+        java.util.List<dev.auctify.auction.AutoBid> result = new java.util.ArrayList<>();
+        String sql = "SELECT player_uuid, player_name, listing_id, max_bid_amount, created_at FROM auctify_auto_bid WHERE listing_id = ?";
+        try (Connection c = dataSource.getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setString(1, listingId);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    result.add(new dev.auctify.auction.AutoBid(
+                            java.util.UUID.fromString(rs.getString("player_uuid")),
+                            rs.getString("player_name"),
+                            rs.getString("listing_id"),
+                            rs.getDouble("max_bid_amount"),
+                            rs.getLong("created_at")));
+                }
+            }
+        } catch (SQLException e) {
+            logger.log(Level.SEVERE, "Failed to get auto-bids for listing", e);
+        }
+        return result;
+    }
+
+    @Override
+    public java.util.List<dev.auctify.auction.AutoBid> getAutoBidsForPlayer(java.util.UUID playerUUID) {
+        java.util.List<dev.auctify.auction.AutoBid> result = new java.util.ArrayList<>();
+        String sql = "SELECT player_uuid, player_name, listing_id, max_bid_amount, created_at FROM auctify_auto_bid WHERE player_uuid = ?";
+        try (Connection c = dataSource.getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setString(1, playerUUID.toString());
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    result.add(new dev.auctify.auction.AutoBid(
+                            java.util.UUID.fromString(rs.getString("player_uuid")),
+                            rs.getString("player_name"),
+                            rs.getString("listing_id"),
+                            rs.getDouble("max_bid_amount"),
+                            rs.getLong("created_at")));
+                }
+            }
+        } catch (SQLException e) {
+            logger.log(Level.SEVERE, "Failed to get auto-bids for player", e);
+        }
+        return result;
+    }
+
+    @Override
+    public void deleteAutoBid(String listingId, java.util.UUID playerUUID) {
+        String sql = "DELETE FROM auctify_auto_bid WHERE listing_id = ? AND player_uuid = ?";
+        try (Connection c = dataSource.getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setString(1, listingId);
+            ps.setString(2, playerUUID.toString());
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            logger.log(Level.SEVERE, "Failed to delete auto-bid", e);
+        }
+    }
+
+    @Override
+    public void deleteAutoBidsForListing(String listingId) {
+        String sql = "DELETE FROM auctify_auto_bid WHERE listing_id = ?";
+        try (Connection c = dataSource.getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setString(1, listingId);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            logger.log(Level.SEVERE, "Failed to delete auto-bids for listing", e);
+        }
+    }
+
+    @Override
+    public void clearAutoBidsForPlayer(java.util.UUID playerUUID) {
+        String sql = "DELETE FROM auctify_auto_bid WHERE player_uuid = ?";
+        try (Connection c = dataSource.getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setString(1, playerUUID.toString());
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            logger.log(Level.SEVERE, "Failed to clear auto-bids for player", e);
+        }
     }
 
     /** {@inheritDoc} */

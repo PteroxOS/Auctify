@@ -1,0 +1,57 @@
+# ─────────────────────────────────────────────
+# Auctify — Chinese Simplified Locale File
+# Variables: {item}, {amount}, {winner}, {tax}, {net}, {listing_id}, {min_bid}, {max}
+# ─────────────────────────────────────────────
+
+no-permission: "§c你没有权限这样做。"
+player-only: "§c此命令只能由玩家执行。"
+listing-created: "§a你的上架物品已创建！ §7ID: §f{listing_id}"
+bid-success: "§a你现在已是 §f{item} §a的最高出价者！"
+buyout-success: "§a你以 §6{amount} §a的价格立即购买了 §f{item}§a！"
+auction-won: "§a你以 §6{amount} §a的出价赢得了 §f{item} §a的拍卖！"
+auction-sold: "§a你的 §f{item} §a以 §6{amount} §a的价格卖给了 §e{winner}§a！"
+insufficient-funds: "§c资金不足。你需要 §f{amount}§c。"
+listing-cancelled: "§a上架已取消。你的物品已返还。"
+
+# GUI
+gui-previous-page: "§a◀ 上一页"
+gui-next-page: "§a下一页 ▶"
+gui-page-info: "§6第 {current}§7/§6{total} 页"
+gui-search-title: "§e搜索拍卖"
+gui-button-bid: "§a§l出价"
+gui-button-buyout: "§c§l立即购买"
+
+# ─── Buy Orders (WTB System) ─────────────────
+buyorder-disabled: "§c求购系统已禁用。"
+buyorder-no-item: "§c手持你想要创建求购单的物品！"
+buyorder-max-reached: "§c你最多只能有 {max} 个活跃的求购单。"
+buyorder-created: "§a求购单已创建！ §8(§f{id}§8) §7求购 {amount}x {item}，单价 §a{price}§7。总计：§6{total}"
+buyorder-list-empty: "§7你没有活跃的求购单。"
+buyorder-list-header: "§6§l你的求购单 §8(§f{count}§8)"
+buyorder-list-entry: "§8• §f{id} §8| §7{amount}x {item} @ §a{price}"
+buyorder-cancelled: "§e求购单 §f{id} §e已取消。已退款。"
+buyorder-not-found: "§c求购单未找到或已完成/取消。"
+buyorder-usage-title: "§6求购单命令："
+buyorder-usage-create: "§e/ac buyorder create <单价> §8— §7为手持物品创建求购单"
+buyorder-usage-list: "§e/ac buyorder list §8— §7查看你的活跃求购单"
+buyorder-usage-cancel: "§e/ac buyorder cancel <id> §8— §7取消求购单"
+buyorder-usage-browse: "§e/ac buyorder browse §8— §7查看所有活跃求购单"
+buyorder-browse-empty: "§7没有活跃的求购单。"
+buyorder-browse-header: "§6§l活跃求购单 §8(§f{count}§8)"
+buyorder-browse-entry: "§8• §f{id} §8| §7{buyer} 求购 {amount}x {item} @ §a{price} §8(§a{total}§8)"
+buyorder-filled: "§a你的求购单已成交！收到 {amount}x {item}。"
+buyorder-sold: "§a以 §6{payment} §a的价格向 {buyer} 出售了 {amount}x {item}"
+buyorder-offline-delivery: "§e{buyer} 离线。物品已排队等待送达。"
+buyorder-delivered: "§a{count} 个待送达求购单物品已送到你的背包！"
+buyorder-expired: "§e求购单 §f{id} §e已过期。已退款。"
+not-your-order: "§c这不是你的求购单！"
+
+# ─── Bulk Selling ──────────────────────────
+bulksell-usage: "§c用法：/ac bulksell <起拍价> <一口价> [持续时间_分钟]"
+bulksell-max-reached: "§e最多上架 {max} 组。剩余物品未上架。"
+bulksell-success: "§a成功上架 {stacks} 组 ({amount}x {item})！"
+bulksell-no-items: "§c背包中没有匹配的物品。"
+
+# ─── Statistics ───────────────────────────
+stats-usage: "§c用法：/ac stats [玩家]"
+stats-viewing: "§e查看 §f{player} §e的统计"

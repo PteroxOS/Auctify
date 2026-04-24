@@ -21,7 +21,14 @@ public class CancelSubCommand implements SubCommand {
     /** {@inheritDoc} */
     @Override
     public void execute(CommandSender sender, String[] args) {
-        Player player = (Player) sender;
+        if (!(sender instanceof Player player)) {
+            return;
+        }
+
+        if (!player.hasPermission("auctify.cancel")) {
+            MessageUtil.send(player, "no-permission", null);
+            return;
+        }
 
         if (args.length < 2) {
             MessageUtil.send(player, "cancel-usage", null);

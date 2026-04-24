@@ -21,6 +21,11 @@ public class AboutSubCommand implements SubCommand {
     /** {@inheritDoc} */
     @Override
     public void execute(CommandSender sender, String[] args) {
+        if (!sender.hasPermission("auctify.about")) {
+            MessageUtil.send(sender, "no-permission", null);
+            return;
+        }
+
         String version = plugin.getPluginMeta().getVersion();
         int activeListings = plugin.getAuctionManager().getActiveListings().size();
         boolean economyStatus = plugin.getEconomyManager().isAvailable();
@@ -28,30 +33,26 @@ public class AboutSubCommand implements SubCommand {
         String discordWebhook = plugin.getConfig().getString("discord.webhook-url", "");
         boolean discordEnabled = !discordWebhook.isEmpty() && plugin.getConfig().getBoolean("discord.enabled", false);
 
-        // Simplified about card with aligned borders
+        // Clean format matching /ac ping style
         MessageUtil.sendRaw(sender, "");
-        MessageUtil.sendRaw(sender, "§8|==================================================");
-        MessageUtil.sendRaw(sender, "§8|                                                 ");
-        MessageUtil.sendRaw(sender, "§8|       §6✦ §e§lA U C T I F Y §6✦ §fv" + version);
-        MessageUtil.sendRaw(sender, "§8|                                                 ");
-        MessageUtil.sendRaw(sender, "§8|==================================================");
-        MessageUtil.sendRaw(sender, "§8| §6§lServer Status");
-        MessageUtil.sendRaw(sender, "§8|                                                 ");
-        MessageUtil.sendRaw(sender,
-                "§8|  §7Economy:§8      " + formatStatus(economyStatus, "Connected", "Offline"));
-        MessageUtil.sendRaw(sender, "§8|  §7Storage:§8       §f" + storageType);
-        MessageUtil.sendRaw(sender,
-                "§8|  §7Discord:§8      " + formatStatus(discordEnabled, "Connected", "Disabled"));
-        MessageUtil.sendRaw(sender, "§8|  §7Listings:§8      §a" + activeListings + " active");
-        MessageUtil.sendRaw(sender,
-                "§8|  §7Players:§8       §f" + Bukkit.getOnlinePlayers().size() + " online");
-        MessageUtil.sendRaw(sender, "§8|                                                 ");
-        MessageUtil.sendRaw(sender, "§8|==================================================");
-        MessageUtil.sendRaw(sender, "§8| §6§lLinks");
-        MessageUtil.sendRaw(sender, "§8|                                                 ");
-        MessageUtil.sendRaw(sender, "§8|  §7GitHub: §fgithub.com/PteroxOS/Auctify");
-        MessageUtil.sendRaw(sender, "§8|                                                 ");
-        MessageUtil.sendRaw(sender, "§8|==================================================");
+        MessageUtil.sendRaw(sender, "§8========================================");
+        MessageUtil.sendRaw(sender, "§6      A U C T I F Y §fv" + version);
+        MessageUtil.sendRaw(sender, "§8========================================");
+        MessageUtil.sendRaw(sender, "");
+
+        MessageUtil.sendRaw(sender, "§6§lServer Status");
+        MessageUtil.sendRaw(sender, "  §7Economy:    " + formatStatus(economyStatus, "Connected", "Offline"));
+        MessageUtil.sendRaw(sender, "  §7Storage:    §f" + storageType);
+        MessageUtil.sendRaw(sender, "  §7Discord:    " + formatStatus(discordEnabled, "Connected", "Disabled"));
+        MessageUtil.sendRaw(sender, "  §7Listings:   §a" + activeListings + " active");
+        MessageUtil.sendRaw(sender, "  §7Players:    §f" + Bukkit.getOnlinePlayers().size() + " online");
+
+        MessageUtil.sendRaw(sender, "");
+        MessageUtil.sendRaw(sender, "§6§lLinks");
+        MessageUtil.sendRaw(sender, "  §7GitHub: §fhttps://github.com/PteroxOS/Auctify");
+
+        MessageUtil.sendRaw(sender, "");
+        MessageUtil.sendRaw(sender, "§8========================================");
         MessageUtil.sendRaw(sender, "");
     }
 

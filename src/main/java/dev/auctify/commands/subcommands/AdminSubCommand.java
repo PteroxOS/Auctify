@@ -27,6 +27,11 @@ public class AdminSubCommand implements SubCommand {
 
     @Override
     public void execute(CommandSender sender, String[] args) {
+        if (!sender.hasPermission("auctify.admin")) {
+            MessageUtil.send(sender, "no-permission", null);
+            return;
+        }
+
         if (args.length == 1) {
             // /ac admin — open GUI
             if (sender instanceof Player player) {
@@ -52,6 +57,7 @@ public class AdminSubCommand implements SubCommand {
             // Admin force cancel
             if (sender instanceof Player player) {
                 plugin.getAuctionManager().cancelListing(player, listingId);
+                plugin.getLoggerManager().logAdmin(sender.getName(), "cancelled listing", listingId);
             } else {
                 MessageUtil.send(sender, "admin-usage-gui", null);
             }
@@ -90,6 +96,8 @@ public class AdminSubCommand implements SubCommand {
                         : "No reason";
                 plugin.getStorageManager().addBlacklist(target.getUniqueId(), reason, sender.getName());
                 MessageUtil.send(sender, "admin-blacklist-added", Map.of("player", target.getName(), "reason", reason));
+                plugin.getLoggerManager().logAdmin(sender.getName(), "blacklisted",
+                        target.getName() + " (" + reason + ")");
             }
             case "remove" -> {
                 if (args.length < 4) {
@@ -103,6 +111,7 @@ public class AdminSubCommand implements SubCommand {
                 }
                 plugin.getStorageManager().removeBlacklist(target.getUniqueId());
                 MessageUtil.send(sender, "admin-blacklist-removed", Map.of("player", target.getName()));
+                plugin.getLoggerManager().logAdmin(sender.getName(), "unblacklisted", target.getName());
             }
             case "list" -> {
                 var list = plugin.getStorageManager().getBlacklist();
@@ -130,6 +139,7 @@ public class AdminSubCommand implements SubCommand {
             Bukkit.getScheduler().runTask(plugin, () -> {
                 if (success) {
                     MessageUtil.send(sender, "backup-success", null);
+                    plugin.getLoggerManager().logAdmin(sender.getName(), "backup", "database");
                 } else {
                     MessageUtil.send(sender, "backup-failed", null);
                 }

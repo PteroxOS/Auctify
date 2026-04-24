@@ -18,7 +18,15 @@ public class ClaimSubCommand implements SubCommand {
 
     @Override
     public void execute(CommandSender sender, String[] args) {
-        Player player = (Player) sender;
+        if (!(sender instanceof Player player)) {
+            return;
+        }
+
+        if (!player.hasPermission("auctify.claim")) {
+            MessageUtil.send(player, "no-permission", null);
+            return;
+        }
+
         plugin.getClaimGUI().open(player);
     }
 

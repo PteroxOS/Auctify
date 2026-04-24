@@ -1,10 +1,31 @@
-# ─────────────────────────────────────────────
-# Auctify — English Locale File
-# All GUI text and chat messages are configurable here.
-# Variables: {item}, {amount}, {winner}, {tax}, {net}, {listing_id}, {min_bid}, {max}
-# ─────────────────────────────────────────────
+# ═══════════════════════════════════════════════════════════════════════════════
+# Auctify — English Locale File (en)
+# ═══════════════════════════════════════════════════════════════════════════════
+# 
+# Available Variables:
+#   {item}        - Item name/material
+#   {amount}      - Numeric amount/quantity
+#   {winner}      - Winner's username
+#   {tax}         - Tax percentage
+#   {net}         - Net amount after tax
+#   {listing_id}  - Auction listing ID
+#   {min_bid}     - Minimum bid amount
+#   {max}         - Maximum value
+#   {price}       - Price value
+#   {buyer}       - Buyer's username
+#   {seller}      - Seller's username
+#   {payment}     - Payment amount
+#   {count}       - Count/number
+#   {stacks}      - Number of stacks
+#   {player}      - Player name
+#   {id}          - Generic ID
+#   {date}        - Date string
+#
+# ═══════════════════════════════════════════════════════════════════════════════
 
-# ─── CHAT MESSAGES ──────────────────────────
+# ═══════════════════════════════════════════════════════════════════════════════
+# CHAT MESSAGES
+# ═══════════════════════════════════════════════════════════════════════════════
 no-permission: "§cYou don't have permission to do that."
 player-only: "§cThis command can only be run by a player."
 listing-created: "§aYour listing has been created! §7ID: §f{listing_id}"
@@ -33,7 +54,12 @@ invalid-price: "§cInvalid price. Please enter a positive number."
 invalid-duration: "§cInvalid duration. Must be between §f{min} §cand §f{max} §cseconds."
 config-reloaded: "§aAuctify config and locales reloaded successfully."
 economy-not-found: "§cNo economy provider found. Install EssentialsX or similar."
-chat-prompt-bid: "§6[Auctify] §7Type your bid amount in chat for §f{item}§7. Type §ccancel §7to abort."
+chat-prompt-bid: "§7Type your bid amount in chat for §f{item}§7. Type §ccancel §7to abort."
+search-prompt: "§7Type your search query in chat. Type §ccancel §7to abort."
+search-cancelled: "§cSearch cancelled."
+search-timeout: "§cSearch timed out."
+search-empty: "§cSearch query cannot be empty."
+search-results: "§aShowing results for: §f{query}"
 chat-cancelled: "§7Bid cancelled."
 buyout-success: "§aYou instantly bought §f{item} §afor §6{amount}§a!"
 chat-bid-retry: "§7Type a higher amount, or type §fcancel §7to abort."
@@ -48,7 +74,9 @@ auto-relist-success: "§aAuto-relist: §f{old_id} §arelisted as §f{new_id} §a
 world-blacklisted: "§cAuction house is disabled in this world."
 blacklisted-material: "§cThis item type is blacklisted and cannot be listed."
 
-# ─── MAIN GUI ───────────────────────────────
+# ═══════════════════════════════════════════════════════════════════════════════
+# MAIN GUI
+# ═══════════════════════════════════════════════════════════════════════════════
 gui-previous-page: "§a◀ Previous Page"
 gui-next-page: "§aNext Page ▶"
 gui-page-info: "§6Page {current}§7/§6{total}"
@@ -74,7 +102,9 @@ gui-history-title: "§eAuction History"
 gui-history-lore-1: "§7Click to view your"
 gui-history-lore-2: "§7recent auction history."
 
-# ─── CONFIRM BID GUI ────────────────────────
+# ═══════════════════════════════════════════════════════════════════════════════
+# CONFIRM BID GUI
+# ═══════════════════════════════════════════════════════════════════════════════
 gui-confirm-title: "§8✦ §6Confirm Bid §8✦"
 gui-confirm-bid: "§a✔ Confirm Bid"
 gui-confirm-min-bid: "§7Minimum bid: §a{min_bid}"
@@ -93,7 +123,9 @@ gui-buyout-title: "§6⚡ Buy Now!"
 gui-buyout-price: "§7Buyout price: §6{price}"
 gui-buyout-click: "§7Click to instantly purchase this item."
 
-# ─── ITEM DETAIL GUI ────────────────────────
+# ═══════════════════════════════════════════════════════════════════════════════
+# ITEM DETAIL GUI
+# ═══════════════════════════════════════════════════════════════════════════════
 gui-detail-title: "§8✦ §6Item Details §8✦"
 gui-detail-seller-title: "§6Seller Information"
 gui-detail-seller: "§7Seller: §f{seller}"
@@ -107,7 +139,9 @@ gui-detail-buyout-title: "§6Buyout Price"
 gui-detail-buyout-price: "§7Instant buy: §6{price}"
 gui-detail-back: "§c◀ Back to Auction House"
 
-# ─── MANAGE LISTING GUI ─────────────────────
+# ═══════════════════════════════════════════════════════════════════════════════
+# MANAGE LISTING GUI
+# ═══════════════════════════════════════════════════════════════════════════════
 gui-manage-title: "§8✦ §9Manage Listing §8✦"
 gui-manage-stats-title: "§bListing Stats"
 gui-manage-current-bid: "§7Current bid: §a{bid}"
@@ -121,7 +155,9 @@ gui-manage-cancel-lore-2: "§7The item will be returned to you,"
 gui-manage-cancel-lore-3: "§7and any bids will be refunded."
 gui-manage-back: "§a◀ Back to Auction House"
 
-# ─── MAILBOX / CLAIM GUI ────────────────────
+# ═══════════════════════════════════════════════════════════════════════════════
+# MAILBOX / CLAIM GUI
+# ═══════════════════════════════════════════════════════════════════════════════
 gui-claim-title: "§8✦ §6Your Mailbox §8✦"
 gui-claim-item-lore: "§7Click to collect"
 gui-claim-collect-all: "§a📥 Collect All"
@@ -130,7 +166,9 @@ gui-claim-no-items: "§cMailbox Empty"
 gui-claim-no-items-lore: "§7You have no pending items."
 no-pending-items: "§7You have no pending items to claim."
 
-# ─── Watchlist ──────────────────────────────
+# ═══════════════════════════════════════════════════════════════════════════════
+# WATCHLIST
+# ═══════════════════════════════════════════════════════════════════════════════
 watchlist-added: "§aAdded §f{id} §a(§f{item}§a) to watchlist!"
 watchlist-removed: "§eRemoved §f{id} §efrom watchlist."
 watchlist-empty: "§7Your watchlist is empty. §e/ac watchlist <id> §7to add."
@@ -138,11 +176,15 @@ watchlist-header: "§6§lYour Watchlist §8(§f{count}§8)"
 watchlist-entry: "§8• §f{id} §8- §7{item} §8| §a{bid}"
 gui-claim-close: "§c✘ Close"
 
-# ─── SHULKER PREVIEW GUI ────────────────────
+# ═══════════════════════════════════════════════════════════════════════════════
+# SHULKER PREVIEW GUI
+# ═══════════════════════════════════════════════════════════════════════════════
 gui-shulker-title: "§8✦ §5Shulker Preview §8✦"
 gui-shulker-back: "§a◀ Back"
 
-# ─── RATE GUI ───────────────────────────────
+# ═══════════════════════════════════════════════════════════════════════════════
+# RATE GUI
+# ═══════════════════════════════════════════════════════════════════════════════
 gui-rate-title: "§8✦ §eRate {seller} §8✦"
 gui-rate-star: "§6{stars} Star(s)"
 gui-rate-click: "§7Click to give {stars} star(s)"
@@ -153,7 +195,9 @@ gui-rate-count: "§7Total ratings: §f{count}"
 gui-rate-skip: "§c✘ Skip Rating"
 gui-rate-skip-lore: "§7Click to close."
 
-# ─── ADMIN GUI ──────────────────────────────
+# ═══════════════════════════════════════════════════════════════════════════════
+# ADMIN GUI
+# ═══════════════════════════════════════════════════════════════════════════════
 gui-admin-title: "§8✦ §4Admin Moderation §8✦"
 gui-admin-cancel-listing: "§cForce Cancel Listing"
 gui-admin-cancel-lore: "§7Click to force cancel this listing."
@@ -165,7 +209,9 @@ pending-refunds-received: "§a§f{amount} §ain pending refunds has been credite
 pending-items-received: "§a§f{count} §apending item(s) have been added to your inventory."
 pending-item-dropped: "§7§f{item} §7couldn't fit in your inventory and was dropped at your feet."
 
-# ─── SORT & BIN SETTINGS ────────────────────
+# ═══════════════════════════════════════════════════════════════════════════════
+# SORT & BIN SETTINGS
+# ═══════════════════════════════════════════════════════════════════════════════
 gui-sort-title: "§bSort Listings"
 gui-sort-time-asc: "§7Time (Ending Soonest)"
 gui-sort-time-desc: "§7Time (Ending Latest)"
@@ -174,24 +220,9 @@ gui-sort-price-desc: "§7Price (Highest First)"
 gui-sort-bids: "§7Most Bids"
 bin-only-label: "§c[BIN ONLY]"
 
-# ─── NEW FEATURES v1.0.1 ─────────────────────
-# --- Bid History ---
-bid-history-header: "§6=== Bid History for §e{id} §6==="
-bid-history-entry: "§7{bidder} §7bid §a{amount} §7at §f{time}"
-bid-history-empty: "§7No bids for this auction yet."
-# --- Auction Notifications ---
-auction-sold-offline: "§aYour auction §f{item} §awas sold while you were offline! Winner: §e{winner} §afor §f{amount} §a(Net: §f{net}§a)"
-# --- Extension ---
-cannot-extend-has-bids: "§cCannot extend an auction that already has bids."
-extension-too-long: "§cExtension too long. Max: §f{max} §cminutes."
-auction-extended: "§aAuction §f{id} §aextended by §f{minutes} §aminutes."
-# --- Private Auction ---
-auction-private: "§cThis is a private auction. You are not on the whitelist."
-# --- Bulk Cancel ---
-bulk-cancel-success: "§aCancelled §f{count} §aauctions."
-bulk-cancel-none: "§7No eligible auctions to cancel (only auctions without bids can be cancelled)."
-
-# --- Command Messages (previously hardcoded) ---
+# ═══════════════════════════════════════════════════════════════════════════════
+# COMMAND MESSAGES
+# ═══════════════════════════════════════════════════════════════════════════════
 # History
 history-empty: "§7You have no auction history yet."
 history-empty-other: "§7{player} has no auction history yet."
@@ -224,7 +255,7 @@ cancel-usage: "§cUsage: §f/ac cancel <listing_id>"
 extend-usage: "§cUsage: §f/ac extend <listing_id> <minutes>"
 extend-invalid-minutes: "§cMinutes must be a positive number."
 
-# Bid History Command
+# Bid History
 bidhistory-usage: "§cUsage: §f/ac bidhistory <listing_id>"
 bidhistory-header: "§8|================================================"
 bidhistory-title: "§8|  §6§lBID HISTORY §7— §e{id}"
@@ -237,6 +268,26 @@ bidhistory-entry: "§8|  §f{number}. §e{bidder} §7bid §a{amount} §8({time})
 bidhistory-current-top: "§8|  §6Current top bid: §a{amount} §7by §e{bidder}"
 bidhistory-starting-price: "§8|  §7Starting price: §a{price}"
 bidhistory-footer: "§8|================================================"
+
+# Extension
+cannot-extend-has-bids: "§cCannot extend an auction that already has bids."
+extension-too-long: "§cExtension too long. Max: §f{max} §cminutes."
+auction-extended: "§aAuction §f{id} §aextended by §f{minutes} §aminutes."
+
+# Private Auction
+auction-private: "§cThis is a private auction. You are not on the whitelist."
+
+# Bulk Cancel
+bulk-cancel-success: "§aCancelled §f{count} §aauctions."
+bulk-cancel-none: "§7No eligible auctions to cancel (only auctions without bids can be cancelled)."
+
+# Bid History (GUI)
+bid-history-header: "§6=== Bid History for §e{id} §6==="
+bid-history-entry: "§7{bidder} §7bid §a{amount} §7at §f{time}"
+bid-history-empty: "§7No bids for this auction yet."
+
+# Offline Notifications
+auction-sold-offline: "§aYour auction §f{item} §awas sold while you were offline! Winner: §e{winner} §afor §f{amount} §a(Net: §f{net}§a)"
 
 # Admin
 player-not-found: "§cPlayer not found or offline."
@@ -256,3 +307,108 @@ blacklist-entry: "§7- §f{uuid} §8(by {by}) §7Reason: §f{reason}"
 backup-starting: "§eStarting database backup..."
 admin-backup-success: "§aDatabase backup successful!"
 admin-backup-fail: "§cDatabase backup failed."
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# BUY ORDERS (WTB SYSTEM)
+# ═══════════════════════════════════════════════════════════════════════════════
+buyorder-disabled: "§cBuy order system is currently disabled."
+buyorder-no-item: "§cHold the item you want to create a buy order for!"
+buyorder-max-reached: "§cYou can only have {max} active buy orders."
+buyorder-created: "§aBuy order created! §8(§f{id}§8) §7Buying {amount}x {item} at §a{price} §7each. Total: §6{total}"
+buyorder-list-empty: "§7You have no active buy orders."
+buyorder-list-header: "§6§lYour Buy Orders §8(§f{count}§8)"
+buyorder-list-entry: "§8• §f{id} §8| §7{buyer} §8| §7{amount}x {item} @ §a{price}"
+buyorder-cancelled: "§eCancelled buy order §f{id}§e. Refund processed."
+buyorder-not-found: "§cBuy order not found or already filled/cancelled."
+buyorder-usage-title: "§6Buy Order Commands:"
+buyorder-usage-create: "§e/ac buyorder create <price per unit> §8— §7Create buy order for held item"
+buyorder-usage-list: "§e/ac buyorder list §8— §7List your active buy orders"
+buyorder-usage-cancel: "§e/ac buyorder cancel <id> §8— §7Cancel a buy order"
+buyorder-usage-browse: "§e/ac buyorder browse §8— §7Browse active buy orders"
+buyorder-usage-sell: "§e/ac buyorder sell <order_id> §8— §7Sell items to a buy order"
+buyorder-sell-usage: "§cUsage: §f/ac buyorder sell <order_id>"
+buyorder-sell-no-item: "§cHold the item you want to sell!"
+buyorder-browse-empty: "§7No active buy orders found."
+buyorder-browse-header: "§6§lActive Buy Orders §8(§f{count}§8)"
+buyorder-browse-entry: "§8• §f{id} §8| §7{buyer} wants {amount}x {item} @ §a{price} §8(§a{total}§8)"
+buyorder-filled: "§aYour buy order was filled! Received {amount}x {item}."
+buyorder-sold: "§aSold {amount}x {item} to {buyer} for §6{payment}"
+buyorder-offline-delivery: "§e{buyer} is offline. Items queued for delivery when they log in."
+buyorder-delivered: "§aDelivered {count} pending buy order item(s) to your inventory!"
+buyorder-expired: "§eBuy order §f{id} §eexpired. Refund processed."
+not-your-order: "§cThis is not your buy order!"
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# BULK SELLING
+# ═══════════════════════════════════════════════════════════════════════════════
+bulksell-usage: "§cUsage: /ac bulksell <start_price> <buyout_price> [duration_minutes]"
+bulksell-max-reached: "§eMaximum {max} stacks listed. Remaining items not listed."
+bulksell-success: "§aListed {stacks} stacks ({amount}x {item}) successfully!"
+bulksell-no-items: "§cNo matching items found in inventory."
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# ADVANCED SEARCH FILTERS
+# ═══════════════════════════════════════════════════════════════════════════════
+filter-usage: "§cUsage: /ac filter <type> <value> or /ac filter clear"
+filter-invalid-type: "§cInvalid filter type. Available: minprice, maxprice, seller, endtime, sort, clear"
+filter-invalid-price: "§cInvalid price value."
+filter-invalid-time: "§cInvalid time value (must be in seconds)."
+filter-invalid-sort: "§cInvalid sort mode. Available: TIME_ASC, TIME_DESC, PRICE_ASC, PRICE_DESC, BIDS, NEWEST, ENDING_SOON"
+filter-minprice-set: "§aMinimum price set to §f{price}"
+filter-maxprice-set: "§aMaximum price set to §f{price}"
+filter-seller-set: "§aSeller filter set to §f{seller}"
+filter-endtime-set: "§aEnd time filter set to §f{seconds} seconds from now"
+filter-sort-set: "§aSort mode set to §f{mode}"
+filter-cleared: "§aAll filters cleared."
+filter-not-in-auction: "§cYou must be in the auction house GUI to use filters."
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# AUCTION NOTIFICATIONS
+# ═══════════════════════════════════════════════════════════════════════════════
+notification-outbid: "§cYou were outbid on §f{item}§c! New bid: §a{amount}"
+notification-buyout: "§aYour item §f{item} §awas bought out for §6{price} §aby §e{buyer}§a!"
+notification-auction-won: "§aYou won the auction for §f{item} §afor §6{amount}§a!"
+notification-item-sold: "§aYour item §f{item} §awas sold to §e{winner} §afor §6{amount}§a! §7(After §c{tax}% §7tax: §a{net}§7)"
+notification-expiration-warning: "§eYour auction for §f{item} §eexpires in §c{minutes} minutes§e! §7(ID: §f{listing_id}§7)"
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# NOTIFICATION PREFERENCES
+# ═══════════════════════════════════════════════════════════════════════════════
+notifications-usage: "§cUsage: /ac notifications [toggle <type> | all <on|off>]"
+notifications-invalid-type: "§cInvalid notification type. Available: outbid, buyout, auction-won, item-sold, expiration"
+notifications-enabled: "§a{type} notifications enabled."
+notifications-disabled: "§c{type} notifications disabled."
+notifications-all-enabled: "§aAll notifications enabled."
+notifications-all-disabled: "§cAll notifications disabled."
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# AUTO-BID
+# ═══════════════════════════════════════════════════════════════════════════════
+autobid-usage: "§cUsage: /ac autobid [set <id> <max> | remove <id> | clear]"
+autobid-set: "§aAuto-bid set for listing §f{id} §afor up to §6{max}"
+autobid-removed: "§aAuto-bid removed for listing §f{id}"
+autobid-cleared: "§aAll auto-bids cleared."
+autobid-not-found: "§cNo auto-bid found for listing §f{id}"
+autobid-own-listing: "§cYou cannot auto-bid on your own listing."
+autobid-too-low: "§cMax bid must be higher than current bid: §f{current}"
+autobid-exhausted: "§cAuto-bid exhausted for §f{item} §c(max: §6{max_bid}§c)"
+autobid-insufficient-funds: "§cInsufficient funds for auto-bid: §f{amount}"
+autobid-placed: "§aAuto-bid placed for §f{item} §aat §6{amount} §a(§e{remaining} remaining§a)"
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# PRICE HISTORY
+# ═══════════════════════════════════════════════════════════════════════════════
+pricehistory-usage: "§cUsage: /ac pricehistory [item_type]"
+pricehistory-no-data: "§cNo price history data available."
+pricehistory-viewing: "§eViewing price history for §f{item_type}"
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# STATISTICS
+# ═══════════════════════════════════════════════════════════════════════════════
+stats-usage: "§cUsage: /ac stats [player]"
+stats-viewing: "§eViewing stats for §f{player}"
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# ADMIN COMMANDS
+# ═══════════════════════════════════════════════════════════════════════════════
+usage-blacklist: "§cUsage: /ac admin blacklist <add|remove|list> [item|player]"

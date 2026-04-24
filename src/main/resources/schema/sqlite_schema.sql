@@ -63,3 +63,34 @@ CREATE TABLE IF NOT EXISTS auctify_blacklist (
     blacklisted_by TEXT NOT NULL,
     created_at INTEGER NOT NULL
 );
+
+-- Buy orders (WTB - Want to Buy)
+CREATE TABLE IF NOT EXISTS auctify_buy_orders (
+    id TEXT PRIMARY KEY,
+    buyer_uuid TEXT NOT NULL,
+    buyer_name TEXT NOT NULL,
+    item_type TEXT NOT NULL,
+    amount INTEGER NOT NULL,
+    price_per_unit REAL NOT NULL,
+    created_at INTEGER NOT NULL,
+    expiry_time INTEGER NOT NULL,
+    active INTEGER NOT NULL DEFAULT 1
+);
+
+-- Player watchlists
+CREATE TABLE IF NOT EXISTS auctify_watchlist (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    player_uuid TEXT NOT NULL,
+    listing_id TEXT NOT NULL,
+    added_at INTEGER NOT NULL,
+    UNIQUE(player_uuid, listing_id)
+);
+
+-- Pending buy order deliveries (for offline buyers)
+CREATE TABLE IF NOT EXISTS auctify_pending_buy_deliveries (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    player_uuid TEXT NOT NULL,
+    item_data TEXT NOT NULL,
+    order_id TEXT NOT NULL,
+    created_at INTEGER NOT NULL
+);

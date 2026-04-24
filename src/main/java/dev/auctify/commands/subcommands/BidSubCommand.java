@@ -21,7 +21,14 @@ public class BidSubCommand implements SubCommand {
     /** {@inheritDoc} */
     @Override
     public void execute(CommandSender sender, String[] args) {
-        Player player = (Player) sender;
+        if (!(sender instanceof Player player)) {
+            return;
+        }
+
+        if (!player.hasPermission("auctify.bid")) {
+            MessageUtil.send(player, "no-permission", null);
+            return;
+        }
 
         if (!plugin.getEconomyManager().isAvailable()) {
             MessageUtil.send(player, "economy-not-found", null);

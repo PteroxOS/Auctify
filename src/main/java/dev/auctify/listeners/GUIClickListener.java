@@ -120,7 +120,14 @@ public class GUIClickListener implements Listener {
         var config = plugin.getConfig();
         int prevSlot = config.getInt("gui.navigation.previous-page-slot", 45);
         int nextSlot = config.getInt("gui.navigation.next-page-slot", 53);
+        int searchSlot = config.getInt("gui.navigation.search-button-slot", 48);
         int infoSlot = config.getInt("gui.navigation.info-slot", 49);
+        int categorySlot = config.getInt("gui.buttons.category-cycle-slot", 47);
+        int claimSlot = config.getInt("gui.buttons.claim-slot", 46);
+        int historySlot = config.getInt("gui.buttons.history-slot", 51);
+        int sortSlot = config.getInt("gui.buttons.sort-slot", 52);
+        int refreshSlot = config.getInt("gui.buttons.refresh-slot", 48);
+        int watchlistSlot = config.getInt("gui.buttons.watchlist-slot", 50);
         int rows = config.getInt("gui.rows", 6);
         if (rows < 3)
             rows = 3;
@@ -139,8 +146,26 @@ public class GUIClickListener implements Listener {
             return;
         }
         if (slot == nextSlot && clicked.getType() == Material.ARROW) {
-            guiManager.cancelRefreshTask(player);
-            plugin.getAuctionGUI().open(player, currentPage + 1);
+            // Calculate total pages to prevent going beyond
+            int itemsPerPage = config.getInt("gui.items-per-page", -1);
+            if (itemsPerPage <= 0)
+                itemsPerPage = (rows - 1) * 9;
+            int totalListings = (int) plugin.getAuctionManager().getActiveListings().stream()
+                    .filter(l -> !l.isExpired())
+                    .filter(l -> matchesCategory(l.getItem().getType(), holder.getCategory()))
+                    .count();
+            int totalPages = Math.max(1, (int) Math.ceil((double) totalListings / itemsPerPage));
+
+            if (currentPage < totalPages - 1) {
+                guiManager.cancelRefreshTask(player);
+                plugin.getAuctionGUI().open(player, currentPage + 1);
+            }
+            return;
+        }
+        if (slot == searchSlot) {
+            // Trigger search input via chat
+            player.closeInventory();
+            plugin.getChatSearchListener().startSearchInput(player);
             return;
         }
         if (slot == infoSlot)
@@ -148,7 +173,7 @@ public class GUIClickListener implements Listener {
 
         // Bottom row clicks that aren't nav buttons
         if (slot >= (rows - 1) * 9) {
-            if (slot == 47) {
+            if (slot == categorySlot) {
                 // Category Cycle
                 String currentCat = holder.getCategory();
                 String nextCat = switch (currentCat) {
@@ -160,17 +185,17 @@ public class GUIClickListener implements Listener {
                 };
                 guiManager.cancelRefreshTask(player);
                 plugin.getAuctionGUI().open(player, 0, nextCat);
-            } else if (slot == 48 && clicked.getType() == Material.SUNFLOWER) {
+            } else if (slot == refreshSlot && clicked.getType() == Material.SUNFLOWER) {
                 guiManager.cancelRefreshTask(player);
                 plugin.getAuctionGUI().open(player, currentPage, holder.getCategory());
-            } else if (slot == 46 && clicked.getType() == Material.CHEST) {
+            } else if (slot == claimSlot && clicked.getType() == Material.CHEST) {
                 // Claim/Mailbox button
                 guiManager.cancelRefreshTask(player);
                 plugin.getClaimGUI().open(player);
-            } else if (slot == 51 && clicked.getType() == Material.CLOCK) {
+            } else if (slot == historySlot && clicked.getType() == Material.CLOCK) {
                 plugin.getServer().getScheduler().runTask(plugin, () -> player.closeInventory());
                 player.performCommand("ac history");
-            } else if (slot == 52 && clicked.getType() == Material.COMPARATOR) {
+            } else if (slot == sortSlot && clicked.getType() == Material.COMPARATOR) {
                 // Sort cycle
                 String currentSort = holder.getSortMode();
                 String nextSort = switch (currentSort) {
@@ -193,7 +218,7 @@ public class GUIClickListener implements Listener {
 
         var listings = plugin.getAuctionManager().getActiveListings().stream()
                 .filter(l -> !l.isExpired())
-                .filter(l -> matchesCategory(l.getItem().getType(), holder.getCategory()))
+                .filter(l -> l.getItem() != null && matchesCategory(l.getItem().getType(), holder.getCategory()))
                 .sorted((a, b) -> Long.compare(a.getEndTime(), b.getEndTime()))
                 .toList();
 
@@ -211,7 +236,7 @@ public class GUIClickListener implements Listener {
 
         if (click == ClickType.RIGHT) {
             // Right-click: shulker preview if applicable, otherwise item detail
-            if (ShulkerPreviewGUI.isShulkerBox(listing.getItem())) {
+            if (listing.getItem() != null && ShulkerPreviewGUI.isShulkerBox(listing.getItem())) {
                 guiManager.cancelRefreshTask(player);
                 plugin.getShulkerPreviewGUI().open(player, listing.getItem(), listing.getId());
             } else {
@@ -389,6 +414,9 @@ public class GUIClickListener implements Listener {
                         }
                         claimed++;
                     }
+                    // Log each claimed item
+                    plugin.getLoggerManager().logClaim(player.getName(),
+                            ItemUtil.getDisplayName(item), "ITEM");
                 }
                 MessageUtil.send(player, "claim-success", java.util.Map.of("count", String.valueOf(claimed)));
             });

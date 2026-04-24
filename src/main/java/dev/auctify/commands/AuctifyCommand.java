@@ -37,17 +37,23 @@ public class AuctifyCommand implements CommandExecutor {
         subCommands.put("open", new OpenSubCommand(plugin));
         subCommands.put("cancel", new CancelSubCommand(plugin));
         subCommands.put("search", new SearchSubCommand(plugin));
+        subCommands.put("watchlist", new WatchlistSubCommand(plugin));
+        subCommands.put("buyorder", new BuyOrderSubCommand(plugin));
+        subCommands.put("bulksell", new BulkSellSubCommand(plugin));
+        subCommands.put("stats", new StatsSubCommand(plugin));
+        subCommands.put("filter", new FilterSubCommand(plugin));
+        subCommands.put("notifications", new NotificationsSubCommand(plugin));
+        subCommands.put("autobid", new AutoBidSubCommand(plugin));
         subCommands.put("history", new HistorySubCommand(plugin));
+        subCommands.put("pricehistory", new PriceHistorySubCommand(plugin));
+        subCommands.put("bidhistory", new BidHistorySubCommand(plugin));
+        subCommands.put("extend", new ExtendSubCommand(plugin));
+        subCommands.put("bulkcancel", new BulkCancelSubCommand(plugin));
         subCommands.put("reload", new ReloadSubCommand(plugin));
         subCommands.put("about", new AboutSubCommand(plugin));
         subCommands.put("claim", new ClaimSubCommand(plugin));
         subCommands.put("admin", new AdminSubCommand(plugin));
-        // New v1.0.1 features
-        subCommands.put("bidhistory", new BidHistorySubCommand(plugin));
-        subCommands.put("extend", new ExtendSubCommand(plugin));
-        subCommands.put("bulkcancel", new BulkCancelSubCommand(plugin));
-        // v1.0.2 features
-        subCommands.put("watchlist", new WatchlistSubCommand(plugin));
+        subCommands.put("ping", new PingSubCommand(plugin));
         // Setup wizard is handled directly in onCommand
     }
 
@@ -143,15 +149,18 @@ public class AuctifyCommand implements CommandExecutor {
         MessageUtil.sendRaw(sender, " §e/ac bid §6<id> <amount> §8» §7Place a bid");
         MessageUtil.sendRaw(sender, " §e/ac cancel §6<id> §8» §7Cancel your listing");
         MessageUtil.sendRaw(sender, " §e/ac search §6<query> §8» §7Search listings");
-        MessageUtil.sendRaw(sender, " §e/ac history §7[player] §8» §7View auction history §b[Admin: view others]");
-        MessageUtil.sendRaw(sender, " §e/ac bidhistory §6<id> §8» §7View bid history §b(NEW)");
-        MessageUtil.sendRaw(sender, " §e/ac extend §6<id> <minutes> §8» §7Extend auction §b(NEW)");
-        MessageUtil.sendRaw(sender, " §e/ac bulkcancel §8» §7Cancel all your auctions §b(NEW)");
+        MessageUtil.sendRaw(sender, " §e/ac history §7[player] §8» §7View auction history §c[Admin]");
+        MessageUtil.sendRaw(sender, " §e/ac bidhistory §6<id> §8» §7View bid history");
+        MessageUtil.sendRaw(sender, " §e/ac extend §6<id> <minutes> §8» §7Extend auction");
+        MessageUtil.sendRaw(sender, " §e/ac bulkcancel §8» §7Cancel all your auctions");
+        MessageUtil.sendRaw(sender, " §e/ac buyorder §8» §7Create/manage buy orders (WTB)");
+        MessageUtil.sendRaw(sender, " §e/ac bulksell §6<start> <buyout> §8» §7List all matching items");
+        MessageUtil.sendRaw(sender, " §e/ac stats §7[player] §8» §7View player stats §c[Admin]");
         MessageUtil.sendRaw(sender, " §e/ac claim §8» §7Collect pending items");
         MessageUtil.sendRaw(sender, " §e/ac about §8» §7Plugin information");
-        MessageUtil.sendRaw(sender, " §e/ac admin §8» §7Admin moderation panel §c(Admin)");
-        MessageUtil.sendRaw(sender, " §e/ac setup §8» §7Run setup wizard §c(Admin)");
-        MessageUtil.sendRaw(sender, " §e/ac reload §8» §7Reload configuration §c(Admin)");
+        MessageUtil.sendRaw(sender, " §e/ac admin §8» §7Admin moderation panel §c[Admin]");
+        MessageUtil.sendRaw(sender, " §e/ac setup §8» §7Run setup wizard §c[Admin]");
+        MessageUtil.sendRaw(sender, " §e/ac reload §8» §7Reload configuration §c[Admin]");
         MessageUtil.sendRaw(sender, " §e/ac help §8» §7Show this menu");
         MessageUtil.sendRaw(sender, "§8━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
         MessageUtil.sendRaw(sender, "");
