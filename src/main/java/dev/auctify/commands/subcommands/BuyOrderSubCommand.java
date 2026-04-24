@@ -69,6 +69,10 @@ public class BuyOrderSubCommand implements SubCommand {
         double pricePerUnit;
         try {
             pricePerUnit = Double.parseDouble(args[2]);
+            if (pricePerUnit <= 0 || Double.isNaN(pricePerUnit) || Double.isInfinite(pricePerUnit)) {
+                MessageUtil.send(player, "invalid-price", null);
+                return;
+            }
         } catch (NumberFormatException e) {
             MessageUtil.send(player, "invalid-price", null);
             return;

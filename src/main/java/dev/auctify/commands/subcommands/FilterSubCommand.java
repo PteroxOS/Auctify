@@ -65,7 +65,7 @@ public class FilterSubCommand implements SubCommand {
     private void setMinPrice(Player player, String value) {
         try {
             double minPrice = Double.parseDouble(value);
-            if (minPrice < 0) {
+            if (minPrice < 0 || Double.isNaN(minPrice) || Double.isInfinite(minPrice)) {
                 MessageUtil.send(player, "filter-invalid-price", null);
                 return;
             }
@@ -79,7 +79,7 @@ public class FilterSubCommand implements SubCommand {
     private void setMaxPrice(Player player, String value) {
         try {
             double maxPrice = Double.parseDouble(value);
-            if (maxPrice < 0) {
+            if (maxPrice < 0 || Double.isNaN(maxPrice) || Double.isInfinite(maxPrice)) {
                 MessageUtil.send(player, "filter-invalid-price", null);
                 return;
             }

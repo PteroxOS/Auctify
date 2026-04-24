@@ -47,7 +47,8 @@ public class AutoBidSubCommand implements SubCommand {
             double maxAmount;
             try {
                 maxAmount = Double.parseDouble(args[3]);
-                if (maxAmount <= 0 || maxAmount > Double.MAX_VALUE / 2) {
+                if (maxAmount <= 0 || Double.isNaN(maxAmount) || Double.isInfinite(maxAmount)
+                        || maxAmount > Double.MAX_VALUE / 2) {
                     MessageUtil.send(player, "invalid-number", Map.of("input", args[3]));
                     return;
                 }
