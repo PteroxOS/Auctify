@@ -125,12 +125,13 @@ gui:
 # ─────────────────────────────────────────────
 display:
   # Lore lines added to each item in the GUI (supports color codes and placeholders)
-  # Placeholders: {seller}, {start_price}, {current_bid}, {top_bidder}, {time_left}, {listing_id}
+  # Placeholders: {seller}, {start_price}, {current_bid}, {buyout}, {buyout_price}, {top_bidder}, {time_left}, {listing_id}
   lore:
     - "§8────────────────────"
     - "§7Seller§8: §f{seller}"
     - "§7Start price§8: §a{start_price}"
     - "§7Current bid§8: §a{current_bid}"
+    - "§7Buyout§8: §c{buyout}"
     - "§7Top bidder§8: §e{top_bidder}"
     - "§7Time left§8: §f{time_left}"
     - "§7Listing ID§8: §8{listing_id}"

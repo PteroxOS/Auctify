@@ -432,7 +432,7 @@ public class SetupWizard {
             return;
 
         // Apply all settings
-        plugin.getConfig().set("locale", state.locale);
+        plugin.getConfig().set("general.language", state.locale);
         plugin.getConfig().set("storage.type", state.storage);
         plugin.getConfig().set("economy.tax-percent", state.taxPercent);
         plugin.getConfig().set("economy.tax-destination", state.taxPercent > 0 ? "void" : "void");

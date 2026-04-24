@@ -264,6 +264,9 @@ public class AuctionListing {
         // Format the time remaining using the config time format
         String timeLeft = TimeUtil.formatSeconds(getTimeRemainingSeconds(), config);
 
+        // Format buyout price display
+        String buyoutDisplay = (buyoutPrice > 0) ? String.format("%.2f", buyoutPrice) : "§7Not available";
+
         // Replace placeholders in each lore line from the template, convert to
         // Components
         for (String line : loreTemplate) {
@@ -271,6 +274,8 @@ public class AuctionListing {
                     .replace("{seller}", sellerName)
                     .replace("{start_price}", String.format("%.2f", startPrice))
                     .replace("{current_bid}", String.format("%.2f", currentBid))
+                    .replace("{buyout}", buyoutDisplay)
+                    .replace("{buyout_price}", buyoutDisplay)
                     .replace("{top_bidder}", topBidderDisplay)
                     .replace("{time_left}", timeLeft)
                     .replace("{listing_id}", id);
