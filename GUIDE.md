@@ -4,22 +4,23 @@ Complete technical reference for commands, permissions, configuration, and secur
 
 ## Quick Reference
 
-| Command                                   | Description                      | Permission      |
-| :---------------------------------------- | :------------------------------- | :-------------- |
-| `/ac`                                     | Opens the main Auction House GUI | `auctify.use`   |
-| `/ac sell <start> [buyout] [duration]`    | List held item for auction       | `auctify.sell`  |
-| `/ac bid <id> <amount>`                   | Place bid on a listing           | `auctify.bid`   |
-| `/ac bidhistory <id>`                     | View bid history for a listing   | `auctify.bid`   |
-| `/ac search <query>`                      | Search items by name/seller      | `auctify.use`   |
-| `/ac history`                             | View your transaction history    | `auctify.use`   |
-| `/ac claim`                               | Collect pending items/refunds    | `auctify.use`   |
-| `/ac cancel <id>`                         | Cancel your listing              | `auctify.sell`  |
-| `/ac extend <id> <minutes>`               | Extend auction expiry            | `auctify.sell`  |
-| `/ac bulkcancel`                          | Cancel all your auctions         | `auctify.sell`  |
-| `/ac admin`                               | Open admin moderation panel      | `auctify.admin` |
-| `/ac admin blacklist <add\|remove\|list>` | Manage blacklist                 | `auctify.admin` |
-| `/ac setup`                               | Run interactive setup wizard     | `auctify.admin` |
-| `/ac reload`                              | Reload config and locales        | `auctify.admin` |
+| Command                                   | Description                      | Permission          |
+| :---------------------------------------- | :------------------------------- | :------------------ |
+| `/ac`                                     | Opens the main Auction House GUI | `auctify.use`       |
+| `/ac sell <start> [buyout] [duration]`    | List held item for auction       | `auctify.sell`      |
+| `/ac bid <id> <amount>`                   | Place bid on a listing           | `auctify.bid`       |
+| `/ac bidhistory <id>`                     | View bid history for a listing   | `auctify.bid`       |
+| `/ac watchlist [id]`                      | View or toggle watchlist         | `auctify.watchlist` |
+| `/ac search <query>`                      | Search items by name/seller      | `auctify.use`       |
+| `/ac history`                             | View your transaction history    | `auctify.use`       |
+| `/ac claim`                               | Collect pending items/refunds    | `auctify.use`       |
+| `/ac cancel <id>`                         | Cancel your listing              | `auctify.sell`      |
+| `/ac extend <id> <minutes>`               | Extend auction expiry            | `auctify.sell`      |
+| `/ac bulkcancel`                          | Cancel all your auctions         | `auctify.sell`      |
+| `/ac admin`                               | Open admin moderation panel      | `auctify.admin`     |
+| `/ac admin blacklist <add\|remove\|list>` | Manage blacklist                 | `auctify.admin`     |
+| `/ac setup`                               | Run interactive setup wizard     | `auctify.admin`     |
+| `/ac reload`                              | Reload config and locales        | `auctify.admin`     |
 
 _Aliases: `/ah`, `/au`, `/auction`, `/auctify`_
 
@@ -111,6 +112,23 @@ Collect items and refunds from offline delivery:
 - **Pending money refunds** (failed economy deposits)
 
 The claim system uses **atomic operations** — no duplication possible even if clicked rapidly.
+
+---
+
+### `/ac watchlist [id]` — Watchlist System (v1.0.2)
+
+Track auctions without bidding. Useful for monitoring items you're interested in.
+
+**Usage:**
+
+- `/ac watchlist` — View all watched listings
+- `/ac watchlist ABC123` — Toggle watch status for listing ABC123
+
+**Features:**
+
+- Auto-removes expired/ended listings
+- Shows current bid amount in watchlist
+- No limit on watchlist size
 
 ---
 
@@ -269,6 +287,23 @@ Events:
 - `on-new-listing` — When item is listed
 - `on-sale` — When auction ends with winner
 
+### Crash Notifications (v1.0.2)
+
+Separate webhook for crash alerts:
+
+```yaml
+discord:
+  crash-webhook:
+    enabled: true
+    url: "https://discord.com/api/webhooks/CRASH_URL"
+```
+
+When enabled:
+
+- Captures all uncaught exceptions
+- Logs to `plugins/Auctify/crash.txt`
+- Sends alert to Discord with timestamp and exception type
+
 ## Localization
 
 Language files in `locales/` folder:
@@ -312,3 +347,22 @@ storage:
 - `auctify_pending_refunds` — Failed economy deposits
 - `auctify_ratings` — Player ratings
 - `auctify_blacklist` — Banned players
+- `auctify_watchlist` — Player watchlists (MemoryStorage only for now)
+
+---
+
+## Permissions Reference
+
+| Permission                   | Description                 | Default |
+| :--------------------------- | :-------------------------- | :------ |
+| `auctify.use`                | Access /ac command and GUI  | true    |
+| `auctify.sell`               | Create and cancel listings  | true    |
+| `auctify.bid`                | Place bids on auctions      | true    |
+| `auctify.watchlist`          | Use /ac watchlist           | true    |
+| `auctify.history`            | View own auction history    | true    |
+| `auctify.admin`              | Access admin panel          | op      |
+| `auctify.admin.history`      | View other players' history | op      |
+| `auctify.bypass.fee`         | Bypass listing fee          | op      |
+| `auctify.listings.5`         | Max 5 active listings       | op      |
+| `auctify.listings.10`        | Max 10 active listings      | op      |
+| `auctify.listings.unlimited` | Unlimited listings          | op      |

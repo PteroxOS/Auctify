@@ -2,7 +2,7 @@
 
 Auctify is a professional, high-performance auction house plugin for Minecraft (Paper/Spigot 1.18+) designed with a focus on real-time interaction, modern aesthetics, and **bank-grade security**. It provides a seamless bidding experience with a fully localized GUI, integrated Discord notifications, and comprehensive exploit protection.
 
-> **Latest: v1.0.1** — Now with Interactive Setup Wizard and automatic database backups!
+> **Latest: v1.0.2** — Watchlist, Auto-Relist, and Listing Fee system!
 
 ## 🛡️ Security-First Design (v1.0.0+)
 
@@ -20,7 +20,10 @@ Auctify has undergone a complete security audit and refactor with the following 
 ## Key Features
 
 - **🧙 Interactive Setup Wizard**: 7-step chat-based configuration for first-time setup (`/ac setup`)
-- **💾 Automatic Backups**: SQLite database auto-backup with retention policy (v1.0.1)
+- **👁️ Watchlist/Bookmark**: Track auctions without bidding — `/ac watchlist [id]`
+- **🔄 Auto-Relist**: Automatically relist expired auctions with configurable discount
+- **💰 Listing Fee**: Percentage-based fee when creating listings (bypass with permission)
+- **💾 Automatic Backups**: SQLite database auto-backup with retention policy
 - **📝 Bid History**: Track all bids on every auction with `/ac bidhistory <id>`
 - **⏱️ Auction Extension**: Sellers can extend auction time if no bids placed (`/ac extend`)
 - **🛡️ Sniping Protection**: Auto-extend auctions by 30s when bid placed in last 30 seconds
@@ -75,7 +78,8 @@ Auctify has undergone a complete security audit and refactor with the following 
 # Buyer Commands
 /ac open                    # Open auction house GUI
 /ac bid <id> <amount>       # Place bid via command
-/ac bidhistory <id>         # View bid history for a listing (v1.0.1)
+/ac bidhistory <id>         # View bid history for a listing
+/ac watchlist [id]          # View or toggle watchlist (v1.0.2)
 /ac search <query>          # Search listings
 /ac claim                   # Collect pending items/refunds
 /ac history                 # View your auction history

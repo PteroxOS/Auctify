@@ -22,7 +22,7 @@ public class TabCompleter implements org.bukkit.command.TabCompleter {
     private static final List<String> SUBCOMMANDS = Arrays.asList(
             "sell", "bid", "open", "cancel", "search", "history", "about",
             "claim", "admin", "setup", "reload", "help",
-            "bidhistory", "extend", "bulkcancel");
+            "bidhistory", "extend", "bulkcancel", "watchlist");
 
     /** @param plugin the main plugin instance */
     public TabCompleter(Auctify plugin) {
@@ -83,6 +83,18 @@ public class TabCompleter implements org.bukkit.command.TabCompleter {
                     yield List.of();
                 }
                 case "admin" -> List.of("blacklist", "cancel", "backup");
+                case "watchlist" -> {
+                    // Suggest active listing IDs for watchlist toggle
+                    if (sender instanceof Player player) {
+                        yield plugin.getAuctionManager().getActiveListings().stream()
+                                .filter(l -> l.isActive() && !l.isExpired())
+                                .filter(l -> !l.getSellerUUID().equals(player.getUniqueId()))
+                                .map(AuctionListing::getId)
+                                .filter(id -> id.toLowerCase().startsWith(args[1].toLowerCase()))
+                                .collect(Collectors.toList());
+                    }
+                    yield List.of();
+                }
                 default -> List.of();
             };
         }

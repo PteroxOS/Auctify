@@ -133,20 +133,23 @@ public class AuctionManager {
         }
 
         // Listing fee deduction
-        double listingFeePercent = config.getDouble("listing.fee-percent", 0);
-        double listingFeeMin = config.getDouble("listing.fee-min", 0);
-        double listingFeeMax = config.getDouble("listing.fee-max", 0);
-        if (listingFeePercent > 0 && !seller.hasPermission("auctify.bypass.fee")) {
+        if (config.getBoolean("listing-fee.enabled", false) && !seller.hasPermission("auctify.bypass.fee")) {
+            double listingFeePercent = config.getDouble("listing-fee.percent", 0);
+            double listingFeeMin = config.getDouble("listing-fee.min", 0);
+            double listingFeeMax = config.getDouble("listing-fee.max", 0);
+
             double fee = Math.max(listingFeeMin, startPrice * listingFeePercent / 100);
             if (listingFeeMax > 0)
                 fee = Math.min(fee, listingFeeMax);
 
-            var feeResult = economy.withdraw(seller.getUniqueId(), fee);
-            if (!feeResult.success()) {
-                MessageUtil.send(seller, "listing-fee-insufficient", Map.of("fee", economy.format(fee)));
-                return null;
+            if (fee > 0) {
+                var feeResult = economy.withdraw(seller.getUniqueId(), fee);
+                if (!feeResult.success()) {
+                    MessageUtil.send(seller, "listing-fee-insufficient", Map.of("fee", economy.format(fee)));
+                    return null;
+                }
+                MessageUtil.send(seller, "listing-fee-deducted", Map.of("fee", economy.format(fee)));
             }
-            MessageUtil.send(seller, "listing-fee-deducted", Map.of("fee", economy.format(fee)));
         }
 
         // Validate price range and guard against NaN/Infinity exploits
@@ -356,8 +359,8 @@ public class AuctionManager {
 
         // Sniping protection: extend auction if bid placed near end
         long timeRemaining = listing.getEndTime() - System.currentTimeMillis();
-        int snipingThreshold = config.getInt("general.sniping-protection-seconds", 30) * 1000;
-        int snipingExtension = config.getInt("general.sniping-extension-seconds", 30) * 1000;
+        int snipingThreshold = config.getInt("sniping-protection.threshold-seconds", 30) * 1000;
+        int snipingExtension = config.getInt("sniping-protection.extend-seconds", 30) * 1000;
         if (snipingThreshold > 0 && snipingExtension > 0 && timeRemaining < snipingThreshold) {
             listing.setEndTime(listing.getEndTime() + snipingExtension);
             MessageUtil.broadcast("auction-sniping-extended", Map.of(
@@ -558,7 +561,7 @@ public class AuctionManager {
             deliverItem(winnerUUID, listing.getItem());
 
             // Calculate tax
-            double taxPercent = config.getDouble("economy.tax-percent", 5.0);
+            double taxPercent = config.getDouble("tax.percent", 0);
             double taxAmount = 0;
 
             // MEDIUM-2: Use stored tax exempt status from listing creation time
@@ -576,9 +579,9 @@ public class AuctionManager {
 
             // Handle tax destination
             if (taxAmount > 0) {
-                String taxDest = config.getString("economy.tax-destination", "void");
+                String taxDest = config.getString("tax.destination", "void");
                 if ("server-account".equalsIgnoreCase(taxDest)) {
-                    String taxAccount = config.getString("economy.tax-account-name", "server");
+                    String taxAccount = "server"; // Static server account name
                     TransactionResult taxResult = economy.depositToAccount(taxAccount, taxAmount);
                     if (taxResult.success()) {
                         logger.info("[Auctify] Tax of " + economy.format(taxAmount)
@@ -827,7 +830,7 @@ public class AuctionManager {
         }
 
         // Get max extension limit from config
-        int maxExtension = plugin.getConfig().getInt("general.max-auction-extension-minutes", 60);
+        int maxExtension = plugin.getConfig().getInt("extension.max-minutes", 60);
         if (minutes > maxExtension) {
             MessageUtil.send(player, "extension-too-long", Map.of("max", String.valueOf(maxExtension)));
             return false;

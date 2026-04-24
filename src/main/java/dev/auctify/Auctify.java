@@ -105,6 +105,9 @@ public class Auctify extends JavaPlugin {
         MessageUtil.init(this);
         ConfigUtil.init(this);
 
+        // Register crash handler
+        new dev.auctify.util.CrashHandler(this).register();
+
         // Check and download missing dependencies
         getLogger().info("§e⚡ §7Checking dependencies...");
         DependencyManager depManager = new DependencyManager(this);

@@ -12,7 +12,8 @@ import java.nio.charset.StandardCharsets;
 
 /**
  * Utility for sending Discord webhook embeds.
- * All HTTP calls are performed asynchronously to avoid blocking the main thread.
+ * All HTTP calls are performed asynchronously to avoid blocking the main
+ * thread.
  */
 public class DiscordWebhookUtil {
 
@@ -27,11 +28,14 @@ public class DiscordWebhookUtil {
      */
     public void sendNewListingEmbed(String seller, String item, String startPrice, String buyoutPrice) {
         FileConfiguration config = plugin.getConfig();
-        if (!config.getBoolean("discord.enabled", false)) return;
-        if (!config.getBoolean("discord.on-new-listing.enabled", true)) return;
+        if (!config.getBoolean("discord.enabled", false))
+            return;
+        if (!config.getBoolean("discord.on-new-listing.enabled", true))
+            return;
 
         String webhookUrl = getWebhookUrl(config);
-        if (webhookUrl == null) return;
+        if (webhookUrl == null)
+            return;
 
         String title = config.getString("discord.on-new-listing.title", "\uD83C\uDFF7\uFE0F New Auction Listing!");
         int color = config.getInt("discord.on-new-listing.color", 3447003);
@@ -50,11 +54,14 @@ public class DiscordWebhookUtil {
      */
     public void sendSoldEmbed(String seller, String winner, String item, String finalPrice) {
         FileConfiguration config = plugin.getConfig();
-        if (!config.getBoolean("discord.enabled", false)) return;
-        if (!config.getBoolean("discord.on-sale.enabled", true)) return;
+        if (!config.getBoolean("discord.enabled", false))
+            return;
+        if (!config.getBoolean("discord.on-sale.enabled", true))
+            return;
 
         String webhookUrl = getWebhookUrl(config);
-        if (webhookUrl == null) return;
+        if (webhookUrl == null)
+            return;
 
         String title = config.getString("discord.on-sale.title", "\uD83D\uDCB0 Item Sold!");
         int color = config.getInt("discord.on-sale.color", 3066993);
@@ -90,18 +97,28 @@ public class DiscordWebhookUtil {
     }
 
     /**
-     * Builds a JSON embed payload.
+     * Builds a JSON embed payload with professional formatting.
      */
     private String buildJson(String title, int color, String... fields) {
         StringBuilder fieldsJson = new StringBuilder();
         for (int i = 0; i < fields.length; i++) {
-            if (i > 0) fieldsJson.append(",");
+            if (i > 0)
+                fieldsJson.append(",");
             fieldsJson.append(fields[i]);
         }
-        return "{\"embeds\":[{\"title\":\"" + escapeJson(title) + "\",\"color\":" + color
-                + ",\"fields\":[" + fieldsJson + "],"
-                + "\"footer\":{\"text\":\"Auctify Auction House\"},"
-                + "\"timestamp\":\"" + java.time.Instant.now().toString() + "\""
+
+        String serverName = Bukkit.getServer().getName();
+        String version = plugin.getPluginMeta().getVersion();
+        String footerText = "🏛️ " + serverName + " • Auctify v" + version;
+
+        return "{\"embeds\":[{"
+                + "\"title\":\"" + escapeJson(title) + "\","
+                + "\"color\":" + color + ","
+                + "\"fields\":[" + fieldsJson + "],"
+                + "\"footer\":{\"text\":\"" + escapeJson(footerText)
+                + "\",\"icon_url\":\"https://github.com/PteroxOS/Auctify/raw/main/assets/icon.png\"},"
+                + "\"timestamp\":\"" + java.time.Instant.now().toString() + "\","
+                + "\"author\":{\"name\":\"Auctify Auction House\",\"url\":\"https://github.com/PteroxOS/Auctify\",\"icon_url\":\"https://github.com/PteroxOS/Auctify/raw/main/assets/icon.png\"}"
                 + "}]}";
     }
 
@@ -140,7 +157,8 @@ public class DiscordWebhookUtil {
                         if (errStream != null) {
                             errorBody = new String(errStream.readAllBytes(), StandardCharsets.UTF_8);
                         }
-                    } catch (Exception ignored) {}
+                    } catch (Exception ignored) {
+                    }
                     plugin.getLogger().warning("[Discord] Webhook failed! HTTP " + responseCode + ": " + errorBody);
                 }
                 conn.disconnect();
@@ -150,13 +168,42 @@ public class DiscordWebhookUtil {
         });
     }
 
+    /**
+     * Sends a crash notification to the crash webhook.
+     */
+    public void sendCrashNotification(String timestamp, String exceptionType, String message) {
+        FileConfiguration config = plugin.getConfig();
+        if (!config.getBoolean("discord.crash-webhook.enabled", false))
+            return;
+
+        String webhookUrl = config.getString("discord.crash-webhook.url", "");
+        if (webhookUrl == null || webhookUrl.trim().isEmpty() || webhookUrl.contains("..."))
+            return;
+
+        String title = "🔥 Auctify Crash Detected";
+        int color = 0xFF0000; // Red
+
+        String jsonPayload = "{\"embeds\":[{\"title\":\"" + escapeJson(title) + "\","
+                + "\"color\":" + color + ","
+                + "\"fields\":["
+                + "{\"name\":\"Timestamp\",\"value\":\"" + escapeJson(timestamp) + "\",\"inline\":true},"
+                + "{\"name\":\"Exception\",\"value\":\"" + escapeJson(exceptionType) + "\",\"inline\":true},"
+                + "{\"name\":\"Message\",\"value\":\"" + escapeJson(message) + "\",\"inline\":false}"
+                + "],"
+                + "\"footer\":{\"text\":\"Auctify Crash Handler\"}"
+                + "}]}";
+
+        sendAsync(webhookUrl, jsonPayload);
+    }
+
     private String escapeJson(String input) {
-        if (input == null) return "";
+        if (input == null)
+            return "";
         return input.replace("\\", "\\\\")
-                     .replace("\"", "\\\"")
-                     .replace("\n", "\\n")
-                     .replace("\r", "")
-                     .replace("\t", "\\t")
-                     .replace("§", ""); // Strip MC color codes
+                .replace("\"", "\\\"")
+                .replace("\n", "\\n")
+                .replace("\r", "")
+                .replace("\t", "\\t")
+                .replace("§", ""); // Strip MC color codes
     }
 }
