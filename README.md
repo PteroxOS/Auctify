@@ -43,6 +43,7 @@ Auctify has undergone a complete security audit and refactor with the following 
 - **Auto-Save**: Periodic database flushing to ensure data integrity
 - **Admin Moderation**: Admin panel (`/ac admin`) to manage listings, blacklist, and backups
 - **Tax System**: Configurable tax percentage with "void" or "server-account" destination
+- **Custom Items Support**: Full compatibility with ItemsAdder, Oraxen, MythicMobs, and other custom item plugins (preserves all NBT data, lore, and custom display names)
 
 ## Dependencies
 
@@ -56,18 +57,7 @@ Auctify has undergone a complete security audit and refactor with the following 
 
 - **PlaceholderAPI**: Custom placeholders for scoreboards and tab-lists
 - **ProtocolLib**: Advanced packet-level protection
-
-## Dependencies
-
-### Required
-
-- **Vault**: Essential for economy abstraction and transaction management.
-- **Economy Provider**: An active economy plugin (e.g., EssentialsX, CMI) linked via Vault.
-
-### Optional
-
-- **PlaceholderAPI**: Enables custom placeholders for external use in scoreboards or tab-lists.
-- **ProtocolLib**: Used for advanced packet-level interface protection (optional).
+- **ItemsAdder/Oraxen/MythicMobs**: Custom item plugins fully supported — all NBT data and display names are preserved when listing/selling custom items
 
 ## PlaceholderAPI Support
 

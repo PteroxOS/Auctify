@@ -123,6 +123,19 @@ public final class MessageUtil {
     }
 
     /**
+     * Retrieves a raw message string from the locale file.
+     *
+     * @param key the message key
+     * @return the message string, or empty string if not found
+     */
+    public static String getMessage(String key) {
+        if (plugin == null || messagesConfig == null)
+            return "";
+
+        return messagesConfig.getString(key, "");
+    }
+
+    /**
      * Sends a raw string message to a player with the configured prefix.
      */
     public static void sendRaw(CommandSender sender, String message) {

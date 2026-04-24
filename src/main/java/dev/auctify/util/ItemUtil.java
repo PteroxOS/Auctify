@@ -12,11 +12,15 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Utility class for ItemStack serialization/deserialization and display name extraction.
- * Uses Paper's {@link ItemStack#serializeAsBytes()} and {@link ItemStack#deserializeBytes(byte[])}
+ * Utility class for ItemStack serialization/deserialization and display name
+ * extraction.
+ * Uses Paper's {@link ItemStack#serializeAsBytes()} and
+ * {@link ItemStack#deserializeBytes(byte[])}
  * for reliable binary serialization stored as Base64 strings in the database.
  *
- * <p>Uses Adventure API for display names to avoid deprecated Bukkit methods.</p>
+ * <p>
+ * Uses Adventure API for display names to avoid deprecated Bukkit methods.
+ * </p>
  */
 public final class ItemUtil {
 
@@ -24,8 +28,7 @@ public final class ItemUtil {
     private static final Logger LOGGER = Logger.getLogger("Auctify");
 
     /** Legacy serializer for extracting plain text from display names. */
-    private static final LegacyComponentSerializer LEGACY_SERIALIZER =
-            LegacyComponentSerializer.legacySection();
+    private static final LegacyComponentSerializer LEGACY_SERIALIZER = LegacyComponentSerializer.legacySection();
 
     /** Private constructor to prevent instantiation of this utility class. */
     private ItemUtil() {
@@ -77,7 +80,8 @@ public final class ItemUtil {
      */
     public static String getDisplayName(ItemStack item) {
         if (item == null || item.getType().isAir()) {
-            return "Unknown Item";
+            String msg = MessageUtil.getMessage("unknown-item");
+            return msg.isEmpty() ? "Unknown Item" : msg;
         }
 
         ItemMeta meta = item.getItemMeta();
