@@ -1,4 +1,4 @@
-# Auctify
+# Auctify - Minecraft Auction House Plugin for PaperMC & Spigot
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Java Version](https://img.shields.io/badge/Java-17%2B-orange.svg)](https://openjdk.org/projects/jdk/17/)
