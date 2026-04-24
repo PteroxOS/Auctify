@@ -63,6 +63,9 @@ public class AuctionListing {
     /** Whether this listing is still active (not yet resolved). */
     private volatile boolean active;
 
+    /** Whether the seller had tax bypass permission at listing creation time. */
+    private volatile boolean taxExempt;
+
     /** Whether this is a BIN-only (Buy It Now) listing — no bidding allowed. */
     private final boolean binOnly;
 
@@ -100,6 +103,7 @@ public class AuctionListing {
         this.endTime = endTime;
         this.active = true;
         this.binOnly = binOnly;
+        this.taxExempt = false;
     }
 
     /**
@@ -143,6 +147,7 @@ public class AuctionListing {
         this.endTime = endTime;
         this.active = true;
         this.binOnly = binOnly;
+        this.taxExempt = false;
     }
 
     /**
@@ -354,5 +359,51 @@ public class AuctionListing {
     /** @return true if this is a BIN-only listing (no bidding) */
     public boolean isBinOnly() {
         return binOnly;
+    }
+
+    /** @return whether the seller had tax bypass at listing creation */
+    public boolean isTaxExempt() {
+        return taxExempt;
+    }
+
+    /**
+     * Sets the tax exempt status. Should be called at listing creation time
+     * to persist the seller's permission state.
+     * @param taxExempt true if the seller has tax bypass permission
+     */
+    public void setTaxExempt(boolean taxExempt) {
+        this.taxExempt = taxExempt;
+    }
+
+    /**
+     * Rolls back the most recent bid, restoring the previous bidder state.
+     * Used when an {@link dev.auctify.auction.AuctifyBidEvent} is cancelled
+     * after {@code applyBid()} has already mutated listing state.
+     *
+     * @param previousBidder the UUID of the previous top bidder (null if no prior bids)
+     * @param previousAmount the previous bid amount
+     * @param hadBid         whether there was a prior bid before the rolled-back one
+     */
+    public synchronized void rollbackBid(UUID previousBidder, double previousAmount, boolean hadBid) {
+        if (hadBid) {
+            this.topBidderUUID = previousBidder;
+            // Restore name from bid history if possible
+            this.topBidderName = null;
+            for (int i = bidHistory.size() - 1; i >= 0; i--) {
+                if (bidHistory.get(i).bidderUUID().equals(previousBidder)) {
+                    this.topBidderName = bidHistory.get(i).bidderName();
+                    break;
+                }
+            }
+            this.currentBid = previousAmount;
+        } else {
+            this.topBidderUUID = null;
+            this.topBidderName = null;
+            this.currentBid = startPrice;
+        }
+        // Remove the last bid record (the one being rolled back)
+        if (!bidHistory.isEmpty()) {
+            bidHistory.remove(bidHistory.size() - 1);
+        }
     }
 }

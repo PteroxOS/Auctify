@@ -43,7 +43,7 @@ public class BidSubCommand implements SubCommand {
             return;
         }
 
-        if (amount <= 0) {
+        if (Double.isNaN(amount) || Double.isInfinite(amount) || amount <= 0) {
             MessageUtil.send(player, "invalid-price", null);
             return;
         }

@@ -1,0 +1,194 @@
+# ╔══════════════════════════════════════════╗
+# ║           Auctify Configuration          ║
+# ║     Edit values and run /ac reload       ║
+# ╚══════════════════════════════════════════╝
+
+# ─────────────────────────────────────────────
+#  DEPENDENCY SETTINGS
+# ─────────────────────────────────────────────
+dependencies:
+  # Should Auctify automatically download missing dependencies (like Vault)?
+  # If disabled, you must install dependencies manually.
+  # Downloaded jars will be placed in your server's /plugins folder.
+  auto-download: true
+
+# ─────────────────────────────────────────────
+#  GENERAL SETTINGS
+# ─────────────────────────────────────────────
+general:
+  # Language file to use from the 'locales' folder (without .yml)
+  # Examples: en, id
+  language: "en"
+
+  # Plugin language prefix shown before all messages
+  prefix: "§8[§6Auctify§8] §r"
+
+  # Default auction duration in seconds when seller doesn't specify
+  # 300 = 5 minutes | 600 = 10 minutes | 3600 = 1 hour
+  default-duration: 300
+
+  # Maximum auction duration a player can set (in seconds)
+  max-duration: 3600
+
+  # Minimum auction duration allowed (in seconds)
+  min-duration: 60
+
+  # Maximum number of active listings a single player can have simultaneously
+  # Players with 'auctify.bypass.maxlistings' ignore this
+  max-listings-per-player: 5
+
+  # Should Auctify broadcast bid updates to all online players?
+  # Set to false on large servers to reduce chat spam
+  broadcast-bids: true
+
+  # Should Auctify broadcast when a new listing is created?
+  broadcast-listings: true
+
+  # Should Auctify broadcast when an auction is won?
+  broadcast-wins: true
+
+# ─────────────────────────────────────────────
+#  BIDDING SETTINGS
+# ─────────────────────────────────────────────
+bidding:
+  # Minimum amount a new bid must exceed the current highest bid by
+  # Example: current bid is 1000, min-increment is 10 → next bid must be at least 1010
+  min-increment: 10
+
+  # Minimum starting price a seller can set
+  min-start-price: 1.0
+
+  # Maximum starting price a seller can set (set to -1 for no limit)
+  max-start-price: 1000000.0
+
+  # Allow a seller to set a "buyout" price? (instant-win price)
+  allow-buyout: true
+
+  # Minimum buyout price must be higher than start price by at least this multiplier
+  # Example: start = 100, multiplier = 1.5 → buyout must be at least 150
+  buyout-min-multiplier: 1.5
+
+# ─────────────────────────────────────────────
+#  ECONOMY SETTINGS
+# ─────────────────────────────────────────────
+economy:
+  # Tax percentage deducted from the final sale price before paying the seller
+  # Example: item sold for 1000 with tax 5% → seller receives 950
+  # Players with 'auctify.bypass.tax' are exempt
+  tax-percent: 5.0
+
+  # Where does the tax money go?
+  # Options: "void" (deleted), "server-account" (paid to a Vault server account)
+  tax-destination: "void"
+
+  # Name of the server account to receive tax (only used if tax-destination is "server-account")
+  tax-account-name: "server"
+
+  # Currency format used in messages (uses Vault's currency name by default)
+  # Set to "" to use Vault's default formatting
+  currency-format: ""
+
+# ─────────────────────────────────────────────
+#  GUI SETTINGS
+# ─────────────────────────────────────────────
+gui:
+  # Title shown at the top of the auction house inventory
+  title: "§8✦ §6Auctify §8— §7Auction House §8✦"
+
+  # Number of rows in the GUI (must be 3, 4, 5, or 6)
+  rows: 6
+
+  # Material used as filler in empty GUI slots
+  filler-material: GRAY_STAINED_GLASS_PANE
+
+  # Should the GUI auto-refresh every N seconds while open?
+  # Set to 1 for real-time countdown timer. Higher values = less CPU usage.
+  auto-refresh: true
+  auto-refresh-interval: 1
+
+  # Items per page (calculated automatically from rows, but can be overridden)
+  # Leave as -1 to auto-calculate (rows * 9 minus the bottom navigation row)
+  items-per-page: -1
+
+  # Navigation row items (bottom row of GUI)
+  navigation:
+    previous-page-slot: 45
+    info-slot: 49
+    next-page-slot: 53
+
+  # Bid input timeout in seconds (how long a player has to type their bid in chat)
+  # After this time, the input session is automatically cancelled
+  bid-input-timeout: 30  # 🔧 CONFIGURABLE
+
+# ─────────────────────────────────────────────
+#  LISTING DISPLAY SETTINGS
+# ─────────────────────────────────────────────
+display:
+  # Lore lines added to each item in the GUI (supports color codes and placeholders)
+  # Placeholders: {seller}, {start_price}, {current_bid}, {top_bidder}, {time_left}, {listing_id}
+  lore:
+    - "§8────────────────────"
+    - "§7Seller§8: §f{seller}"
+    - "§7Start price§8: §a{start_price}"
+    - "§7Current bid§8: §a{current_bid}"
+    - "§7Top bidder§8: §e{top_bidder}"
+    - "§7Time left§8: §f{time_left}"
+    - "§7Listing ID§8: §8{listing_id}"
+    - "§8────────────────────"
+    - "§7Left-click §8» §fPlace a bid"
+    - "§7Right-click §8» §fView item details"
+
+  # Lore line shown when nobody has bid yet
+  no-bidder-placeholder: "§7No bids yet"
+
+  # Time format for {time_left} placeholder
+  # Use: {h} hours, {m} minutes, {s} seconds
+  time-format: "§c{m}m {s}s"
+
+# ─────────────────────────────────────────────
+#  STORAGE SETTINGS
+# ─────────────────────────────────────────────
+storage:
+  # Storage type for auction data
+  # Options: "memory" (resets on restart), "sqlite" (file-based), "mysql" (recommended for production)
+  type: sqlite
+
+  # SQLite settings (only used if type is "sqlite")
+  sqlite:
+    file: "auctify.db"
+
+  # MySQL settings (only used if type is "mysql")
+  mysql:
+    host: "localhost"
+    port: 3306
+    database: "auctify"
+    username: "root"
+    password: "password"
+    pool-size: 10
+    use-ssl: false
+
+  # Auto-save interval in minutes (0 = disabled)
+  # Periodically saves all active listings to ensure data safety on crash
+  auto-save-interval: 5
+
+  # Timer mode: auction timers only count down while the server is running.
+  # If the server shuts down, remaining time is saved and resumed on next startup.
+
+# ─────────────────────────────────────────────
+#  DISCORD WEBHOOK SETTINGS
+# ─────────────────────────────────────────────
+discord:
+  enabled: false
+  webhook-url: "https://discord.com/api/webhooks/..."
+  # Fired when a new item is listed
+  on-new-listing:
+    enabled: true
+    title: "🏷️ New Auction Listing!"
+    color: 3447003 # Hex color converted to integer (e.g. 3447003 is Blue)
+  # Fired when an item is sold
+  on-sale:
+    enabled: true
+    title: "💰 Item Sold!"
+    color: 3066993 # Green
+
+# End of Configuration

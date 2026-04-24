@@ -80,6 +80,14 @@ public class AuctifyCommand implements CommandExecutor {
             return true;
         }
 
+        // Check permission for admin subcommands
+        if (sub instanceof AdminSubCommand || sub instanceof ReloadSubCommand) {
+            if (!sender.hasPermission("auctify.admin")) {
+                MessageUtil.send(sender, "no-permission", null);
+                return true;
+            }
+        }
+
         // Execute the subcommand
         sub.execute(sender, args);
         return true;

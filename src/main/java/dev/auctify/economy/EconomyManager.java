@@ -12,11 +12,14 @@ import java.util.logging.Logger;
 
 /**
  * Wraps Vault's {@link Economy} provider with comprehensive null safety.
- * Never throws unchecked exceptions to callers — instead returns {@link TransactionResult}
+ * Never throws unchecked exceptions to callers — instead returns
+ * {@link TransactionResult}
  * objects with descriptive success/failure states.
  *
- * <p>If Vault or an economy provider is not found at startup, all methods
- * gracefully return failure results and log appropriate warnings.</p>
+ * <p>
+ * If Vault or an economy provider is not found at startup, all methods
+ * gracefully return failure results and log appropriate warnings.
+ * </p>
  */
 public class EconomyManager {
 
@@ -30,7 +33,8 @@ public class EconomyManager {
     private boolean economyAvailable;
 
     /**
-     * Creates a new EconomyManager and attempts to hook into Vault's economy provider.
+     * Creates a new EconomyManager and attempts to hook into Vault's economy
+     * provider.
      *
      * @param plugin the main plugin instance for service registration lookup
      */
@@ -41,7 +45,8 @@ public class EconomyManager {
     }
 
     /**
-     * Attempts to hook into the Vault economy provider via Bukkit's service manager.
+     * Attempts to hook into the Vault economy provider via Bukkit's service
+     * manager.
      * If Vault is not installed or no economy plugin is registered, logs a warning
      * and sets {@code economyAvailable} to false.
      */
@@ -53,8 +58,7 @@ public class EconomyManager {
         }
 
         // Attempt to get the registered Economy service provider
-        RegisteredServiceProvider<Economy> rsp =
-                Bukkit.getServicesManager().getRegistration(Economy.class);
+        RegisteredServiceProvider<Economy> rsp = Bukkit.getServicesManager().getRegistration(Economy.class);
 
         if (rsp == null) {
             logger.warning("No economy provider found! Install an economy plugin (e.g., EssentialsX).");
@@ -141,7 +145,8 @@ public class EconomyManager {
      *
      * @param playerUUID the UUID of the player
      * @param amount     the amount to check against
-     * @return true if the player has sufficient funds, false otherwise or if economy unavailable
+     * @return true if the player has sufficient funds, false otherwise or if
+     *         economy unavailable
      */
     public boolean has(UUID playerUUID, double amount) {
         if (!economyAvailable) {
@@ -172,5 +177,40 @@ public class EconomyManager {
      */
     public boolean isAvailable() {
         return economyAvailable;
+    }
+
+    /**
+     * Deposits an amount into a named server/bank account via Vault.
+     * If the account does not exist and the economy provider supports it, it will
+     * be created.
+     *
+     * @param accountName the Vault account name (from config:
+     *                    economy.tax-account-name)
+     * @param amount      the amount to deposit
+     * @return TransactionResult indicating success or failure
+     */
+    public TransactionResult depositToAccount(String accountName, double amount) {
+        if (!economyAvailable) {
+            return TransactionResult.failure("Economy not available");
+        }
+        if (amount <= 0) {
+            return TransactionResult.failure("Amount must be positive");
+        }
+        try {
+            // Vault's bankDeposit method deposits into a named bank account
+            EconomyResponse response = economy.bankDeposit(accountName, amount);
+            if (response.transactionSuccess()) {
+                return TransactionResult.success("Deposited to " + accountName);
+            } else {
+                // Fallback: some economy plugins don't support bank accounts.
+                // Log and treat as "void" — tax is collected but not stored anywhere.
+                logger.warning("[Auctify] Bank deposit to '" + accountName + "' failed: "
+                        + response.errorMessage + ". Tax will be voided instead.");
+                return TransactionResult.failure(response.errorMessage);
+            }
+        } catch (Exception e) {
+            logger.severe("[Auctify] Exception during bank deposit to '" + accountName + "': " + e.getMessage());
+            return TransactionResult.failure(e.getMessage());
+        }
     }
 }

@@ -1,6 +1,8 @@
 package dev.auctify.listeners;
 
 import dev.auctify.Auctify;
+import dev.auctify.storage.PendingRefund;
+import dev.auctify.util.ItemUtil;
 import dev.auctify.util.MessageUtil;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -10,6 +12,7 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Handles player join and quit events for Auctify.
@@ -41,8 +44,9 @@ public class PlayerQuitListener implements Listener {
     }
 
     /**
-     * Delivers pending items when a player joins the server.
-     * Items are accumulated from auctions that resolved while the player was offline.
+     * Delivers pending items and refunds when a player joins the server.
+     * Items are accumulated from auctions that resolved while the player was
+     * offline.
      */
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
@@ -51,20 +55,51 @@ public class PlayerQuitListener implements Listener {
         // Check for pending deliveries asynchronously
         plugin.getServer().getScheduler().runTaskAsynchronously(plugin, () -> {
             List<ItemStack> pending = plugin.getAuctionManager().claimPendingDeliveries(player.getUniqueId());
+            // Atomic fetch-and-clear for refunds (prevents double-delivery)
+            List<PendingRefund> refunds = plugin.getStorageManager().claimAndClearRefunds(player.getUniqueId());
 
-            if (!pending.isEmpty()) {
-                // Deliver items on the main thread safely
+            if (!pending.isEmpty() || !refunds.isEmpty()) {
+                // Deliver on the main thread safely
                 plugin.getServer().getScheduler().runTask(plugin, () -> {
-                    if (!player.isOnline()) return; // Player left during query
-                    for (ItemStack item : pending) {
-                        if (player.getInventory().firstEmpty() == -1) {
-                            player.getWorld().dropItemNaturally(player.getLocation(), item);
-                        } else {
-                            player.getInventory().addItem(item);
+                    if (!player.isOnline())
+                        return; // Player left during query
+
+                    // Deliver items
+                    if (!pending.isEmpty()) {
+                        int dropped = 0;
+                        for (ItemStack item : pending) {
+                            java.util.HashMap<Integer, ItemStack> overflow = player.getInventory()
+                                    .addItem(item.clone());
+                            if (!overflow.isEmpty()) {
+                                // Drop on ground if full
+                                for (ItemStack drop : overflow.values()) {
+                                    player.getWorld().dropItemNaturally(player.getLocation(), drop.clone());
+                                    dropped++;
+                                    MessageUtil.send(player, "pending-item-dropped",
+                                            Map.of("item", ItemUtil.getDisplayName(drop)));
+                                }
+                            }
                         }
+                        MessageUtil.send(player, "pending-items-received",
+                                Map.of("count", String.valueOf(pending.size())));
                     }
-                    MessageUtil.sendRaw(player, "§aYou have received §f" + pending.size()
-                            + " §aitem(s) from auctions that ended while you were offline!");
+
+                    // Deliver pending refunds
+                    if (!refunds.isEmpty()) {
+                        double totalRefunded = 0;
+                        for (PendingRefund refund : refunds) {
+                            if (plugin.getEconomyManager().isAvailable()) {
+                                plugin.getEconomyManager().deposit(player.getUniqueId(), refund.amount());
+                                totalRefunded += refund.amount();
+                            }
+                        }
+                        MessageUtil.send(player, "pending-refunds-received",
+                                Map.of("amount", plugin.getEconomyManager().format(totalRefunded)));
+                        // Log each refund for audit trail
+                        refunds.forEach(r -> plugin.getLogger().info(
+                                "[Auctify] Delivered pending refund of " + plugin.getEconomyManager().format(r.amount())
+                                        + " to " + player.getName() + " — reason: " + r.reason()));
+                    }
                 });
             }
         });

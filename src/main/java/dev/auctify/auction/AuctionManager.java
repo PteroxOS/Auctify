@@ -3,6 +3,7 @@ package dev.auctify.auction;
 import dev.auctify.Auctify;
 import dev.auctify.economy.EconomyManager;
 import dev.auctify.economy.TransactionResult;
+import dev.auctify.storage.PendingRefund;
 import dev.auctify.storage.StorageManager;
 import dev.auctify.util.ItemUtil;
 import dev.auctify.util.MessageUtil;
@@ -16,8 +17,15 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 /**
- * Central coordinator for all auction operations: creating listings, placing bids,
- * buyouts, cancellations, and auction resolution. Holds the in-memory map of active
+ * Central coordinator for all auction operations.
+ * All bid/buyout/cancel operations are synchronized per-listing to prevent race conditions.
+ */
+
+/**
+ * Central coordinator for all auction operations: creating listings, placing
+ * bids,
+ * buyouts, cancellations, and auction resolution. Holds the in-memory map of
+ * active
  * listings and delegates persistence to {@link StorageManager}.
  */
 public class AuctionManager {
@@ -30,12 +38,14 @@ public class AuctionManager {
     /** Active listings indexed by ID for O(1) lookup. Thread-safe. */
     private final Map<String, AuctionListing> activeListings = new ConcurrentHashMap<>();
 
+    /** Per-player lock to prevent TOCTOU item duplication on /ac claim. */
+    private final Set<UUID> claimingPlayers = ConcurrentHashMap.newKeySet();
+
     /**
-     * Constructs the AuctionManager and loads existing listings from storage.
-     *
-     * @param plugin  the main plugin instance
-     * @param economy the economy manager
-     * @param storage the storage manager
+     * Constructs the AuctionManager and loads non-expired listings from storage.
+     * Does NOT resolve expired listings here — call
+     * {@link #resolveExpiredOnStartup()}
+     * after all managers (especially EconomyManager) are fully initialized.
      */
     public AuctionManager(Auctify plugin, EconomyManager economy, StorageManager storage) {
         this.plugin = plugin;
@@ -43,17 +53,41 @@ public class AuctionManager {
         this.economy = economy;
         this.storage = storage;
 
-        // Load persisted listings into memory
+        // Load persisted listings into memory (do NOT resolve expired yet)
         List<AuctionListing> persisted = storage.getAllListings();
         for (AuctionListing listing : persisted) {
-            if (!listing.isExpired()) {
-                activeListings.put(listing.getId(), listing);
-            } else {
-                // Resolve any listings that expired while server was offline
-                resolveAuction(listing);
-            }
+            activeListings.put(listing.getId(), listing);
         }
-        logger.info("Loaded " + activeListings.size() + " active listings from storage.");
+        logger.info("Loaded " + activeListings.size() + " listings from storage.");
+    }
+
+    /**
+     * Resolves listings that expired while the server was offline.
+     * Must be called AFTER all managers are initialized (economy hooked).
+     */
+    public void resolveExpiredOnStartup() {
+        List<AuctionListing> expired = activeListings.values().stream()
+                .filter(AuctionListing::isExpired)
+                .collect(Collectors.toList());
+        for (AuctionListing listing : expired) {
+            resolveAuction(listing);
+        }
+        if (!expired.isEmpty()) {
+            logger.info("Resolved " + expired.size() + " listings that expired during downtime.");
+        }
+    }
+
+    /**
+     * Safely deposits money, logging failures and saving to pending refunds.
+     */
+    private void safeDeposit(UUID playerUUID, double amount, String reason) {
+        TransactionResult r = economy.deposit(playerUUID, amount);
+        if (!r.success()) {
+            logger.severe("[Auctify] CRITICAL: Failed to deposit " + economy.format(amount)
+                    + " to " + playerUUID + " — reason: " + r.reason()
+                    + ". Saving to pending refunds.");
+            storage.savePendingRefund(new PendingRefund(playerUUID, amount, reason, System.currentTimeMillis()));
+        }
     }
 
     /**
@@ -67,7 +101,7 @@ public class AuctionManager {
      * @return the listing ID if successful, or null on failure
      */
     public String createListing(Player seller, ItemStack item, double startPrice,
-                                double buyoutPrice, int durationSeconds) {
+            double buyoutPrice, int durationSeconds) {
         var config = plugin.getConfig();
 
         // Permission check
@@ -103,7 +137,8 @@ public class AuctionManager {
         // Validate price range and guard against NaN/Infinity exploits
         double minPrice = config.getDouble("bidding.min-start-price", 1.0);
         double maxPrice = config.getDouble("bidding.max-start-price", 1000000.0);
-        if (Double.isNaN(startPrice) || Double.isInfinite(startPrice) || startPrice < minPrice || (maxPrice > 0 && startPrice > maxPrice)) {
+        if (Double.isNaN(startPrice) || Double.isInfinite(startPrice) || startPrice < minPrice
+                || (maxPrice > 0 && startPrice > maxPrice)) {
             MessageUtil.send(seller, "invalid-price", null);
             return null;
         }
@@ -131,8 +166,16 @@ public class AuctionManager {
             return null;
         }
 
-        // Generate unique 8-char ID
-        String id = UUID.randomUUID().toString().substring(0, 8);
+        // Generate unique 8-char ID with collision check
+        String id;
+        int attempts = 0;
+        do {
+            if (++attempts > 10) {
+                logger.severe("Could not generate unique listing ID after 10 attempts.");
+                return null;
+            }
+            id = UUID.randomUUID().toString().replace("-", "").substring(0, 8).toUpperCase();
+        } while (activeListings.containsKey(id) || storage.listingExists(id));
 
         long now = System.currentTimeMillis();
         long endTime = now + (durationSeconds * 1000L);
@@ -140,8 +183,10 @@ public class AuctionManager {
         // Create the listing (stores a defensive copy of the item)
         AuctionListing listing = new AuctionListing(
                 id, seller.getUniqueId(), seller.getName(),
-                item, startPrice, buyoutPrice, now, endTime
-        );
+                item, startPrice, buyoutPrice, now, endTime);
+
+        // Store tax exempt status at creation time (MEDIUM-2 fix)
+        listing.setTaxExempt(seller.hasPermission("auctify.bypass.tax"));
 
         // Fire custom event — allow other plugins to cancel
         AuctifyListingCreateEvent event = new AuctifyListingCreateEvent(listing, seller);
@@ -172,8 +217,7 @@ public class AuctionManager {
                 seller.getName(),
                 itemName,
                 economy.format(startPrice),
-                buyoutPrice > 0 ? economy.format(buyoutPrice) : "None"
-        );
+                buyoutPrice > 0 ? economy.format(buyoutPrice) : "None");
 
         return id;
     }
@@ -193,110 +237,99 @@ public class AuctionManager {
             return false;
         }
 
-        // Permission check
         if (!bidder.hasPermission("auctify.bid")) {
             MessageUtil.send(bidder, "no-permission", null);
             return false;
         }
-
-        // Blacklist check
         if (storage.isBlacklisted(bidder.getUniqueId())) {
             MessageUtil.send(bidder, "blacklisted", null);
             return false;
         }
-
-        // Can't bid on BIN-only listings
         if (listing.isBinOnly()) {
             MessageUtil.send(bidder, "bin-only", null);
             return false;
         }
-
-        // Can't bid on own listing
         if (listing.getSellerUUID().equals(bidder.getUniqueId())) {
             MessageUtil.send(bidder, "bid-own-listing", null);
             return false;
         }
-
-        // Can't bid if already top bidder
         if (bidder.getUniqueId().equals(listing.getTopBidderUUID())) {
             MessageUtil.send(bidder, "already-top-bidder", null);
             return false;
         }
-
-        // Economy availability check
         if (!economy.isAvailable()) {
             MessageUtil.send(bidder, "economy-not-found", null);
+            return false;
+        }
+        if (Double.isNaN(amount) || Double.isInfinite(amount) || amount <= 0) {
+            MessageUtil.send(bidder, "invalid-price", null);
             return false;
         }
 
         var config = plugin.getConfig();
         double minIncrement = config.getDouble("bidding.min-increment", 10);
 
-        // Calculate minimum required bid
-        double minBid = listing.hasBids() ? listing.getCurrentBid() + minIncrement : listing.getStartPrice();
-
-        // Guard against NaN/Infinity exploits
-        if (Double.isNaN(amount) || Double.isInfinite(amount) || amount < minBid) {
-            MessageUtil.send(bidder, "bid-too-low", Map.of("min_bid", economy.format(minBid)));
-            return false;
-        }
-
-        // Withdraw from bidder first — if this fails, reject the bid
-        TransactionResult withdrawResult = economy.withdraw(bidder.getUniqueId(), amount);
-        if (!withdrawResult.success()) {
-            MessageUtil.send(bidder, "insufficient-funds", Map.of("amount", economy.format(amount)));
-            return false;
-        }
-
-        // Save previous bidder for refund
-        UUID previousBidder = listing.getTopBidderUUID();
-        double previousAmount = listing.getCurrentBid();
-        boolean hadPreviousBid = listing.hasBids();
-
-        // Apply the bid (synchronized inside AuctionListing)
-        try {
-            listing.applyBid(bidder.getUniqueId(), bidder.getName(), amount, minIncrement);
-        } catch (IllegalArgumentException e) {
-            // Refund on failure — bid was rejected after money was taken
-            economy.deposit(bidder.getUniqueId(), amount);
-            MessageUtil.send(bidder, "bid-too-low", Map.of("min_bid", economy.format(minBid)));
-            return false;
-        }
-
-        // Fire custom event — if cancelled, refund bidder and restore state
-        AuctifyBidEvent event = new AuctifyBidEvent(listing, bidder, amount);
-        Bukkit.getPluginManager().callEvent(event);
-        if (event.isCancelled()) {
-            // Refund the new bidder
-            economy.deposit(bidder.getUniqueId(), amount);
-            return false;
-        }
-
-        // Refund previous top bidder
-        if (hadPreviousBid && previousBidder != null) {
-            economy.deposit(previousBidder, previousAmount);
-            // Notify previous bidder if online
-            Player prevPlayer = Bukkit.getPlayer(previousBidder);
-            if (prevPlayer != null && prevPlayer.isOnline()) {
-                MessageUtil.send(prevPlayer, "auction-lost",
-                        Map.of("item", ItemUtil.getDisplayName(listing.getItem())));
+        // CRITICAL-1: Entire bid flow under per-listing lock
+        synchronized (listing) {
+            if (!listing.isActive() || listing.isExpired()) {
+                MessageUtil.send(bidder, "listing-not-found", Map.of("listing_id", listingId));
+                return false;
             }
-        }
 
-        // Persist the updated listing
-        storage.saveListing(listing);
+            // Recalculate minBid INSIDE the lock (may have changed)
+            double minBid = listing.hasBids() ? listing.getCurrentBid() + minIncrement : listing.getStartPrice();
+            if (amount < minBid) {
+                MessageUtil.send(bidder, "bid-too-low", Map.of("min_bid", economy.format(minBid)));
+                return false;
+            }
 
-        // Notify bidder
+            TransactionResult withdrawResult = economy.withdraw(bidder.getUniqueId(), amount);
+            if (!withdrawResult.success()) {
+                MessageUtil.send(bidder, "insufficient-funds", Map.of("amount", economy.format(amount)));
+                return false;
+            }
+
+            // Save previous state for rollback
+            UUID previousBidder = listing.getTopBidderUUID();
+            double previousAmount = listing.getCurrentBid();
+            boolean hadPreviousBid = listing.hasBids();
+
+            // HIGH-1: Fire event BEFORE mutating listing state so cancellation is clean
+            AuctifyBidEvent event = new AuctifyBidEvent(listing, bidder, amount);
+            Bukkit.getPluginManager().callEvent(event);
+            if (event.isCancelled()) {
+                economy.deposit(bidder.getUniqueId(), amount);
+                return false;
+            }
+
+            try {
+                listing.applyBid(bidder.getUniqueId(), bidder.getName(), amount, minIncrement);
+            } catch (IllegalArgumentException e) {
+                economy.deposit(bidder.getUniqueId(), amount);
+                MessageUtil.send(bidder, "bid-too-low", Map.of("min_bid", economy.format(minBid)));
+                return false;
+            }
+
+            // Refund previous top bidder
+            if (hadPreviousBid && previousBidder != null) {
+                safeDeposit(previousBidder, previousAmount, "Outbid refund on listing " + listingId);
+                Player prevPlayer = Bukkit.getPlayer(previousBidder);
+                if (prevPlayer != null && prevPlayer.isOnline()) {
+                    MessageUtil.send(prevPlayer, "auction-lost",
+                            Map.of("item", ItemUtil.getDisplayName(listing.getItem())));
+                }
+            }
+
+            storage.saveListing(listing);
+        } // end synchronized
+
         MessageUtil.send(bidder, "bid-success",
                 Map.of("item", ItemUtil.getDisplayName(listing.getItem())));
-
-        // Broadcast if enabled
         if (config.getBoolean("general.broadcast-bids", true)) {
             MessageUtil.broadcastRaw("§e" + bidder.getName() + " §7bid §a"
                     + economy.format(amount) + " §7on §f"
                     + ItemUtil.getDisplayName(listing.getItem()) + "§7!");
         }
-
         return true;
     }
 
@@ -338,17 +371,33 @@ public class AuctionManager {
             return false;
         }
 
-        // Refund any existing top bidder
-        if (listing.hasBids() && listing.getTopBidderUUID() != null) {
-            economy.deposit(listing.getTopBidderUUID(), listing.getCurrentBid());
-            Player prevBidder = Bukkit.getPlayer(listing.getTopBidderUUID());
-            if (prevBidder != null && prevBidder.isOnline()) {
-                MessageUtil.send(prevBidder, "auction-lost",
-                        Map.of("item", ItemUtil.getDisplayName(listing.getItem())));
+        // CRITICAL-2: Deactivate inside synchronized block BEFORE resolving to prevent
+        // double-resolve if AuctionExpiryTask fires between applyBid and
+        // resolveAuction.
+        synchronized (listing) {
+            if (!listing.isActive() || listing.isExpired()) {
+                // Listing became inactive while we were withdrawing money — refund buyer
+                economy.deposit(buyer.getUniqueId(), price);
+                MessageUtil.send(buyer, "listing-not-found", Map.of("listing_id", listingId));
+                return false;
             }
+
+            // Refund any existing top bidder
+            if (listing.hasBids() && listing.getTopBidderUUID() != null) {
+                safeDeposit(listing.getTopBidderUUID(), listing.getCurrentBid(),
+                        "Outbid refund on buyout for listing " + listingId);
+                Player prevBidder = Bukkit.getPlayer(listing.getTopBidderUUID());
+                if (prevBidder != null && prevBidder.isOnline()) {
+                    MessageUtil.send(prevBidder, "auction-lost",
+                            Map.of("item", ItemUtil.getDisplayName(listing.getItem())));
+                }
+            }
+
+            listing.setActive(false);
+            activeListings.remove(listingId);
         }
 
-        // Set the buyer as the top bidder and resolve immediately
+        // resolveAuction is safe to call outside the lock now — listing is deactivated
         listing.applyBid(buyer.getUniqueId(), buyer.getName(), price, 0);
         resolveAuction(listing);
 
@@ -388,32 +437,39 @@ public class AuctionManager {
             return false;
         }
 
-        // Deactivate first (double-resolve protection)
-        listing.setActive(false);
-        activeListings.remove(listingId);
-
-        // Refund top bidder if any
-        if (listing.hasBids() && listing.getTopBidderUUID() != null) {
-            economy.deposit(listing.getTopBidderUUID(), listing.getCurrentBid());
-            Player topBidder = Bukkit.getPlayer(listing.getTopBidderUUID());
-            if (topBidder != null && topBidder.isOnline()) {
-                MessageUtil.send(topBidder, "auction-lost",
-                        Map.of("item", ItemUtil.getDisplayName(listing.getItem())));
+        // MEDIUM-3: Acquire per-listing lock before deactivating to prevent race with
+        // bid
+        synchronized (listing) {
+            if (!listing.isActive()) { // re-check inside lock
+                MessageUtil.send(player, "listing-not-found", Map.of("listing_id", listingId));
+                return false;
             }
+            listing.setActive(false);
+            activeListings.remove(listingId);
+
+            // Refund top bidder if any
+            if (listing.hasBids() && listing.getTopBidderUUID() != null) {
+                safeDeposit(listing.getTopBidderUUID(), listing.getCurrentBid(),
+                        "Cancel refund for listing " + listingId);
+                Player topBidder = Bukkit.getPlayer(listing.getTopBidderUUID());
+                if (topBidder != null && topBidder.isOnline()) {
+                    MessageUtil.send(topBidder, "auction-lost",
+                            Map.of("item", ItemUtil.getDisplayName(listing.getItem())));
+                }
+            }
+
+            // Return item to seller
+            deliverItem(listing.getSellerUUID(), listing.getItem());
+
+            // Persist removal
+            storage.deleteListing(listingId);
+
+            // Save to history as cancelled
+            storage.saveHistory(new AuctionHistory(
+                    listing.getId(), listing.getSellerUUID(), listing.getSellerName(),
+                    null, null, ItemUtil.serializeToBase64(listing.getItem()),
+                    listing.getStartPrice(), 0, 0, System.currentTimeMillis(), "CANCELLED"));
         }
-
-        // Return item to seller
-        deliverItem(listing.getSellerUUID(), listing.getItem());
-
-        // Persist removal
-        storage.deleteListing(listingId);
-
-        // Save to history as cancelled
-        storage.saveHistory(new AuctionHistory(
-                listing.getId(), listing.getSellerUUID(), listing.getSellerName(),
-                null, null, ItemUtil.serializeToBase64(listing.getItem()),
-                listing.getStartPrice(), 0, 0, System.currentTimeMillis(), "CANCELLED"
-        ));
 
         MessageUtil.send(player, "listing-cancelled", null);
         plugin.getLogger().info("Player " + player.getName() + " cancelled listing " + listingId);
@@ -428,7 +484,8 @@ public class AuctionManager {
      */
     public void resolveAuction(AuctionListing listing) {
         // Double-resolve protection: deactivate and remove FIRST
-        if (!listing.isActive()) return;
+        if (!listing.isActive())
+            return;
         listing.setActive(false);
         activeListings.remove(listing.getId());
 
@@ -447,8 +504,7 @@ public class AuctionManager {
             storage.saveHistory(new AuctionHistory(
                     listing.getId(), listing.getSellerUUID(), listing.getSellerName(),
                     null, null, ItemUtil.serializeToBase64(listing.getItem()),
-                    listing.getStartPrice(), 0, 0, System.currentTimeMillis(), "EXPIRED"
-            ));
+                    listing.getStartPrice(), 0, 0, System.currentTimeMillis(), "EXPIRED"));
         } else {
             // Has a winner — deliver item and pay seller
             UUID winnerUUID = listing.getTopBidderUUID();
@@ -462,9 +518,8 @@ public class AuctionManager {
             double taxPercent = config.getDouble("economy.tax-percent", 5.0);
             double taxAmount = 0;
 
-            // Check if seller has tax bypass
-            Player sellerPlayer = Bukkit.getPlayer(listing.getSellerUUID());
-            boolean bypassTax = sellerPlayer != null && sellerPlayer.hasPermission("auctify.bypass.tax");
+            // MEDIUM-2: Use stored tax exempt status from listing creation time
+            boolean bypassTax = listing.isTaxExempt();
 
             if (!bypassTax && taxPercent > 0) {
                 taxAmount = finalPrice * (taxPercent / 100.0);
@@ -472,16 +527,21 @@ public class AuctionManager {
 
             double netAmount = finalPrice - taxAmount;
 
-            // Pay seller
-            economy.deposit(listing.getSellerUUID(), netAmount);
+            // HIGH-3: Pay seller with safe deposit (logs + pending refund on failure)
+            safeDeposit(listing.getSellerUUID(), netAmount,
+                    "Auction sale payment for listing " + listing.getId());
 
             // Handle tax destination
             if (taxAmount > 0) {
                 String taxDest = config.getString("economy.tax-destination", "void");
                 if ("server-account".equalsIgnoreCase(taxDest)) {
-                    // TODO: Deposit to server account via Vault
                     String taxAccount = config.getString("economy.tax-account-name", "server");
-                    logger.info("Tax of " + economy.format(taxAmount) + " sent to " + taxAccount);
+                    TransactionResult taxResult = economy.depositToAccount(taxAccount, taxAmount);
+                    if (taxResult.success()) {
+                        logger.info("[Auctify] Tax of " + economy.format(taxAmount)
+                                + " deposited to account '" + taxAccount + "'.");
+                    }
+                    // On failure, tax is voided — already logged inside depositToAccount()
                 }
                 // "void" = tax is deleted, no action needed
             }
@@ -494,7 +554,8 @@ public class AuctionManager {
                                 "amount", economy.format(finalPrice)));
             }
 
-            // Notify seller
+            // Notify seller (they may be offline — check current online status)
+            Player sellerPlayer = Bukkit.getPlayer(listing.getSellerUUID());
             if (sellerPlayer != null && sellerPlayer.isOnline()) {
                 MessageUtil.send(sellerPlayer, "auction-sold",
                         Map.of("item", ItemUtil.getDisplayName(listing.getItem()),
@@ -516,16 +577,14 @@ public class AuctionManager {
                     listing.getSellerName(),
                     winnerName,
                     ItemUtil.getDisplayName(listing.getItem()),
-                    economy.format(finalPrice)
-            );
+                    economy.format(finalPrice));
 
             // Save history
             storage.saveHistory(new AuctionHistory(
                     listing.getId(), listing.getSellerUUID(), listing.getSellerName(),
                     winnerUUID, winnerName, ItemUtil.serializeToBase64(listing.getItem()),
                     listing.getStartPrice(), finalPrice, taxAmount,
-                    System.currentTimeMillis(), "SOLD"
-            ));
+                    System.currentTimeMillis(), "SOLD"));
         }
 
         // Remove from persistent storage
@@ -533,7 +592,8 @@ public class AuctionManager {
     }
 
     /**
-     * Delivers an item to a player. If online, adds to inventory (drops at feet if full).
+     * Delivers an item to a player. If online, adds to inventory (drops at feet if
+     * full).
      * If offline, saves to pending deliveries.
      *
      * @param playerUUID the recipient's UUID
@@ -546,6 +606,10 @@ public class AuctionManager {
             if (!overflow.isEmpty()) {
                 for (ItemStack drop : overflow.values()) {
                     player.getWorld().dropItemNaturally(player.getLocation(), drop);
+                    // LOW-2: Log every dropped item for audit trail
+                    logger.warning("[Auctify] Item dropped for " + player.getName()
+                            + ": " + ItemUtil.getDisplayName(drop) + " x" + drop.getAmount()
+                            + " at " + player.getLocation().toVector());
                 }
                 MessageUtil.sendRaw(player, "§7Your inventory was full. Some items were dropped at your feet.");
             }
@@ -562,11 +626,15 @@ public class AuctionManager {
      * @return list of items to deliver
      */
     public List<ItemStack> claimPendingDeliveries(UUID playerUUID) {
-        List<ItemStack> items = storage.getPendingDeliveries(playerUUID);
-        if (!items.isEmpty()) {
-            storage.clearPendingDeliveries(playerUUID);
+        // MEDIUM-4: Use atomic claimAndClear to prevent TOCTOU duplication
+        if (!claimingPlayers.add(playerUUID)) {
+            return Collections.emptyList(); // already claiming
         }
-        return items;
+        try {
+            return storage.claimAndClearDeliveries(playerUUID);
+        } finally {
+            claimingPlayers.remove(playerUUID);
+        }
     }
 
     /**
@@ -632,14 +700,23 @@ public class AuctionManager {
      * @return the number of listings saved
      */
     public int saveAllListings() {
-        int count = 0;
+        int saved = 0;
+        int failed = 0;
         for (AuctionListing listing : activeListings.values()) {
-            if (listing.isActive()) {
+            if (!listing.isActive())
+                continue;
+            try {
                 storage.saveListing(listing);
-                count++;
+                saved++;
+            } catch (Exception e) {
+                failed++;
+                logger.severe("[Auctify] Failed to save listing " + listing.getId() + ": " + e.getMessage());
             }
         }
-        return count;
+        if (failed > 0) {
+            logger.severe("[Auctify] " + failed + " listings failed to save!");
+        }
+        return saved;
     }
 
     /**

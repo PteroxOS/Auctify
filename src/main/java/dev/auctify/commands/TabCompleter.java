@@ -4,8 +4,8 @@ import dev.auctify.Auctify;
 import dev.auctify.auction.AuctionListing;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -44,12 +44,28 @@ public class TabCompleter implements org.bukkit.command.TabCompleter {
             String sub = args[0].toLowerCase();
             return switch (sub) {
                 case "sell" -> List.of("<price>");
-                case "bid", "cancel" -> {
-                    // Suggest active listing IDs
-                    yield plugin.getAuctionManager().getActiveListings().stream()
-                            .map(AuctionListing::getId)
-                            .filter(id -> id.startsWith(args[1]))
-                            .collect(Collectors.toList());
+                case "bid" -> {
+                    // Only suggest listing IDs the player can actually bid on (not their own, not expired)
+                    if (sender instanceof Player player) {
+                        yield plugin.getAuctionManager().getActiveListings().stream()
+                                .filter(l -> !l.getSellerUUID().equals(player.getUniqueId()) && l.isActive() && !l.isExpired())
+                                .map(AuctionListing::getId)
+                                .filter(id -> id.startsWith(args[1]))
+                                .collect(Collectors.toList());
+                    }
+                    yield List.of();
+                }
+                case "cancel" -> {
+                    // Only suggest listing IDs the player owns (or all if admin)
+                    if (sender instanceof Player player) {
+                        boolean isAdmin = player.hasPermission("auctify.admin");
+                        yield plugin.getAuctionManager().getActiveListings().stream()
+                                .filter(l -> l.isActive() && (isAdmin || l.getSellerUUID().equals(player.getUniqueId())))
+                                .map(AuctionListing::getId)
+                                .filter(id -> id.startsWith(args[1]))
+                                .collect(Collectors.toList());
+                    }
+                    yield List.of();
                 }
                 case "search" -> List.of("<query>");
                 default -> List.of();

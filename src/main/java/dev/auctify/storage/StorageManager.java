@@ -4,6 +4,7 @@ import dev.auctify.auction.AuctionHistory;
 import dev.auctify.auction.AuctionListing;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
@@ -12,9 +13,14 @@ import java.util.UUID;
  * Implementations include in-memory (development/testing), SQLite (file-based),
  * and MySQL (production-scale) storage.
  *
- * <p>All implementations must be safe to call from the main thread. Implementations
- * that perform I/O (SQLite, MySQL) should handle asynchronous operations internally
- * and block appropriately, or the caller should wrap calls in CompletableFuture.</p>
+ * <p>
+ * All implementations must be safe to call from the main thread.
+ * Implementations
+ * that perform I/O (SQLite, MySQL) should handle asynchronous operations
+ * internally
+ * and block appropriately, or the caller should wrap calls in
+ * CompletableFuture.
+ * </p>
  */
 public interface StorageManager {
 
@@ -54,7 +60,8 @@ public interface StorageManager {
     void saveHistory(AuctionHistory history);
 
     /**
-     * Retrieves the auction history for a specific player, ordered by most recent first.
+     * Retrieves the auction history for a specific player, ordered by most recent
+     * first.
      *
      * @param playerUUID the UUID of the player (as seller or winner)
      * @param limit      the maximum number of records to return
@@ -87,10 +94,77 @@ public interface StorageManager {
     void clearPendingDeliveries(UUID playerUUID);
 
     /**
-     * Gracefully shuts down the storage backend (closes connections, flushes buffers).
+     * Gracefully shuts down the storage backend (closes connections, flushes
+     * buffers).
      * Called during plugin disable.
      */
     void shutdown();
+
+    // ─── Listing Existence Check ────────────────────
+
+    /**
+     * Checks whether a listing with the given ID exists in storage.
+     * Used to prevent ID collisions during listing creation.
+     *
+     * @param id the listing ID to check
+     * @return true if a listing with that ID exists
+     */
+    boolean listingExists(String id);
+
+    // ─── Pending Refunds ────────────────────────────
+
+    /**
+     * Saves a pending refund record for delivery on next player login.
+     *
+     * @param refund the PendingRefund record to save
+     */
+    void savePendingRefund(PendingRefund refund);
+
+    /**
+     * Returns all pending refunds for the given player.
+     *
+     * @param playerUUID the UUID of the player
+     * @return list of PendingRefund records
+     */
+    List<PendingRefund> getPendingRefunds(UUID playerUUID);
+
+    /**
+     * Deletes all pending refunds for the given player (call after delivering
+     * them).
+     *
+     * @param playerUUID the UUID of the player
+     */
+    void clearPendingRefunds(UUID playerUUID);
+
+    /**
+     * Atomically fetches and clears pending refunds in one operation (prevents
+     * double-delivery).
+     *
+     * @param playerUUID the UUID of the player
+     * @return list of refunds that were pending, now cleared from storage
+     */
+    default List<PendingRefund> claimAndClearRefunds(UUID playerUUID) {
+        List<PendingRefund> refunds = getPendingRefunds(playerUUID);
+        if (!refunds.isEmpty())
+            clearPendingRefunds(playerUUID);
+        return refunds;
+    }
+
+    // ─── Atomic Claim ───────────────────────────────
+
+    /**
+     * Atomically fetches and clears all pending deliveries for a player.
+     * Prevents TOCTOU duplication if called concurrently.
+     *
+     * @param playerUUID the UUID of the player
+     * @return list of items that were pending, now cleared from storage
+     */
+    default List<ItemStack> claimAndClearDeliveries(UUID playerUUID) {
+        List<ItemStack> items = getPendingDeliveries(playerUUID);
+        if (!items.isEmpty())
+            clearPendingDeliveries(playerUUID);
+        return items;
+    }
 
     // ─── Rating System ───────────────────────────────
 
@@ -101,6 +175,7 @@ public interface StorageManager {
 
     /**
      * Gets the average rating for a seller.
+     * 
      * @return the average rating (1-5), or -1 if no ratings
      */
     double getAverageRating(UUID sellerUUID);

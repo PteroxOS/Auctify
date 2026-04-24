@@ -28,6 +28,8 @@ chat-cancelled: "§7Bid cancelled."
 buyout-success: "§aYou instantly bought §f{item} §afor §6{amount}§a!"
 chat-bid-retry: "§7Type a higher amount, or type §fcancel §7to abort."
 chat-invalid-number: "§cInvalid amount. Enter a number or type §fcancel§c."
+
+chat-bid-timeout: "§cYour bid input for §f{item} §chas expired. Use /ac open to try again."
 already-top-bidder: "§cYou are already the top bidder on this item."
 insufficient-funds: "§cInsufficient funds. You need §f{amount}§c."
 
@@ -135,6 +137,10 @@ gui-admin-cancel-lore: "§7Click to force cancel this listing."
 gui-admin-item-lore: "§7Seller: §f{seller}"
 admin-blacklist-added: "§aPlayer §f{player} §ahas been blacklisted. Reason: §f{reason}"
 admin-blacklist-removed: "§aPlayer §f{player} §ahas been removed from the blacklist."
+
+pending-refunds-received: "§a§f{amount} §ain pending refunds has been credited to your account."
+pending-items-received: "§a§f{count} §apending item(s) have been added to your inventory."
+pending-item-dropped: "§7§f{item} §7couldn't fit in your inventory and was dropped at your feet."
 
 # ─── SORT & BIN SETTINGS ────────────────────
 gui-sort-title: "§bSort Listings"

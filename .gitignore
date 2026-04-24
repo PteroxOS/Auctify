@@ -12,8 +12,6 @@ target/
 
 # Plugin Data
 auctify.db
-locales/
-config.yml
 logs/
 plugins/
 *.log

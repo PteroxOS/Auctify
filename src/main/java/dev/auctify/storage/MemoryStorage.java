@@ -2,7 +2,6 @@ package dev.auctify.storage;
 
 import dev.auctify.auction.AuctionHistory;
 import dev.auctify.auction.AuctionListing;
-import dev.auctify.util.ItemUtil;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.*;
@@ -27,6 +26,9 @@ public class MemoryStorage implements StorageManager {
 
     /** Ratings: sellerUUID -> list of [raterUUID, rating]. */
     private final Map<UUID, List<int[]>> ratings = new ConcurrentHashMap<>();
+
+    /** Pending money refunds keyed by player UUID. */
+    private final Map<UUID, List<PendingRefund>> pendingRefunds = new ConcurrentHashMap<>();
 
     /** Blacklisted players. */
     private final Set<UUID> blacklist = ConcurrentHashMap.newKeySet();
@@ -104,13 +106,14 @@ public class MemoryStorage implements StorageManager {
     @Override
     public void saveRating(UUID sellerUUID, UUID raterUUID, int rating) {
         ratings.computeIfAbsent(sellerUUID, k -> Collections.synchronizedList(new ArrayList<>()))
-                .add(new int[]{raterUUID.hashCode(), rating});
+                .add(new int[] { raterUUID.hashCode(), rating });
     }
 
     @Override
     public double getAverageRating(UUID sellerUUID) {
         List<int[]> r = ratings.get(sellerUUID);
-        if (r == null || r.isEmpty()) return -1;
+        if (r == null || r.isEmpty())
+            return -1;
         return r.stream().mapToInt(a -> a[1]).average().orElse(-1);
     }
 
@@ -123,7 +126,8 @@ public class MemoryStorage implements StorageManager {
     @Override
     public boolean hasRated(UUID sellerUUID, UUID raterUUID) {
         List<int[]> r = ratings.get(sellerUUID);
-        if (r == null) return false;
+        if (r == null)
+            return false;
         int hash = raterUUID.hashCode();
         return r.stream().anyMatch(a -> a[0] == hash);
     }
@@ -148,8 +152,43 @@ public class MemoryStorage implements StorageManager {
     @Override
     public List<String[]> getBlacklist() {
         return blacklist.stream()
-                .map(u -> new String[]{u.toString(), "N/A", "N/A", "0"})
+                .map(u -> new String[] { u.toString(), "N/A", "N/A", "0" })
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public boolean listingExists(String id) {
+        return listings.containsKey(id);
+    }
+
+    @Override
+    public void savePendingRefund(PendingRefund refund) {
+        pendingRefunds.computeIfAbsent(refund.playerUUID(), k -> Collections.synchronizedList(new ArrayList<>()))
+                .add(refund);
+    }
+
+    @Override
+    public List<PendingRefund> getPendingRefunds(UUID playerUUID) {
+        List<PendingRefund> list = pendingRefunds.getOrDefault(playerUUID, Collections.emptyList());
+        // Return defensive copies as new list
+        return List.copyOf(list);
+    }
+
+    @Override
+    public void clearPendingRefunds(UUID playerUUID) {
+        pendingRefunds.remove(playerUUID);
+    }
+
+    @Override
+    public synchronized List<PendingRefund> claimAndClearRefunds(UUID playerUUID) {
+        List<PendingRefund> refunds = pendingRefunds.remove(playerUUID);
+        return refunds != null ? refunds : Collections.emptyList();
+    }
+
+    @Override
+    public List<ItemStack> claimAndClearDeliveries(UUID playerUUID) {
+        List<ItemStack> items = pendingDeliveries.remove(playerUUID);
+        return items != null ? items : Collections.emptyList();
     }
 
     /** {@inheritDoc} */
@@ -159,5 +198,6 @@ public class MemoryStorage implements StorageManager {
         listings.clear();
         history.clear();
         pendingDeliveries.clear();
+        pendingRefunds.clear();
     }
 }

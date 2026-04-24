@@ -8,6 +8,9 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Handles the /ac search command.
@@ -17,6 +20,10 @@ import java.util.List;
 public class SearchSubCommand implements SubCommand {
 
     private final Auctify plugin;
+
+    /** Per-player cooldowns to prevent search spam / DoS. */
+    private final Map<UUID, Long> cooldowns = new ConcurrentHashMap<>();
+    private static final long COOLDOWN_MS = 1500;
 
     /** @param plugin the main plugin instance */
     public SearchSubCommand(Auctify plugin) {
@@ -32,6 +39,16 @@ public class SearchSubCommand implements SubCommand {
             MessageUtil.send(player, "no-permission", null);
             return;
         }
+
+        // LOW-1: Rate limit search to prevent DoS on servers with thousands of listings
+        UUID uuid = player.getUniqueId();
+        long now = System.currentTimeMillis();
+        Long last = cooldowns.get(uuid);
+        if (last != null && now - last < COOLDOWN_MS) {
+            MessageUtil.sendRaw(player, "§cPlease wait before searching again.");
+            return;
+        }
+        cooldowns.put(uuid, now);
 
         if (args.length < 2) {
             MessageUtil.sendRaw(player, "§cUsage: §f/ac search <query>");

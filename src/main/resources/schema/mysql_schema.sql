@@ -12,6 +12,8 @@ CREATE TABLE IF NOT EXISTS auctify_listings (
     top_bidder_name VARCHAR(16),
     created_at BIGINT NOT NULL,
     end_time BIGINT NOT NULL,
+    bin_only TINYINT NOT NULL DEFAULT 0,
+    tax_exempt TINYINT NOT NULL DEFAULT 0,
     INDEX idx_seller (seller_uuid),
     INDEX idx_end_time (end_time)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -40,4 +42,14 @@ CREATE TABLE IF NOT EXISTS auctify_pending_deliveries (
     item_data LONGTEXT NOT NULL,
     created_at BIGINT NOT NULL,
     INDEX idx_player (player_uuid)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Pending money refunds for failed economy deposits
+CREATE TABLE IF NOT EXISTS auctify_pending_refunds (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    player_uuid VARCHAR(36) NOT NULL,
+    amount DOUBLE NOT NULL,
+    reason TEXT NOT NULL,
+    created_at BIGINT NOT NULL,
+    INDEX idx_player_refund (player_uuid)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

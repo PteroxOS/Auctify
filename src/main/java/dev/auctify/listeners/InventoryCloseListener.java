@@ -31,6 +31,9 @@ public class InventoryCloseListener implements Listener {
         // Only clean up if the closed inventory was an Auctify GUI
         if (event.getInventory().getHolder() instanceof AuctifyHolder) {
             plugin.getGUIManager().cleanup(player);
+            // Also cancel any pending chat bid input so the player doesn't accidentally
+            // type a number in chat thinking they're bidding.
+            plugin.getChatBidListener().cancelBidInput(player);
         }
     }
 }

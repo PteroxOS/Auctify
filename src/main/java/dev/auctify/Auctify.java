@@ -123,6 +123,9 @@ public class Auctify extends JavaPlugin {
         getLogger().info("§e⚡ §7Initializing auction manager...");
         auctionManager = new AuctionManager(this, economyManager, storageManager);
 
+        // All managers ready — now safe to resolve expired listings that need economy
+        auctionManager.resolveExpiredOnStartup();
+
         getLogger().info("§e⚡ §7Initializing GUI system...");
         guiManager = new GUIManager();
         auctionGUI = new AuctionGUI(this);

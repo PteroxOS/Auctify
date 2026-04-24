@@ -1,57 +1,222 @@
 # Auctify Usage Guide
 
-This document provides technical information regarding commands, permissions, and advanced configuration for the Auctify plugin.
+Complete technical reference for commands, permissions, configuration, and security features.
 
-## Basic Commands
+## Quick Reference
 
-| Command | Description | Permission |
-|:---|:---|:---|
-| `/ac` | Opens the main Auction House GUI. | `auctify.use` |
-| `/ac sell <price> [buyout] [duration]` | Lists the item in your hand for auction. | `auctify.sell` |
-| `/ac bid <id> <amount>` | Places a bid on a specific item. | `auctify.bid` |
-| `/ac search <query>` | Searches for items by name or seller. | `auctify.use` |
-| `/ac history` | Views your personal transaction history. | `auctify.use` |
-| `/ac claim` | Opens the Mailbox GUI to collect pending deliveries. | `auctify.use` |
-| `/ac cancel <id>` | Cancels your own active auction listing. | `auctify.sell` |
-| `/ac admin` | Opens the Admin moderation panel. | `auctify.admin` |
-| `/ac admin blacklist <add|remove|list>` | Manages the player blacklist. | `auctify.admin` |
-| `/ac reload` | Reloads the configuration and locale files. | `auctify.admin` |
+| Command                                   | Description                      | Permission      |
+| :---------------------------------------- | :------------------------------- | :-------------- |
+| `/ac`                                     | Opens the main Auction House GUI | `auctify.use`   |
+| `/ac sell <start> [buyout] [duration]`    | List held item for auction       | `auctify.sell`  |
+| `/ac bid <id> <amount>`                   | Place bid on a listing           | `auctify.bid`   |
+| `/ac search <query>`                      | Search items by name/seller      | `auctify.use`   |
+| `/ac history`                             | View your transaction history    | `auctify.use`   |
+| `/ac claim`                               | Collect pending items/refunds    | `auctify.use`   |
+| `/ac cancel <id>`                         | Cancel your listing              | `auctify.sell`  |
+| `/ac admin`                               | Open admin moderation panel      | `auctify.admin` |
+| `/ac admin blacklist <add\|remove\|list>` | Manage blacklist                 | `auctify.admin` |
+| `/ac reload`                              | Reload config and locales        | `auctify.admin` |
 
-*Note: You can also use the aliases `/ah`, `/au`, `/auction`, or `/auctify` in place of `/ac`.*
+_Aliases: `/ah`, `/au`, `/auction`, `/auctify`_
+
+---
+
+## Detailed Command Usage
+
+### `/ac sell <start_price> [buyout_price] [duration]`
+
+List the item in your main hand for auction.
+
+**Parameters:**
+
+- `start_price` (required) — Starting bid amount
+- `buyout_price` (optional) — Instant buy price (set to 0 or omit for no buyout)
+- `duration` (optional) — Auction duration in seconds (default: 300 / 5 minutes)
+
+**Examples:**
+
+```bash
+# Bidding only, 5 minute duration (default)
+/ac sell 1000
+
+# With buyout option (1500 instant buy)
+/ac sell 1000 1500
+
+# With custom duration (10 minutes = 600 seconds)
+/ac sell 1000 1500 600
+
+# High-value item, 1 hour duration
+/ac sell 50000 75000 3600
+```
+
+**Constraints:**
+
+- Buyout must be ≥ `start_price × buyout-min-multiplier` (default 1.5x)
+- Duration must be between `min-duration` and `max-duration` (config)
+- You cannot exceed `max-listings-per-player` (bypass with `auctify.bypass.maxlistings`)
+
+---
+
+### `/ac bid <listing_id> <amount>`
+
+Place a bid via command (alternative to GUI bidding).
+
+**Examples:**
+
+```bash
+/ac bid ABC123 5000
+```
+
+**Notes:**
+
+- Bid must be ≥ current bid + `min-increment` (default 10)
+- Bid is rejected if you're already top bidder
+- Cannot bid on your own listings
+- Blacklisted players cannot bid
+
+---
+
+### GUI Bidding (Recommended)
+
+1. `/ac open` to open auction house
+2. **Left-click** item → Opens Confirm Bid GUI
+3. Click "✔ Confirm Bid" → Type amount in chat
+4. Type your bid amount or `cancel` to abort
+
+**Bid Input Timeout:** Configurable via `gui.bid-input-timeout` (default 30 seconds)
+
+---
+
+### Buyout Purchase
+
+Buy instantly without bidding:
+
+1. `/ac open` to open auction house
+2. **Right-click** item with buyout price → Item Detail GUI
+3. Click "⚡ Buy Now!" button
+4. Item delivered immediately, seller paid (minus tax)
+
+---
+
+### `/ac claim` — Mailbox System
+
+Collect items and refunds from offline delivery:
+
+- Items won while offline
+- Items from cancelled listings
+- **Pending money refunds** (failed economy deposits)
+
+The claim system uses **atomic operations** — no duplication possible even if clicked rapidly.
+
+---
 
 ## Permission System
 
-- `auctify.use`: Basic permission to view the GUI and perform searches.
-- `auctify.sell`: Permission to list items for auction.
-- `auctify.bid`: Permission to place bids on items.
-- `auctify.admin`: Full access for administrative commands, moderation, and modifications.
-- `auctify.bypass.maxlistings`: Bypasses the maximum listing limit per player.
-- `auctify.bypass.tax`: Exemption from sales tax deductions.
+| Permission                   | Description                        | Default |
+| :--------------------------- | :--------------------------------- | :------ |
+| `auctify.use`                | Access GUI, search, claim, history | true    |
+| `auctify.sell`               | Create and cancel listings         | true    |
+| `auctify.bid`                | Place bids on items                | true    |
+| `auctify.admin`              | Full admin access                  | op      |
+| `auctify.bypass.maxlistings` | Ignore listing limit               | op      |
+| `auctify.bypass.tax`         | Exempt from sales tax              | false   |
+
+---
+
+## Security Features
+
+### Economy Transaction Safety
+
+Failed deposits (e.g., economy plugin offline) are **not lost**:
+
+1. System detects deposit failure
+2. Amount + reason saved as `PendingRefund`
+3. Player receives refund automatically on next login
+4. Full audit trail logged to console
+
+### Race Condition Protection
+
+All auction operations use **per-listing synchronization**:
+
+- Multiple players bidding simultaneously → safe
+- Buyout while another player bidding → safe
+- Cancel while bidding in progress → safe
+
+### TOCTOU Protection
+
+**Time-of-check to time-of-use** vulnerabilities eliminated:
+
+- Claim operations are atomic (fetch + delete in one transaction)
+- Pending refunds use `claimAndClearRefunds()` — no double-delivery
+- Item delivery clones ItemStack to prevent reference mutation
+
+### Input Hardening
+
+- NaN/Infinity/negative values rejected
+- Bid timeouts prevent stale input sessions
+- Tab completion filtered by permissions (can't see others' private listings)
+
+---
 
 ## Discord Webhook Setup
 
-To enable Discord notifications, follow these steps:
+1. Discord Server → Settings → Integrations → Webhooks → New Webhook
+2. Copy Webhook URL
+3. Edit `config.yml`:
 
-1. Create a Webhook in your Discord server (Server Settings > Integrations > Webhooks).
-2. Copy the Webhook URL.
-3. Open `config.yml` and locate the `discord` section.
-4. Change `enabled: false` to `enabled: true`.
-5. Paste the URL into the `webhook-url` field.
-6. Customize `title` and `color` for `on-new-listing` and `on-sale` embeds.
-7. Save the file and run `/ac reload`.
+```yaml
+discord:
+  enabled: true
+  webhook-url: "https://discord.com/api/webhooks/YOUR_URL"
+```
 
-## Localization System
+4. `/ac reload`
 
-Auctify supports full language customization. Language files are stored in the `locales/` folder.
+Events:
 
-- To change the primary language, adjust `general.language` in `config.yml`.
-- The plugin will automatically inject new keys from updates into your existing files without overwriting your custom translations.
-- Supports standard Minecraft color codes (§) and modern MiniMessage formatting.
+- `on-new-listing` — When item is listed
+- `on-sale` — When auction ends with winner
 
-## Data Storage
+## Localization
 
-The plugin supports two storage backends:
-1. **SQLite**: Default, stored in `auctify.db`. Ideal for single-server setups.
-2. **MySQL**: Recommended for large servers or networks. Configure connection details in `config.yml`.
+Language files in `locales/` folder:
 
-The system performs an auto-save every 5 minutes (configurable) to prevent data loss in the event of a sudden server shutdown. All advanced features such as ratings, blacklists, and pending deliveries are automatically managed through the selected storage backend.
+- `en.yml` — English (default)
+- `id.yml` — Bahasa Indonesia
+
+Change language: `general.language` in `config.yml`
+
+Supports Minecraft color codes (`§`) and MiniMessage formatting.
+
+---
+
+## Database Schema
+
+### SQLite (Default)
+
+File: `auctify.db` in plugin folder
+
+### MySQL (Production)
+
+Recommended for large servers. Configure in `config.yml`:
+
+```yaml
+storage:
+  type: mysql
+  mysql:
+    host: localhost
+    port: 3306
+    database: auctify
+    username: root
+    password: password
+    pool-size: 10
+```
+
+### Tables
+
+- `auctify_listings` — Active auctions
+- `auctify_history` — Completed/cancelled auctions
+- `auctify_pending_deliveries` — Items for offline players
+- `auctify_pending_refunds` — Failed economy deposits
+- `auctify_ratings` — Player ratings
+- `auctify_blacklist` — Banned players

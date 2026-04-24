@@ -355,23 +355,26 @@ public class GUIClickListener implements Listener {
             // Claim All
             plugin.getServer().getScheduler().runTask(plugin, () -> {
                 player.closeInventory();
-                java.util.List<ItemStack> pending = plugin.getStorageManager().getPendingDeliveries(player.getUniqueId());
-                if (pending.isEmpty()) return;
-                
+                // MEDIUM-4: Use atomic claimAndClear to prevent TOCTOU duplication
+                java.util.List<ItemStack> pending = plugin.getStorageManager().claimAndClearDeliveries(player.getUniqueId());
+                if (pending.isEmpty()) {
+                    MessageUtil.sendRaw(player, "§7You have no pending items to claim.");
+                    return;
+                }
+
                 int claimed = 0;
                 for (ItemStack item : pending) {
-                    java.util.HashMap<Integer, ItemStack> overflow = player.getInventory().addItem(item);
+                    java.util.HashMap<Integer, ItemStack> overflow = player.getInventory().addItem(item.clone());
                     if (overflow.isEmpty()) {
                         claimed++;
                     } else {
                         // Drop on ground if full
                         for (ItemStack drop : overflow.values()) {
-                            player.getWorld().dropItemNaturally(player.getLocation(), drop);
+                            player.getWorld().dropItemNaturally(player.getLocation(), drop.clone());
                         }
                         claimed++;
                     }
                 }
-                plugin.getStorageManager().clearPendingDeliveries(player.getUniqueId());
                 MessageUtil.send(player, "claim-success", java.util.Map.of("count", String.valueOf(claimed)));
             });
         }

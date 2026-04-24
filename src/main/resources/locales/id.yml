@@ -28,6 +28,9 @@ chat-cancelled: "§7Tawaran dibatalkan."
 buyout-success: "§aKamu langsung membeli §f{item} §aseharga §6{amount}§a!"
 chat-bid-retry: "§7Ketik jumlah yang lebih tinggi, atau ketik §fbatal §7untuk membatalkan."
 chat-invalid-number: "§cJumlah tidak valid. Masukkan angka atau ketik §fbatal§c."
+
+# Dikirim saat sesi input bid via chat kedaluwarsa
+chat-bid-timeout: "§cSesi bid kamu untuk §f{item} §ctelah habis. Gunakan /ac open untuk mencoba lagi."
 already-top-bidder: "§cKamu sudah menjadi penawar tertinggi untuk item ini."
 insufficient-funds: "§cSaldo tidak cukup. Kamu butuh §f{amount}§c."
 
@@ -135,6 +138,10 @@ gui-admin-cancel-lore: "§7Klik untuk membatalkan lelang ini."
 gui-admin-item-lore: "§7Penjual: §f{seller}"
 admin-blacklist-added: "§aPemain §f{player} §atelah di-blacklist. Alasan: §f{reason}"
 admin-blacklist-removed: "§aPemain §f{player} §atelah dihapus dari blacklist."
+
+pending-refunds-received: "§a§f{amount} §adari refund tertunda telah dikreditkan ke akun kamu."
+pending-items-received: "§a§f{count} §aitem tertunda telah ditambahkan ke inventaris kamu."
+pending-item-dropped: "§7§f{item} §7tidak muat di inventaris dan dijatuhkan di kakimu."
 
 # ─── SORT & BIN SETTINGS ────────────────────
 gui-sort-title: "§bUrutkan Lelang"

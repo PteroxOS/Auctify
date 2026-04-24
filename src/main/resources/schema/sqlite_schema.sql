@@ -12,7 +12,8 @@ CREATE TABLE IF NOT EXISTS auctify_listings (
     top_bidder_name TEXT,
     created_at INTEGER NOT NULL,
     end_time INTEGER NOT NULL,
-    bin_only INTEGER NOT NULL DEFAULT 0
+    bin_only INTEGER NOT NULL DEFAULT 0,
+    tax_exempt INTEGER NOT NULL DEFAULT 0
 );
 
 -- Completed auction history records
@@ -34,6 +35,15 @@ CREATE TABLE IF NOT EXISTS auctify_history (
 CREATE TABLE IF NOT EXISTS auctify_pending_deliveries (
     player_uuid TEXT NOT NULL,
     item_data TEXT NOT NULL,
+    created_at INTEGER NOT NULL
+);
+
+-- Pending money refunds for failed economy deposits
+CREATE TABLE IF NOT EXISTS auctify_pending_refunds (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    player_uuid TEXT NOT NULL,
+    amount REAL NOT NULL,
+    reason TEXT NOT NULL,
     created_at INTEGER NOT NULL
 );
 
