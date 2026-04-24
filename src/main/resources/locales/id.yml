@@ -168,3 +168,67 @@ auction-private: "§cLelang ini privat. Kamu tidak ada di whitelist."
 # --- Bulk Cancel ---
 bulk-cancel-success: "§aMembatalkan §f{count} §alelang."
 bulk-cancel-none: "§7Tidak ada lelang yang bisa dibatalkan (hanya yang belum punya bid)."
+
+# --- Pesan Command (sebelumnya hardcoded) ---
+# History
+history-empty: "§7Kamu belum punya riwayat lelang."
+history-header: "§6§lRiwayat Lelang Kamu §8({count} terakhir)"
+history-line-sold: "§8[§7{date}§8] §a✔ TERJUAL §8| §7ID: §f{id} §8» §a{price} §8(§cpajak: {tax}§8)"
+history-line-sold-no-tax: "§8[§7{date}§8] §a✔ TERJUAL §8| §7ID: §f{id} §8» §a{price}"
+history-line-expired: "§8[§7{date}§8] §c✘ KADALUARSA §8| §7ID: §f{id}"
+history-line-cancelled: "§8[§7{date}§8] §e⚠ DIBATALKAN §8| §7ID: §f{id}"
+
+# Search
+search-cooldown: "§cTunggu sebentar sebelum mencari lagi."
+search-usage: "§cPenggunaan: §f/ac search <kata kunci>"
+search-no-results: "§7Tidak ada lelang yang cocok dengan '§f{query}§7'."
+search-header: "§6Hasil pencarian untuk '§f{query}§6' ({count} ditemukan):"
+search-result-item: "§8 • §f{item} §7oleh §e{seller} §8— §aID: §f{id} §8— §a{bid}"
+
+# Sell
+sell-usage: "§cPenggunaan: §f/ac sell <harga> [buyout] [durasi]"
+sell-invalid-buyout: "§cHarga buyout tidak valid."
+sell-invalid-duration: "§cDurasi tidak valid. Gunakan detik (contoh: 300 untuk 5 menit)."
+
+# Bid
+bid-usage: "§cPenggunaan: §f/ac bid <id_lelang> <jumlah>"
+
+# Cancel
+cancel-usage: "§cPenggunaan: §f/ac cancel <id_lelang>"
+
+# Extend
+extend-usage: "§cPenggunaan: §f/ac extend <id_lelang> <menit>"
+extend-invalid-minutes: "§cMenit harus angka positif."
+
+# Bid History Command
+bidhistory-usage: "§cPenggunaan: §f/ac bidhistory <id_lelang>"
+bidhistory-header: "§8|================================================"
+bidhistory-title: "§8|  §6§lRIWAYAT BID §7— §e{id}"
+bidhistory-item: "§8|  §7Item: §f{item}"
+bidhistory-seller: "§8|  §7Penjual: §f{seller}"
+bidhistory-no-bids: "§8|  §7Belum ada bid."
+bidhistory-total: "§8|  §7Total bid: §f{count}"
+bidhistory-more: "§8|  §8... dan {count} lainnya"
+bidhistory-entry: "§8|  §f{number}. §e{bidder} §7bid §a{amount} §8({time})"
+bidhistory-current-top: "§8|  §6Bid tertinggi: §a{amount} §7oleh §e{bidder}"
+bidhistory-starting-price: "§8|  §7Harga awal: §a{price}"
+bidhistory-footer: "§8|================================================"
+
+# Admin
+player-not-found: "§cPlayer tidak ditemukan atau offline."
+admin-usage-gui: "§cGunakan admin GUI in-game untuk force cancel."
+admin-commands-title: "§6Command Admin:"
+admin-cmd-admin: "§e/ac admin §8— §7Buka GUI admin"
+admin-cmd-blacklist-add: "§e/ac admin blacklist add <player> [alasan] §8— §7Blacklist player"
+admin-cmd-blacklist-remove: "§e/ac admin blacklist remove <player> §8— §7Hapus dari blacklist"
+admin-cmd-blacklist-list: "§e/ac admin blacklist list §8— §7Lihat daftar blacklist"
+admin-cmd-cancel: "§e/ac admin cancel <id> §8— §7Force cancel lelang"
+admin-cmd-backup: "§e/ac admin backup §8— §7Backup database manual (SQLite)"
+usage-blacklist-add: "§cPenggunaan: /ac admin blacklist add <player> [alasan]"
+usage-blacklist-remove: "§cPenggunaan: /ac admin blacklist remove <player>"
+blacklist-no-players: "§7Tidak ada player di blacklist."
+blacklist-header: "§6§lDaftar Blacklist:"
+blacklist-entry: "§7- §f{uuid} §8(oleh {by}) §7Alasan: §f{reason}"
+backup-starting: "§eMemulai backup database..."
+backup-success: "§aBackup database berhasil! Cek folder backups/."
+backup-failed: "§cBackup database gagal. Cek console untuk detail."

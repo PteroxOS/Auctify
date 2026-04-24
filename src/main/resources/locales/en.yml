@@ -167,3 +167,67 @@ auction-private: "§cThis is a private auction. You are not on the whitelist."
 # --- Bulk Cancel ---
 bulk-cancel-success: "§aCancelled §f{count} §aauctions."
 bulk-cancel-none: "§7No eligible auctions to cancel (only auctions without bids can be cancelled)."
+
+# --- Command Messages (previously hardcoded) ---
+# History
+history-empty: "§7You have no auction history yet."
+history-header: "§6§lYour Auction History §8(last {count})"
+history-line-sold: "§8[§7{date}§8] §a✔ SOLD §8| §7ID: §f{id} §8» §a{price} §8(§ctax: {tax}§8)"
+history-line-sold-no-tax: "§8[§7{date}§8] §a✔ SOLD §8| §7ID: §f{id} §8» §a{price}"
+history-line-expired: "§8[§7{date}§8] §c✘ EXPIRED §8| §7ID: §f{id}"
+history-line-cancelled: "§8[§7{date}§8] §e⚠ CANCELLED §8| §7ID: §f{id}"
+
+# Search
+search-cooldown: "§cPlease wait before searching again."
+search-usage: "§cUsage: §f/ac search <query>"
+search-no-results: "§7No listings found matching '§f{query}§7'."
+search-header: "§6Search results for '§f{query}§6' ({count} found):"
+search-result-item: "§8 • §f{item} §7by §e{seller} §8— §aID: §f{id} §8— §a{bid}"
+
+# Sell
+sell-usage: "§cUsage: §f/ac sell <price> [buyout] [duration]"
+sell-invalid-buyout: "§cInvalid buyout price."
+sell-invalid-duration: "§cInvalid duration. Use seconds (e.g., 300 for 5 minutes)."
+
+# Bid
+bid-usage: "§cUsage: §f/ac bid <listing_id> <amount>"
+
+# Cancel
+cancel-usage: "§cUsage: §f/ac cancel <listing_id>"
+
+# Extend
+extend-usage: "§cUsage: §f/ac extend <listing_id> <minutes>"
+extend-invalid-minutes: "§cMinutes must be a positive number."
+
+# Bid History Command
+bidhistory-usage: "§cUsage: §f/ac bidhistory <listing_id>"
+bidhistory-header: "§8|================================================"
+bidhistory-title: "§8|  §6§lBID HISTORY §7— §e{id}"
+bidhistory-item: "§8|  §7Item: §f{item}"
+bidhistory-seller: "§8|  §7Seller: §f{seller}"
+bidhistory-no-bids: "§8|  §7No bids placed yet."
+bidhistory-total: "§8|  §7Total bids: §f{count}"
+bidhistory-more: "§8|  §8... and {count} more"
+bidhistory-entry: "§8|  §f{number}. §e{bidder} §7bid §a{amount} §8({time})"
+bidhistory-current-top: "§8|  §6Current top bid: §a{amount} §7by §e{bidder}"
+bidhistory-starting-price: "§8|  §7Starting price: §a{price}"
+bidhistory-footer: "§8|================================================"
+
+# Admin
+player-not-found: "§cPlayer not found or offline."
+admin-usage-gui: "§cUse in-game admin GUI for force cancel."
+admin-commands-title: "§6Admin Commands:"
+admin-cmd-admin: "§e/ac admin §8— §7Open admin GUI"
+admin-cmd-blacklist-add: "§e/ac admin blacklist add <player> [reason] §8— §7Blacklist player"
+admin-cmd-blacklist-remove: "§e/ac admin blacklist remove <player> §8— §7Unblacklist player"
+admin-cmd-blacklist-list: "§e/ac admin blacklist list §8— §7Show blacklisted players"
+admin-cmd-cancel: "§e/ac admin cancel <id> §8— §7Force cancel a listing"
+admin-cmd-backup: "§e/ac admin backup §8— §7Manually backup database (SQLite)"
+usage-blacklist-add: "§cUsage: /ac admin blacklist add <player> [reason]"
+usage-blacklist-remove: "§cUsage: /ac admin blacklist remove <player>"
+blacklist-no-players: "§7No players are blacklisted."
+blacklist-header: "§6§lBlacklisted Players:"
+blacklist-entry: "§7- §f{uuid} §8(by {by}) §7Reason: §f{reason}"
+backup-starting: "§eStarting database backup..."
+backup-success: "§aDatabase backup completed successfully! Check backups/ folder."
+backup-failed: "§cDatabase backup failed. Check console for details."

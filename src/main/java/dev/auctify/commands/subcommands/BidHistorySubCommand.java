@@ -40,7 +40,7 @@ public class BidHistorySubCommand implements SubCommand {
         }
 
         if (args.length < 2) {
-            MessageUtil.sendRaw(player, "§cUsage: §f/ac bidhistory <listing_id>");
+            MessageUtil.send(player, "bidhistory-usage", null);
             return;
         }
 
@@ -57,45 +57,46 @@ public class BidHistorySubCommand implements SubCommand {
         List<BidRecord> bids = plugin.getStorageManager().getBidHistory(listingId);
 
         // Header
-        MessageUtil.sendRaw(player, "§8|================================================");
-        MessageUtil.sendRaw(player, "§8|  §6§lBID HISTORY §7— §e" + listingId);
-        MessageUtil.sendRaw(player, "§8|================================================");
-        MessageUtil.sendRaw(player, "§8|  §7Item: §f" + listing.getItem().getType().name());
-        MessageUtil.sendRaw(player, "§8|  §7Seller: §f" + listing.getSellerName());
-        MessageUtil.sendRaw(player, "§8|================================================");
+        MessageUtil.send(player, "bidhistory-header", null);
+        MessageUtil.send(player, "bidhistory-title", Map.of("id", listingId));
+        MessageUtil.send(player, "bidhistory-header", null);
+        MessageUtil.send(player, "bidhistory-item", Map.of("item", listing.getItem().getType().name()));
+        MessageUtil.send(player, "bidhistory-seller", Map.of("seller", listing.getSellerName()));
+        MessageUtil.send(player, "bidhistory-header", null);
 
         if (bids.isEmpty()) {
-            MessageUtil.sendRaw(player, "§8|  §7No bids placed yet.");
+            MessageUtil.send(player, "bidhistory-no-bids", null);
         } else {
-            MessageUtil.sendRaw(player, "§8|  §7Total bids: §f" + bids.size());
-            MessageUtil.sendRaw(player, "§8|                                                ");
+            MessageUtil.send(player, "bidhistory-total", Map.of("count", String.valueOf(bids.size())));
 
             int count = 0;
             for (BidRecord bid : bids) {
                 if (count++ >= 10) { // Show max 10 bids
-                    MessageUtil.sendRaw(player, "§8|  §8... and " + (bids.size() - 10) + " more");
+                    MessageUtil.send(player, "bidhistory-more", Map.of("count", String.valueOf(bids.size() - 10)));
                     break;
                 }
 
                 String timeAgo = formatTimeAgo(bid.timestamp());
-                MessageUtil.sendRaw(player, "§8|  §f" + (count) + ". §e" + bid.bidderName() +
-                        " §7bid §a" + plugin.getEconomyManager().format(bid.amount()) +
-                        " §8(" + timeAgo + ")");
+                MessageUtil.send(player, "bidhistory-entry", Map.of(
+                        "number", String.valueOf(count),
+                        "bidder", bid.bidderName(),
+                        "amount", plugin.getEconomyManager().format(bid.amount()),
+                        "time", timeAgo));
             }
         }
 
-        MessageUtil.sendRaw(player, "§8|================================================");
+        MessageUtil.send(player, "bidhistory-footer", null);
 
         // Show current status
         if (listing.hasBids()) {
-            MessageUtil.sendRaw(player, "§8|  §6Current top bid: §a" +
-                    plugin.getEconomyManager().format(listing.getCurrentBid()) +
-                    " §7by §e" + listing.getTopBidderName());
+            MessageUtil.send(player, "bidhistory-current-top", Map.of(
+                    "amount", plugin.getEconomyManager().format(listing.getCurrentBid()),
+                    "bidder", listing.getTopBidderName()));
         } else {
-            MessageUtil.sendRaw(player, "§8|  §7Starting price: §a" +
-                    plugin.getEconomyManager().format(listing.getStartPrice()));
+            MessageUtil.send(player, "bidhistory-starting-price", Map.of(
+                    "price", plugin.getEconomyManager().format(listing.getStartPrice())));
         }
-        MessageUtil.sendRaw(player, "§8|================================================");
+        MessageUtil.send(player, "bidhistory-footer", null);
     }
 
     private String formatTimeAgo(long timestamp) {

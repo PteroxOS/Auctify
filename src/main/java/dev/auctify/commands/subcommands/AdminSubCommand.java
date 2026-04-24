@@ -53,23 +53,23 @@ public class AdminSubCommand implements SubCommand {
             if (sender instanceof Player player) {
                 plugin.getAuctionManager().cancelListing(player, listingId);
             } else {
-                MessageUtil.sendRaw(sender, "§cUse in-game admin GUI for force cancel.");
+                MessageUtil.send(sender, "admin-usage-gui", null);
             }
             return;
         }
 
-        MessageUtil.sendRaw(sender, "§6Admin Commands:");
-        MessageUtil.sendRaw(sender, "§e/ac admin §8— §7Open admin GUI");
-        MessageUtil.sendRaw(sender, "§e/ac admin blacklist add <player> [reason] §8— §7Blacklist player");
-        MessageUtil.sendRaw(sender, "§e/ac admin blacklist remove <player> §8— §7Unblacklist player");
-        MessageUtil.sendRaw(sender, "§e/ac admin blacklist list §8— §7Show blacklisted players");
-        MessageUtil.sendRaw(sender, "§e/ac admin cancel <id> §8— §7Force cancel a listing");
-        MessageUtil.sendRaw(sender, "§e/ac admin backup §8— §7Manually backup database (SQLite)");
+        MessageUtil.send(sender, "admin-commands-title", null);
+        MessageUtil.send(sender, "admin-cmd-admin", null);
+        MessageUtil.send(sender, "admin-cmd-blacklist-add", null);
+        MessageUtil.send(sender, "admin-cmd-blacklist-remove", null);
+        MessageUtil.send(sender, "admin-cmd-blacklist-list", null);
+        MessageUtil.send(sender, "admin-cmd-cancel", null);
+        MessageUtil.send(sender, "admin-cmd-backup", null);
     }
 
     private void handleBlacklist(CommandSender sender, String[] args) {
         if (args.length < 3) {
-            MessageUtil.sendRaw(sender, "§cUsage: /ac admin blacklist <add|remove|list>");
+            MessageUtil.send(sender, "usage-blacklist", null);
             return;
         }
 
@@ -77,12 +77,12 @@ public class AdminSubCommand implements SubCommand {
         switch (action) {
             case "add" -> {
                 if (args.length < 4) {
-                    MessageUtil.sendRaw(sender, "§cUsage: /ac admin blacklist add <player> [reason]");
+                    MessageUtil.send(sender, "usage-blacklist-add", null);
                     return;
                 }
                 Player target = Bukkit.getPlayer(args[3]);
                 if (target == null) {
-                    MessageUtil.sendRaw(sender, "§cPlayer not found or offline.");
+                    MessageUtil.send(sender, "player-not-found", null);
                     return;
                 }
                 String reason = args.length >= 5 ? String.join(" ", java.util.Arrays.copyOfRange(args, 4, args.length))
@@ -92,12 +92,12 @@ public class AdminSubCommand implements SubCommand {
             }
             case "remove" -> {
                 if (args.length < 4) {
-                    MessageUtil.sendRaw(sender, "§cUsage: /ac admin blacklist remove <player>");
+                    MessageUtil.send(sender, "usage-blacklist-remove", null);
                     return;
                 }
                 Player target = Bukkit.getPlayer(args[3]);
                 if (target == null) {
-                    MessageUtil.sendRaw(sender, "§cPlayer not found or offline.");
+                    MessageUtil.send(sender, "player-not-found", null);
                     return;
                 }
                 plugin.getStorageManager().removeBlacklist(target.getUniqueId());
@@ -106,31 +106,31 @@ public class AdminSubCommand implements SubCommand {
             case "list" -> {
                 var list = plugin.getStorageManager().getBlacklist();
                 if (list.isEmpty()) {
-                    MessageUtil.sendRaw(sender, "§7No players are blacklisted.");
+                    MessageUtil.send(sender, "blacklist-no-players", null);
                     return;
                 }
-                MessageUtil.sendRaw(sender, "§6§lBlacklisted Players:");
+                MessageUtil.send(sender, "blacklist-header", null);
                 for (String[] entry : list) {
                     String name = entry[0]; // UUID
                     String r = entry[1] != null ? entry[1] : "No reason";
                     String by = entry[2];
-                    MessageUtil.sendRaw(sender, "§7- §f" + name + " §8(by " + by + ") §7Reason: §f" + r);
+                    MessageUtil.send(sender, "blacklist-entry", Map.of("uuid", name, "by", by, "reason", r));
                 }
             }
-            default -> MessageUtil.sendRaw(sender, "§cUsage: /ac admin blacklist <add|remove|list>");
+            default -> MessageUtil.send(sender, "usage-blacklist", null);
         }
     }
 
     private void handleBackup(CommandSender sender) {
-        MessageUtil.sendRaw(sender, "§eStarting database backup...");
+        MessageUtil.send(sender, "backup-starting", null);
         // Run backup asynchronously to avoid blocking main thread
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
             boolean success = plugin.getStorageManager().backup();
             Bukkit.getScheduler().runTask(plugin, () -> {
                 if (success) {
-                    MessageUtil.sendRaw(sender, "§aDatabase backup completed successfully! Check backups/ folder.");
+                    MessageUtil.send(sender, "backup-success", null);
                 } else {
-                    MessageUtil.sendRaw(sender, "§cDatabase backup failed! Check console for errors.");
+                    MessageUtil.send(sender, "backup-failed", null);
                 }
             });
         });

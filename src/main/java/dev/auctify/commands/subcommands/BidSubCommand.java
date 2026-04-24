@@ -29,7 +29,7 @@ public class BidSubCommand implements SubCommand {
         }
 
         if (args.length < 3) {
-            MessageUtil.sendRaw(player, "§cUsage: §f/ac bid <listing_id> <amount>");
+            MessageUtil.send(player, "bid-usage", null);
             return;
         }
 

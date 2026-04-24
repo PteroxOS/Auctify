@@ -45,13 +45,13 @@ public class SearchSubCommand implements SubCommand {
         long now = System.currentTimeMillis();
         Long last = cooldowns.get(uuid);
         if (last != null && now - last < COOLDOWN_MS) {
-            MessageUtil.sendRaw(player, "§cPlease wait before searching again.");
+            MessageUtil.send(player, "search-cooldown", null);
             return;
         }
         cooldowns.put(uuid, now);
 
         if (args.length < 2) {
-            MessageUtil.sendRaw(player, "§cUsage: §f/ac search <query>");
+            MessageUtil.send(player, "search-usage", null);
             return;
         }
 
@@ -60,16 +60,18 @@ public class SearchSubCommand implements SubCommand {
         List<AuctionListing> results = plugin.getAuctionManager().searchListings(query);
 
         if (results.isEmpty()) {
-            MessageUtil.sendRaw(player, "§7No listings found matching '§f" + query + "§7'.");
+            MessageUtil.send(player, "search-no-results", Map.of("query", query));
             return;
         }
 
-        MessageUtil.sendRaw(player, "§6Search results for '§f" + query + "§6' (" + results.size() + " found):");
+        MessageUtil.send(player, "search-header", Map.of("query", query, "count", String.valueOf(results.size())));
         for (AuctionListing listing : results) {
             String itemName = ItemUtil.getDisplayName(listing.getItem());
-            MessageUtil.sendRaw(player, "§8 • §f" + itemName + " §7by §e" + listing.getSellerName()
-                    + " §7— §aID: §f" + listing.getId() + " §7— §a"
-                    + plugin.getEconomyManager().format(listing.getCurrentBid()));
+            MessageUtil.send(player, "search-result-item", Map.of(
+                    "item", itemName,
+                    "seller", listing.getSellerName(),
+                    "id", listing.getId(),
+                    "bid", plugin.getEconomyManager().format(listing.getCurrentBid())));
         }
     }
 

@@ -24,7 +24,7 @@ public class CancelSubCommand implements SubCommand {
         Player player = (Player) sender;
 
         if (args.length < 2) {
-            MessageUtil.sendRaw(player, "§cUsage: §f/ac cancel <listing_id>");
+            MessageUtil.send(player, "cancel-usage", null);
             return;
         }
 

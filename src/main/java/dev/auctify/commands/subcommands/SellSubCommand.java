@@ -33,7 +33,7 @@ public class SellSubCommand implements SubCommand {
 
         // Require at least a price argument
         if (args.length < 2) {
-            MessageUtil.sendRaw(player, "§cUsage: §f/ac sell <price> [buyout] [duration]");
+            MessageUtil.send(player, "sell-usage", null);
             return;
         }
 
@@ -52,7 +52,7 @@ public class SellSubCommand implements SubCommand {
             try {
                 buyoutPrice = Double.parseDouble(args[2]);
             } catch (NumberFormatException e) {
-                MessageUtil.sendRaw(player, "§cInvalid buyout price.");
+                MessageUtil.send(player, "sell-invalid-buyout", null);
                 return;
             }
         }
@@ -63,7 +63,7 @@ public class SellSubCommand implements SubCommand {
             try {
                 duration = Integer.parseInt(args[3]);
             } catch (NumberFormatException e) {
-                MessageUtil.sendRaw(player, "§cInvalid duration. Use seconds (e.g., 300 for 5 minutes).");
+                MessageUtil.send(player, "sell-invalid-duration", null);
                 return;
             }
         }

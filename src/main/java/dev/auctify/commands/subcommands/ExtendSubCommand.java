@@ -35,7 +35,7 @@ public class ExtendSubCommand implements SubCommand {
         }
 
         if (args.length < 3) {
-            MessageUtil.sendRaw(player, "§cUsage: §f/ac extend <listing_id> <minutes>");
+            MessageUtil.send(player, "extend-usage", null);
             return;
         }
 
@@ -43,9 +43,10 @@ public class ExtendSubCommand implements SubCommand {
         int minutes;
         try {
             minutes = Integer.parseInt(args[2]);
-            if (minutes <= 0) throw new NumberFormatException();
+            if (minutes <= 0)
+                throw new NumberFormatException();
         } catch (NumberFormatException e) {
-            MessageUtil.sendRaw(player, "§cMinutes must be a positive number.");
+            MessageUtil.send(player, "extend-invalid-minutes", null);
             return;
         }
 
