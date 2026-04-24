@@ -123,6 +123,80 @@ The claim system uses **atomic operations** — no duplication possible even if 
 
 ---
 
+## Setup Wizard (v1.0.1+)
+
+Auctify includes an interactive, chat-based setup wizard for first-time configuration.
+
+### Starting the Wizard
+
+**Automatic (First Run):**
+
+- Plugin detects `system.first-run: true` in config
+- Welcome message appears to all online admins
+- Click "[ YES, Setup Now ]" to begin
+
+**Manual:**
+
+```bash
+/ac setup        # Start/restart the wizard
+/ac setup skip   # Skip and use defaults
+```
+
+### Setup Steps
+
+| Step | Setting         | Options                                           |
+| :--: | :-------------- | :------------------------------------------------ |
+|  1   | **Language**    | English, Indonesian                               |
+|  2   | **Storage**     | SQLite (file), MySQL (database), Memory (testing) |
+|  3   | **Tax %**       | 0%, 5%, 10%, Custom (0-100)                       |
+|  4   | **Duration**    | 5 min, 15 min, 1 hour                             |
+|  5   | **Bid Timeout** | 15 sec, 30 sec, 60 sec                            |
+|  6   | **Discord**     | Enable (enter URL) or Skip                        |
+|  7   | **Backup**      | Disable, 1h, 6h, 24h interval                     |
+
+### Re-running Setup
+
+To reconfigure later:
+
+1. Run `/ac setup` in-game
+2. Or set `system.first-run: true` in config and restart
+
+The wizard automatically saves config and reloads the plugin when complete.
+
+---
+
+## Backup System (v1.0.1+)
+
+### Automatic Backups (SQLite Only)
+
+Database backups run automatically with configurable retention:
+
+```yaml
+storage:
+  sqlite:
+    backup:
+      enabled: true # Enable auto-backup
+      interval: 60 # Minutes between backups
+      keep-count: 10 # Max backups to keep (oldest auto-deleted)
+```
+
+**Backup Location:** `plugins/Auctify/backups/auctify_backup_YYYY-MM-DD_HH-mm-ss.db`
+
+### Manual Backup
+
+```bash
+/ac admin backup   # Creates instant backup
+```
+
+### Restore from Backup
+
+1. Stop server
+2. Delete/rename corrupted `auctify.db`
+3. Copy backup file to `plugins/Auctify/auctify.db`
+4. Start server
+
+---
+
 ## Security Features
 
 ### Economy Transaction Safety

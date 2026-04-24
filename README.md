@@ -2,7 +2,9 @@
 
 Auctify is a professional, high-performance auction house plugin for Minecraft (Paper/Spigot 1.18+) designed with a focus on real-time interaction, modern aesthetics, and **bank-grade security**. It provides a seamless bidding experience with a fully localized GUI, integrated Discord notifications, and comprehensive exploit protection.
 
-## 🛡️ Security-First Design (v1.0.0)
+> **Latest: v1.0.1** — Now with Interactive Setup Wizard and automatic database backups!
+
+## 🛡️ Security-First Design (v1.0.0+)
 
 Auctify has undergone a complete security audit and refactor with the following protections:
 
@@ -13,9 +15,12 @@ Auctify has undergone a complete security audit and refactor with the following 
 - **🚫 Input Validation**: NaN/Infinity/negative values are rejected; bid timeouts prevent stale input sessions
 - **🔍 Info Leak Prevention**: Tab completion only shows listings the player can actually interact with
 - **⚡ Event State Integrity**: Events fire before state mutation to ensure clean cancellation rollbacks
+- **💾 Automatic Backups**: SQLite database auto-backup with configurable retention (v1.0.1)
 
 ## Key Features
 
+- **🧙 Interactive Setup Wizard**: 7-step chat-based configuration for first-time setup (`/ac setup`)
+- **💾 Automatic Backups**: SQLite database auto-backup with retention policy (v1.0.1)
 - **Real-Time Bidding**: Interactive chat-based bidding system with config-driven timeout (default 30s)
 - **Dynamic GUI**: Modern chest interface with auto-refresh support for live countdowns
 - **Buyout System**: Set instant-buy prices alongside bidding, or list as BIN-only
@@ -29,7 +34,7 @@ Auctify has undergone a complete security audit and refactor with the following 
 - **Discord Integration**: Webhook support with customizable embeds for listings and sales
 - **Full Localization**: Every string configurable via per-language YAML files (EN/ID included)
 - **Auto-Save**: Periodic database flushing to ensure data integrity
-- **Admin Moderation**: Admin panel (`/ac admin`) to manage listings and blacklist players
+- **Admin Moderation**: Admin panel (`/ac admin`) to manage listings, blacklist, and backups
 - **Tax System**: Configurable tax percentage with "void" or "server-account" destination
 
 ## Dependencies
@@ -82,8 +87,10 @@ Auctify has undergone a complete security audit and refactor with the following 
 /ac cancel <id>             # Cancel your listing
 
 # Admin Commands
+/ac setup                   # Run interactive setup wizard (v1.0.1)
 /ac admin                   # Open admin moderation panel
 /ac admin blacklist <add|remove|list>  # Manage blacklist
+/ac admin backup            # Manual database backup (v1.0.1)
 /ac reload                  # Reload config and locales
 ```
 
@@ -91,13 +98,31 @@ See [GUIDE.md](GUIDE.md) for detailed usage instructions.
 
 ## Installation
 
-1. Download the latest `Auctify.jar` from releases
+### Quick Setup (v1.0.1+ - Recommended)
+
+1. Download the latest `Auctify-1.0.1.jar` from [releases](https://github.com/PteroxOS/Auctify/releases)
 2. Place the jar in your server's `plugins/` folder
-3. Start the server — Vault will be auto-downloaded if missing
-4. Configure `config.yml` (database, Discord, tax settings)
-5. Restart or use `/ac reload` to apply changes
+3. Start the server — Setup Wizard will prompt admins automatically
+4. Click through the 7-step wizard to configure language, storage, tax, etc.
+5. Plugin auto-reloads with your settings!
+
+### Manual Setup (Legacy)
+
+1. Download `Auctify.jar` and place in `plugins/`
+2. Start server to generate default config
+3. Edit `config.yml` manually
+4. Run `/ac reload` or restart
 
 ## Configuration Highlights
+
+### First-Run Setup Wizard
+
+```yaml
+system:
+  first-run: true # Set to true to re-run setup wizard on next start
+```
+
+Run `/ac setup` anytime to reconfigure without editing files.
 
 ### Tax System
 
@@ -115,12 +140,18 @@ gui:
   bid-input-timeout: 30 # Seconds before chat bid input expires
 ```
 
-### Storage Options
+### Storage & Backup
 
 ```yaml
 storage:
   type: sqlite # Options: memory, sqlite, mysql
-  # MySQL settings for production servers
+
+  sqlite:
+    file: "auctify.db"
+    backup:
+      enabled: true # Auto-backup database
+      interval: 60 # Minutes between backups
+      keep-count: 10 # Number of backups to retain
 ```
 
 ## Documentation

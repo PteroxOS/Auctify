@@ -13,7 +13,8 @@ Auctify uses a **layered, security-first architecture** with strict separation o
 | `gui`          | Inventory GUIs with `AuctifyHolder` state management, click protection                  |
 | `hook`         | PlaceholderAPI expansion with dynamic placeholders                                      |
 | `listeners`    | Event handling: GUI clicks, chat input, join/quit cleanup                               |
-| `storage`      | SQLite/MySQL with HikariCP, atomic transactions, schema migration                       |
+| `setup`        | **v1.0.1+** — Interactive chat-based setup wizard for first-time configuration          |
+| `storage`      | SQLite/MySQL with HikariCP, atomic transactions, schema migration, backups              |
 | `util`         | Color, config, time formatting, Discord webhooks, dependency download                   |
 
 ---
