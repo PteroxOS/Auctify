@@ -8,6 +8,7 @@ import dev.auctify.gui.*;
 import dev.auctify.listeners.*;
 import dev.auctify.scheduler.AuctionExpiryTask;
 import dev.auctify.storage.*;
+import dev.auctify.setup.SetupWizard;
 import dev.auctify.util.ConfigUtil;
 import dev.auctify.util.DependencyManager;
 import dev.auctify.util.MessageUtil;
@@ -35,6 +36,9 @@ public class Auctify extends JavaPlugin {
 
     /** Core auction logic coordinator. */
     private AuctionManager auctionManager;
+
+    /** Setup wizard for first-run configuration. */
+    private SetupWizard setupWizard;
 
     /** GUI state tracker for open inventories. */
     private GUIManager guiManager;
@@ -193,6 +197,10 @@ public class Auctify extends JavaPlugin {
         // Print startup summary
         printStartupSummary(elapsed);
 
+        // Initialize setup wizard and check for first run
+        setupWizard = new SetupWizard(this);
+        setupWizard.checkFirstRun();
+
         // Warn if economy is unavailable
         if (!economyManager.isAvailable()) {
             getLogger().warning("Economy is not available! Sell and bid commands will be disabled.");
@@ -266,26 +274,31 @@ public class Auctify extends JavaPlugin {
         String storageType = getConfig().getString("storage.type", "sqlite").toUpperCase();
         int listings = auctionManager.getActiveListings().size();
         String economyStatus = economyManager.isAvailable() ? "§a✔ Connected" : "§c✗ Unavailable";
+        String discordWebhook = getConfig().getString("discord.webhook-url", "");
+        String discordStatus = !discordWebhook.isEmpty() ? "§a✔ Connected" : "§c✗ Disabled";
 
         log.info("");
-        log.info("§8  ┌─────────────────────────────────────┐");
-        log.info("§8  │ §a§l✓ §fAuctify enabled successfully!     §8│");
-        log.info("§8  ├─────────────────────────────────────┤");
-        log.info("§8  │ §7Time§8:    §f" + padLog(elapsedMs + "ms", 24) + "§8│");
-        log.info("§8  │ §7Storage§8: §f" + padLog(storageType, 24) + "§8│");
-        log.info("§8  │ §7Economy§8: " + padLog(economyStatus, 28) + "§8│");
-        log.info("§8  │ §7Loaded§8:  §f" + padLog(listings + " listing(s)", 24) + "§8│");
-        log.info("§8  └─────────────────────────────────────┘");
+        log.info("§8╔══════════════════════════════════════════════════╗");
+        log.info("§8║ §a§l✓ §fAuctify enabled successfully!                §8║");
+        log.info("§8╠══════════════════════════════════════════════════╣");
+        log.info("§8║ §7Time:§8    §f" + padLog(elapsedMs + "ms", 36) + "§8║");
+        log.info("§8║ §7Storage:§8  §f" + padLog(storageType, 36) + "§8║");
+        log.info("§8║ §7Economy:§8  " + padLog(economyStatus, 38) + "§8║");
+        log.info("§8║ §7Discord:§8  " + padLog(discordStatus, 38) + "§8║");
+        log.info("§8║ §7Loaded:§8   §f" + padLog(listings + " listing(s)", 36) + "§8║");
+        log.info("§8╚══════════════════════════════════════════════════╝");
         log.info("");
     }
 
     /**
-     * Pads a string for log alignment.
+     * Pads a string for log alignment (strips color codes for length calculation).
      */
     private String padLog(String text, int width) {
-        if (text.length() >= width)
+        String plain = text.replaceAll("§[0-9a-fk-or]", "");
+        int padWidth = width + (text.length() - plain.length());
+        if (text.length() >= padWidth)
             return text;
-        return text + " ".repeat(width - text.length());
+        return text + " ".repeat(padWidth - text.length());
     }
 
     /**
@@ -349,6 +362,11 @@ public class Auctify extends JavaPlugin {
     /** @return the auction manager */
     public AuctionManager getAuctionManager() {
         return auctionManager;
+    }
+
+    /** @return the setup wizard */
+    public SetupWizard getSetupWizard() {
+        return setupWizard;
     }
 
     /** @return the GUI state manager */

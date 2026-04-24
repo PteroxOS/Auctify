@@ -146,6 +146,14 @@ display:
   time-format: "§c{m}m {s}s"
 
 # ─────────────────────────────────────────────
+#  SYSTEM SETTINGS
+# ─────────────────────────────────────────────
+system:
+  # First-run flag (DO NOT EDIT - set automatically)
+  # When true, setup wizard will prompt admins on next startup
+  first-run: true
+
+# ─────────────────────────────────────────────
 #  STORAGE SETTINGS
 # ─────────────────────────────────────────────
 storage:

@@ -42,6 +42,7 @@ public class AuctifyCommand implements CommandExecutor {
         subCommands.put("about", new AboutSubCommand(plugin));
         subCommands.put("claim", new ClaimSubCommand(plugin));
         subCommands.put("admin", new AdminSubCommand(plugin));
+        // Setup wizard is handled directly in onCommand
     }
 
     /**
@@ -63,6 +64,29 @@ public class AuctifyCommand implements CommandExecutor {
         // "help" subcommand → show help menu
         if (args[0].equalsIgnoreCase("help")) {
             sendHelpMenu(sender);
+            return true;
+        }
+
+        // "setup" subcommand → launch setup wizard
+        if (args[0].equalsIgnoreCase("setup")) {
+            if (!(sender instanceof Player player)) {
+                MessageUtil.sendRaw(sender, "§cSetup wizard can only be used in-game.");
+                return true;
+            }
+            if (args.length > 1 && args[1].equalsIgnoreCase("skip")) {
+                plugin.getSetupWizard().skipSetup(player);
+            } else if (args.length > 2) {
+                // Handle setup step responses (e.g., /ac setup step1 en)
+                try {
+                    int step = Integer.parseInt(args[1].replace("step", ""));
+                    String value = args[2];
+                    plugin.getSetupWizard().handleStep(player, step, value);
+                } catch (NumberFormatException e) {
+                    plugin.getSetupWizard().startSetup(player);
+                }
+            } else {
+                plugin.getSetupWizard().startSetup(player);
+            }
             return true;
         }
 
@@ -109,6 +133,7 @@ public class AuctifyCommand implements CommandExecutor {
         MessageUtil.sendRaw(sender, " §e/ac claim §8» §7Collect pending items");
         MessageUtil.sendRaw(sender, " §e/ac about §8» §7Plugin information");
         MessageUtil.sendRaw(sender, " §e/ac admin §8» §7Admin moderation panel §c(Admin)");
+        MessageUtil.sendRaw(sender, " §e/ac setup §8» §7Run setup wizard §c(Admin)");
         MessageUtil.sendRaw(sender, " §e/ac reload §8» §7Reload configuration §c(Admin)");
         MessageUtil.sendRaw(sender, " §e/ac help §8» §7Show this menu");
         MessageUtil.sendRaw(sender, "§8━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
