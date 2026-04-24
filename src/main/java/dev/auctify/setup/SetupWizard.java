@@ -467,9 +467,27 @@ public class SetupWizard {
         MessageUtil.sendPlain(player, "§8|================================================|");
         MessageUtil.sendPlain(player, "");
 
-        // Restart the plugin by reloading
+        // Log to console
+        plugin.getLogger().info("[Auctify] Setup completed by " + player.getName() + " - reloading plugin...");
+
+        // Restart the plugin by reloading via PlugMan if available, otherwise manual
         Bukkit.getScheduler().runTask(plugin, () -> {
-            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "plugman reload Auctify");
+            boolean plugmanAvailable = Bukkit.getPluginManager().getPlugin("PlugMan") != null ||
+                    Bukkit.getPluginManager().getPlugin("PlugManX") != null;
+
+            if (plugmanAvailable) {
+                boolean success = Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "plugman reload Auctify");
+                if (!success) {
+                    plugin.getLogger().warning("[Auctify] PlugMan reload command failed!");
+                    MessageUtil.sendPlain(player,
+                            "§c§l⚠ Reload failed! Please restart server or run /reload manually.");
+                }
+            } else {
+                plugin.getLogger().warning("[Auctify] PlugMan not found! Plugin requires manual reload or restart.");
+                MessageUtil.sendPlain(player, "§e§l⚠ PlugMan not installed!");
+                MessageUtil.sendPlain(player, "§7Please run §f/reload §7or restart the server to apply changes.");
+                MessageUtil.sendPlain(player, "§7(Config saved successfully)");
+            }
         });
     }
 
