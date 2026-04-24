@@ -315,6 +315,8 @@ public class SetupWizard implements Listener {
 
         sendClickableOption(player, "  [ §aSQLite §r]§7 - File-based, easy setup", "sqlite",
                 "Best for small-medium servers", "/ac setup step2 sqlite");
+        sendClickableOption(player, "  [ §dH2 §r]§7 - Fast file-based (recommended)", "h2",
+                "Excellent performance, file-based", "/ac setup step2 h2");
         sendClickableOption(player, "  [ §bMySQL §r]§7 - Database server", "mysql",
                 "Best for large servers", "/ac setup step2 mysql");
         sendClickableOption(player, "  [ §eMemory §r]§7 - No persistence (testing)", "memory",
@@ -563,8 +565,14 @@ public class SetupWizard implements Listener {
             plugin.getConfig().set("discord.enabled", true);
         }
 
-        plugin.getConfig().set("storage.sqlite.backup.enabled", state.backupEnabled);
-        plugin.getConfig().set("storage.sqlite.backup.interval", state.backupInterval);
+        // Set backup settings based on storage type
+        if (state.storage.equals("sqlite")) {
+            plugin.getConfig().set("storage.sqlite.backup.enabled", state.backupEnabled);
+            plugin.getConfig().set("storage.sqlite.backup.interval", state.backupInterval);
+        } else if (state.storage.equals("h2")) {
+            plugin.getConfig().set("storage.h2.backup.enabled", state.backupEnabled);
+            plugin.getConfig().set("storage.h2.backup.interval", state.backupInterval);
+        }
 
         plugin.getConfig().set("system.first-run", false);
         plugin.saveConfig();

@@ -6,7 +6,7 @@
 
     <groupId>dev.auctify</groupId>
     <artifactId>Auctify</artifactId>
-    <version>1.1.0</version>
+    <version>1.1.5</version>
     <packaging>jar</packaging>
 
     <name>Auctify</name>
@@ -90,6 +90,14 @@
             <version>3.0.2</version>
             <scope>compile</scope>
         </dependency>
+
+        <!-- H2 Database (shaded into the jar) -->
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <version>2.2.224</version>
+            <scope>compile</scope>
+        </dependency>
     </dependencies>
 
     <build>
@@ -139,6 +147,11 @@
                                 <relocation>
                                     <pattern>org.bstats</pattern>
                                     <shadedPattern>dev.auctify.libs.bstats</shadedPattern>
+                                </relocation>
+                                <!-- Relocate H2 to avoid conflicts with other plugins -->
+                                <relocation>
+                                    <pattern>org.h2</pattern>
+                                    <shadedPattern>dev.auctify.libs.h2</shadedPattern>
                                 </relocation>
                             </relocations>
                             <filters>

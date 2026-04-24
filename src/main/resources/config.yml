@@ -7,17 +7,17 @@
 # ╚═╝  ╚═╝ ╚═════╝  ╚═════╝   ╚═╝   ╚═╝╚═╝        ╚═╝   
                                                       
 #
-# ╔═══════════════════════════════════════════════════════════════╗
-# ║                    AUCTIFY CONFIGURATION                      ║
-# ║                   Advanced Auction House                      ║
-# ║                                                               ║
-# ║  Author    : PteroxOS                                         ║
-# ║  Version   : 1.1.0                                            ║
-# ║  GitHub    : https://github.com/PteroxOS/Auctify              ║
-# ║  Wiki      : https://github.com/PteroxOS/Auctify/wiki         ║
-# ║                                                               ║
-# ║  Edit values and run /ac reload to apply changes              ║
-# ╚═══════════════════════════════════════════════════════════════╝
+# ╔═══════════════════════════════════════════════════════════════════════════════╗
+# ║                    AUCTIFY CONFIGURATION                                      ║
+# ║                   Advanced Auction House                                      ║
+# ║                                                                               ║
+# ║  Author    : PteroxOS                                                         ║
+# ║  Version   : 1.1.0                                                            ║
+# ║  GitHub    : https://github.com/PteroxOS/Auctify                              ║
+# ║  Wiki      : https://github.com/PteroxOS/Auctify/wiki/Auctify-Documentation   ║
+# ║                                                                               ║
+# ║  Edit values and run /ac reload to apply changes                              ║
+# ╚═══════════════════════════════════════════════════════════════════════════════╝
 
 # ─────────────────────────────────────────────
 #  METRICS (bStats)
@@ -286,12 +286,32 @@ bulksell:
 # ─────────────────────────────────────────────
 storage:
   # Storage type for auction data
-  # Options: "memory" (resets on restart), "sqlite" (file-based), "mysql" (recommended for production)
+  # Options: "memory" (resets on restart), "sqlite" (file-based), "h2" (fast file-based), "mysql" (recommended for production)
   type: sqlite
 
   # SQLite settings (only used if type is "sqlite")
   sqlite:
     file: "auctify.db"
+
+    # Automatic backup settings (prevents data loss)
+    backup:
+      # Enable automatic backups?
+      enabled: true
+
+      # Backup interval in minutes (0 = disabled, only manual backup)
+      # Default: 60 minutes (1 hour)
+      interval: 60
+
+      # Maximum number of backup files to keep
+      # Old backups are automatically deleted
+      # Default: 10 (keeps 10 most recent backups)
+      keep-count: 10
+
+  # H2 settings (only used if type is "h2")
+  # H2 is a fast, file-based SQL database with excellent performance
+  h2:
+    file: "auctify.h2.db"
+    mode: "embedded"  # Options: embedded, server
 
     # Automatic backup settings (prevents data loss)
     backup:

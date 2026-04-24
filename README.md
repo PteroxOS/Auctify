@@ -3,12 +3,12 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Java Version](https://img.shields.io/badge/Java-17%2B-orange.svg)](https://openjdk.org/projects/jdk/17/)
 [![Paper/Spigot](https://img.shields.io/badge/API-Paper%2FSpigot%201.18%2B-green.svg)](https://papermc.io/)
-[![Version](https://img.shields.io/badge/Version-1.1.0-blue.svg)](https://github.com/PteroxOS/Auctify/releases)
+[![Version](https://img.shields.io/badge/Version-1.1.5-blue.svg)](https://github.com/PteroxOS/Auctify/releases)
 [![Open Source](https://img.shields.io/badge/Open%20Source-Yes-success.svg)](https://github.com/PteroxOS/Auctify)
 
 Auctify is a professional, high-performance auction house plugin for Minecraft (Paper/Spigot 1.18+) designed with a focus on real-time interaction, modern aesthetics, and **bank-grade security**. It provides a seamless bidding experience with a fully localized GUI, integrated Discord notifications, and comprehensive exploit protection.
 
-> **Latest: v1.1.0** — Price History, Auto-Bid, and Notification System!
+> **Latest: v1.1.5** — H2 Database Support for improved performance!
 
 ## 🛡️ Security-First Design (v1.0.0+)
 

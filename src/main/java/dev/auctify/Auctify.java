@@ -348,6 +348,10 @@ public class Auctify extends JavaPlugin {
                 getLogger().info("  Using MySQL storage backend.");
                 yield new MySQLStorage(this);
             }
+            case "h2" -> {
+                getLogger().info("  Using H2 storage backend.");
+                yield new H2Storage(this);
+            }
             case "memory" -> {
                 getLogger().warning("  Using in-memory storage. Data will be lost on restart!");
                 yield new MemoryStorage();

@@ -15,6 +15,7 @@ auctify.db
 logs/
 plugins/
 *.log
+wiki.md
 
 # System
 .DS_Store
