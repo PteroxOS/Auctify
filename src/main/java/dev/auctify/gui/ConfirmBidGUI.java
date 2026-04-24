@@ -17,25 +17,20 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
- * Confirmation GUI shown before a player places a bid.
- * 3-row inventory with the item in the center, confirm on the left, cancel on the right.
- * All display text is loaded from the locale file via MessageUtil.
+ * Confirmation GUI shown before a player places a bid. 3-row inventory with the
+ * item in the center, confirm on the left, cancel on the right. All display
+ * text is loaded from the locale file via MessageUtil.
  */
 public class ConfirmBidGUI {
 
     private final Auctify plugin;
 
-    /** @param plugin the main plugin instance */
+    /** Constructor. */
     public ConfirmBidGUI(Auctify plugin) {
         this.plugin = plugin;
     }
 
-    /**
-     * Opens the bid confirmation GUI for a specific listing.
-     *
-     * @param player  the player viewing the confirmation
-     * @param listing the listing they want to bid on
-     */
+    /** Opens the bid confirmation GUI for a specific listing. */
     public void open(Player player, AuctionListing listing) {
         AuctifyHolder holder = new AuctifyHolder("CONFIRM");
         holder.setListingId(listing.getId());
@@ -61,13 +56,16 @@ public class ConfirmBidGUI {
         // Info item (slot 13)
         String topBidder = listing.hasBids() ? listing.getTopBidderName() : MessageUtil.get("gui-bid-no-bids");
         String buyoutLine = listing.getBuyoutPrice() > 0
-                ? MessageUtil.get("gui-bid-buyout-line", Map.of("buyout", plugin.getEconomyManager().format(listing.getBuyoutPrice())))
+                ? MessageUtil.get("gui-bid-buyout-line",
+                        Map.of("buyout", plugin.getEconomyManager().format(listing.getBuyoutPrice())))
                 : MessageUtil.get("gui-bid-no-buyout");
         inv.setItem(13, buildItem(Material.PAPER,
                 MessageUtil.get("gui-bid-info-title"),
-                MessageUtil.get("gui-bid-current", Map.of("current_bid", plugin.getEconomyManager().format(listing.getCurrentBid()))),
+                MessageUtil.get("gui-bid-current",
+                        Map.of("current_bid", plugin.getEconomyManager().format(listing.getCurrentBid()))),
                 MessageUtil.get("gui-bid-top-bidder", Map.of("bidder", topBidder)),
-                MessageUtil.get("gui-bid-min-increment", Map.of("increment", plugin.getEconomyManager().format(minIncrement))),
+                MessageUtil.get("gui-bid-min-increment",
+                        Map.of("increment", plugin.getEconomyManager().format(minIncrement))),
                 "",
                 buyoutLine));
 
@@ -80,7 +78,8 @@ public class ConfirmBidGUI {
         if (listing.getBuyoutPrice() > 0 && config.getBoolean("bidding.allow-buyout", true)) {
             inv.setItem(22, buildItem(Material.GOLD_INGOT,
                     MessageUtil.get("gui-buyout-title"),
-                    MessageUtil.get("gui-buyout-price", Map.of("price", plugin.getEconomyManager().format(listing.getBuyoutPrice()))),
+                    MessageUtil.get("gui-buyout-price",
+                            Map.of("price", plugin.getEconomyManager().format(listing.getBuyoutPrice()))),
                     "",
                     MessageUtil.get("gui-buyout-click")));
         }
@@ -88,7 +87,8 @@ public class ConfirmBidGUI {
         // Fill remaining slots with filler
         ItemStack filler = buildItem(Material.GRAY_STAINED_GLASS_PANE, " ");
         for (int i = 0; i < 27; i++) {
-            if (inv.getItem(i) == null) inv.setItem(i, filler);
+            if (inv.getItem(i) == null)
+                inv.setItem(i, filler);
         }
 
         plugin.getGUIManager().markOpen(player, "CONFIRM");

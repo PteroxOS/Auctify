@@ -15,9 +15,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-/**
- * GUI for displaying price history trends of auction items.
- */
+/** GUI for displaying price history trends of auction items. */
 public class PriceHistoryGUI {
 
     private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("MMM dd, HH:mm");
@@ -33,11 +31,7 @@ public class PriceHistoryGUI {
         this.page = page;
     }
 
-    /**
-     * Opens the price history GUI for the player.
-     *
-     * @param player the player to show the GUI to
-     */
+    /** Opens the price history GUI for the player. */
     public void open(Player player) {
         AuctifyHolder holder = new AuctifyHolder("PRICE_HISTORY");
         holder.setPage(page);

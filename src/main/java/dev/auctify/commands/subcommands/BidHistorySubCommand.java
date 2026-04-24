@@ -11,9 +11,8 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Handles the /ac bidhistory command.
- * Usage: /ac bidhistory <id>
- * Shows bid history for a specific auction listing.
+ * Handles the /ac bidhistory command. Usage: /ac bidhistory <id>. Shows bid
+ * history for a specific auction listing.
  */
 public class BidHistorySubCommand implements SubCommand {
 
@@ -23,13 +22,11 @@ public class BidHistorySubCommand implements SubCommand {
         this.plugin = plugin;
     }
 
-    /** {@inheritDoc} */
     @Override
     public boolean isPlayerOnly() {
         return true;
     }
 
-    /** {@inheritDoc} */
     @Override
     public void execute(CommandSender sender, String[] args) {
         Player player = (Player) sender;

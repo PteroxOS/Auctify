@@ -17,15 +17,11 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Listens for chat messages from players in bid-input mode.
- * When a player is awaiting bid input, their chat message is intercepted,
- * parsed as a bid amount, and the bid is placed on the main thread.
- *
- * <p>
- * THREAD SAFETY: This event fires on an async thread. All Bukkit API calls
- * (like placing bids) are dispatched back to the main thread via
- * {@code Bukkit.getScheduler().runTask(...)}.
- * </p>
+ * Listens for chat messages from players in bid-input mode. When a player is
+ * awaiting bid input, their chat message is intercepted, parsed as a bid
+ * amount, and the bid is placed on the main thread. THREAD SAFETY: This event
+ * fires on an async thread. All Bukkit API calls are dispatched back to the
+ * main thread.
  */
 public class ChatBidListener implements Listener {
 
@@ -42,7 +38,7 @@ public class ChatBidListener implements Listener {
 
     private final int bidTimeoutSeconds; // 🔧 CONFIGURABLE via config.yml: gui.bid-input-timeout
 
-    /** @param plugin the main plugin instance */
+    /** Constructor. */
     public ChatBidListener(Auctify plugin) {
         this.plugin = plugin;
         // 🔧 CONFIGURABLE: bid-input timeout in seconds (default 30)

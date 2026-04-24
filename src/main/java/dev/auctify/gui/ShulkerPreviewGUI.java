@@ -17,8 +17,8 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
- * Preview GUI that shows the contents of a Shulker Box listing.
- * Read-only — all clicks are cancelled.
+ * Preview GUI that shows the contents of a Shulker Box listing. Read-only — all
+ * clicks are cancelled.
  */
 public class ShulkerPreviewGUI {
 
@@ -28,13 +28,7 @@ public class ShulkerPreviewGUI {
         this.plugin = plugin;
     }
 
-    /**
-     * Opens a read-only preview of a shulker box's contents.
-     *
-     * @param player the viewing player
-     * @param shulkerItem the shulker box ItemStack to preview
-     * @param listingId the listing ID to return to
-     */
+    /** Opens a read-only preview of a shulker box's contents. */
     public void open(Player player, ItemStack shulkerItem, String listingId) {
         AuctifyHolder holder = new AuctifyHolder("SHULKER");
         holder.setListingId(listingId);
@@ -56,7 +50,8 @@ public class ShulkerPreviewGUI {
         // Fill empty slots in shulker area
         ItemStack filler = buildItem(Material.LIGHT_GRAY_STAINED_GLASS_PANE, " ");
         for (int i = 0; i < 27; i++) {
-            if (inv.getItem(i) == null) inv.setItem(i, filler);
+            if (inv.getItem(i) == null)
+                inv.setItem(i, filler);
         }
 
         // Bottom row filler
@@ -77,7 +72,8 @@ public class ShulkerPreviewGUI {
      * Checks if an ItemStack is a shulker box.
      */
     public static boolean isShulkerBox(ItemStack item) {
-        if (item == null) return false;
+        if (item == null)
+            return false;
         return item.getType().name().endsWith("SHULKER_BOX");
     }
 

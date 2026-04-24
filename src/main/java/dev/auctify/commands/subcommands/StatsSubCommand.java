@@ -9,9 +9,8 @@ import org.bukkit.entity.Player;
 import java.util.Map;
 
 /**
- * /ac stats — Open player statistics GUI.
- * Usage: /ac stats — View your own stats
- *        /ac stats <player> — View another player's stats (admin only)
+ * /ac stats — Open player statistics GUI. Usage: /ac stats — View your own
+ * stats, /ac stats <player> — View another player's stats (admin only)
  */
 public class StatsSubCommand implements SubCommand {
 

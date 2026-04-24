@@ -55,3 +55,52 @@ bulksell-no-items: "§cGeen overeenkomende items gevonden in inventaris."
 # ─── Statistics ───────────────────────────
 stats-usage: "§cGebruik: /ac stats [speler]"
 stats-viewing: "§eBekijk statistieken van §f{player}"
+
+# ─── Advanced Search Filters ───────────────
+filter-usage: "§cGebruik: /ac filter <type> <waarde> of /ac filter clear"
+filter-invalid-type: "§cOngeldig filtertype. Beschikbaar: minprice, maxprice, seller, endtime, sort, clear"
+filter-invalid-price: "§cOngeldige prijswaarde."
+filter-invalid-time: "§cOngeldige tijdwaaarde (moet in seconden zijn)."
+filter-invalid-sort: "§cOngeldige sorteermodus. Beschikbaar: TIME_ASC, TIME_DESC, PRICE_ASC, PRICE_DESC, BIDS, NEWEST, ENDING_SOON"
+filter-minprice-set: "§aMinimumprijs ingesteld op §f{price}"
+filter-maxprice-set: "§aMaximumprijs ingesteld op §f{price}"
+filter-seller-set: "§aVerkoperfilter ingesteld op §f{seller}"
+filter-endtime-set: "§aEindtijdfilter ingesteld op §f{seconds} seconden vanaf nu"
+filter-sort-set: "§aSorteermodus ingesteld op §f{mode}"
+filter-cleared: "§aAlle filters gewist."
+filter-not-in-auction: "§cJe moet in de veilinghuis GUI zijn om filters te gebruiken."
+
+# ─── Auction Notifications ─────────────────
+notification-outbid: "§cJe bent overboden op §f{item}§c! Nieuw bod: §a{amount}"
+notification-buyout: "§aJe item §f{item} §ais gekocht voor §6{price} §adoor §e{buyer}§a!"
+notification-auction-won: "§aJe hebt de veiling voor §f{item} §agewonnen met een bod van §6{amount}§a!"
+notification-item-sold: "§aJe item §f{item} §ais verkocht aan §e{winner} §avoor §6{amount}§a! §7(Na §c{tax}% §7belasting: §a{net}§7)"
+notification-expiration-warning: "§eJe veiling voor §f{item} §everloopt over §c{minutes} minuten§e! §7(ID: §f{listing_id}§7)"
+
+# ─── Notification Preferences ───────────────
+notifications-usage: "§cGebruik: /ac notifications [toggle <type> | all <on|off>]"
+notifications-invalid-type: "§cOngeldig notificatietype. Beschikbaar: outbid, buyout, auction-won, item-sold, expiration"
+notifications-enabled: "§aNotificaties {type} ingeschakeld."
+notifications-disabled: "§cNotificaties {type} uitgeschakeld."
+notifications-all-enabled: "§aAlle notificaties ingeschakeld."
+notifications-all-disabled: "§cAlle notificaties uitgeschakeld."
+
+# ─── Auto-Bid ─────────────────────────────
+autobid-usage: "§cGebruik: /ac autobid [set <id> <max> | remove <id> | clear]"
+autobid-set: "§aAuto-bod ingesteld voor veiling §f{id} §atot §6{max}"
+autobid-removed: "§aAuto-bod verwijderd voor veiling §f{id}"
+autobid-cleared: "§aAlle auto-bods verwijderd."
+autobid-not-found: "§cGeen auto-bod gevonden voor veiling §f{id}"
+autobid-own-listing: "§cJe kunt niet auto-bieden op je eigen veiling."
+autobid-too-low: "§cMax bod moet hoger zijn dan huidig bod: §f{current}"
+autobid-exhausted: "§cAuto-bod uitgeput voor §f{item} §c(max: §6{max_bid}§c)"
+autobid-insufficient-funds: "§cOnvoldoende fondsen voor auto-bod: §f{amount}"
+autobid-placed: "§aAuto-bod geplaatst voor §f{item} §aop §6{amount} §a(§e{remaining} over§a)"
+
+# ─── Price History ────────────────────────
+pricehistory-usage: "§cGebruik: /ac pricehistory [item_type]"
+pricehistory-no-data: "§cGeen prijsgeschiedenis data."
+pricehistory-viewing: "§eBekijk prijsgeschiedenis voor §f{item_type}"
+
+# ─── Admin Commands ───────────────────────
+usage-blacklist: "§cGebruik: /ac admin blacklist <add|remove|list> [item|speler]"

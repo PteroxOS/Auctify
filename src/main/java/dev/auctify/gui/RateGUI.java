@@ -17,8 +17,8 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
- * Rating GUI shown after a buyer wins an auction.
- * Allows the buyer to rate the seller from 1 to 5 stars.
+ * Rating GUI shown after a buyer wins an auction. Allows the buyer to rate the
+ * seller from 1 to 5 stars.
  */
 public class RateGUI {
 
@@ -28,13 +28,7 @@ public class RateGUI {
         this.plugin = plugin;
     }
 
-    /**
-     * Opens the rating GUI for a player to rate a seller.
-     *
-     * @param player     the buyer/rater
-     * @param sellerUUID the UUID of the seller to rate
-     * @param sellerName the name of the seller
-     */
+    /** Opens the rating GUI for a player to rate a seller. */
     public void open(Player player, UUID sellerUUID, String sellerName) {
         AuctifyHolder holder = new AuctifyHolder("RATE");
         holder.setTargetPlayerUUID(sellerUUID.toString());
@@ -43,7 +37,8 @@ public class RateGUI {
 
         // Fill with filler
         ItemStack filler = buildItem(Material.GRAY_STAINED_GLASS_PANE, " ");
-        for (int i = 0; i < 27; i++) inv.setItem(i, filler);
+        for (int i = 0; i < 27; i++)
+            inv.setItem(i, filler);
 
         // Star ratings: slots 11, 12, 13, 14, 15
         Material starMat = Material.NETHER_STAR;

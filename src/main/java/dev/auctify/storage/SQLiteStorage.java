@@ -15,8 +15,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * SQLite implementation of {@link StorageManager} using HikariCP connection
- * pooling.
+ * SQLite implementation of StorageManager using HikariCP connection pooling.
  */
 public class SQLiteStorage implements StorageManager {
 
@@ -24,13 +23,12 @@ public class SQLiteStorage implements StorageManager {
     private final Logger logger;
     private HikariDataSource dataSource;
 
-    /** @param plugin the main plugin instance */
+    /** Constructor. */
     public SQLiteStorage(JavaPlugin plugin) {
         this.plugin = plugin;
         this.logger = plugin.getLogger();
     }
 
-    /** {@inheritDoc} */
     @Override
     public void initialize() {
         String fileName = plugin.getConfig().getString("storage.sqlite.file", "auctify.db");
@@ -147,7 +145,6 @@ public class SQLiteStorage implements StorageManager {
         }
     }
 
-    /** {@inheritDoc} */
     @Override
     public void deleteListing(String id) {
         try (Connection c = dataSource.getConnection();
@@ -159,7 +156,6 @@ public class SQLiteStorage implements StorageManager {
         }
     }
 
-    /** {@inheritDoc} */
     @Override
     public List<AuctionListing> getAllListings() {
         List<AuctionListing> res = new ArrayList<>();
@@ -205,7 +201,6 @@ public class SQLiteStorage implements StorageManager {
         return listing;
     }
 
-    /** {@inheritDoc} */
     @Override
     public void saveHistory(AuctionHistory h) {
         String sql = "INSERT OR REPLACE INTO auctify_history (id,seller_uuid,seller_name,winner_uuid,winner_name,item_data,start_price,final_price,tax_amount,resolved_at,reason) VALUES (?,?,?,?,?,?,?,?,?,?,?)";
@@ -227,7 +222,6 @@ public class SQLiteStorage implements StorageManager {
         }
     }
 
-    /** {@inheritDoc} */
     @Override
     public List<AuctionHistory> getHistory(UUID playerUUID, int limit) {
         List<AuctionHistory> res = new ArrayList<>();
@@ -253,7 +247,6 @@ public class SQLiteStorage implements StorageManager {
         return res;
     }
 
-    /** {@inheritDoc} */
     @Override
     public void savePendingDelivery(UUID playerUUID, ItemStack item) {
         String sql = "INSERT INTO auctify_pending_deliveries (player_uuid,item_data,created_at) VALUES (?,?,?)";
@@ -267,7 +260,6 @@ public class SQLiteStorage implements StorageManager {
         }
     }
 
-    /** {@inheritDoc} */
     @Override
     public List<ItemStack> getPendingDeliveries(UUID playerUUID) {
         List<ItemStack> res = new ArrayList<>();
@@ -288,7 +280,6 @@ public class SQLiteStorage implements StorageManager {
         return res;
     }
 
-    /** {@inheritDoc} */
     @Override
     public void clearPendingDeliveries(UUID playerUUID) {
         try (Connection c = dataSource.getConnection();
@@ -1102,7 +1093,6 @@ public class SQLiteStorage implements StorageManager {
         }
     }
 
-    /** {@inheritDoc} */
     @Override
     public void shutdown() {
         if (dataSource != null && !dataSource.isClosed()) {

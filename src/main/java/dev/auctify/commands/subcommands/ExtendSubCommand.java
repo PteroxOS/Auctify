@@ -6,9 +6,8 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 /**
- * Handles the /ac extend command.
- * Usage: /ac extend <id> <minutes>
- * Extends an auction if it has no bids.
+ * Handles the /ac extend command. Usage: /ac extend <id> <minutes>. Extends an
+ * auction if it has no bids.
  */
 public class ExtendSubCommand implements SubCommand {
 
@@ -18,13 +17,11 @@ public class ExtendSubCommand implements SubCommand {
         this.plugin = plugin;
     }
 
-    /** {@inheritDoc} */
     @Override
     public boolean isPlayerOnly() {
         return true;
     }
 
-    /** {@inheritDoc} */
     @Override
     public void execute(CommandSender sender, String[] args) {
         Player player = (Player) sender;

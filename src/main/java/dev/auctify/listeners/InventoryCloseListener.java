@@ -8,14 +8,14 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 
 /**
- * Cleans up GUI tracking state when a player closes an Auctify inventory.
- * Uses {@link AuctifyHolder} for reliable detection of Auctify GUIs.
+ * Cleans up GUI tracking state when a player closes an Auctify inventory. Uses
+ * AuctifyHolder for reliable detection of Auctify GUIs.
  */
 public class InventoryCloseListener implements Listener {
 
     private final Auctify plugin;
 
-    /** @param plugin the main plugin instance */
+    /** Constructor. */
     public InventoryCloseListener(Auctify plugin) {
         this.plugin = plugin;
     }
@@ -26,7 +26,8 @@ public class InventoryCloseListener implements Listener {
      */
     @EventHandler
     public void onInventoryClose(InventoryCloseEvent event) {
-        if (!(event.getPlayer() instanceof Player player)) return;
+        if (!(event.getPlayer() instanceof Player player))
+            return;
 
         // Only clean up if the closed inventory was an Auctify GUI
         if (event.getInventory().getHolder() instanceof AuctifyHolder) {

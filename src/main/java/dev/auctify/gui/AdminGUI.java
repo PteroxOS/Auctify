@@ -19,8 +19,8 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
- * Admin moderation GUI for managing the auction house.
- * Allows admins to view all listings, force cancel, and manage blacklist.
+ * Admin moderation GUI for managing the auction house. Allows admins to view
+ * all listings, force cancel, and manage blacklist.
  */
 public class AdminGUI {
 
@@ -30,9 +30,7 @@ public class AdminGUI {
         this.plugin = plugin;
     }
 
-    /**
-     * Opens the admin panel GUI.
-     */
+    /** Opens the admin panel GUI. */
     public void open(Player player, int page) {
         AuctifyHolder holder = new AuctifyHolder("ADMIN");
         holder.setPage(page);
@@ -49,8 +47,10 @@ public class AdminGUI {
 
         int itemsPerPage = 45; // 5 rows of items
         int totalPages = Math.max(1, (int) Math.ceil((double) listings.size() / itemsPerPage));
-        if (page >= totalPages) page = totalPages - 1;
-        if (page < 0) page = 0;
+        if (page >= totalPages)
+            page = totalPages - 1;
+        if (page < 0)
+            page = 0;
 
         // Fill listing slots
         int startIndex = page * itemsPerPage;
@@ -61,7 +61,8 @@ public class AdminGUI {
             ItemMeta meta = display.getItemMeta();
             if (meta != null) {
                 List<Component> lore = meta.lore();
-                if (lore == null) lore = new java.util.ArrayList<>();
+                if (lore == null)
+                    lore = new java.util.ArrayList<>();
                 lore.add(ColorUtil.toComponent(""));
                 lore.add(ColorUtil.toComponent(MessageUtil.get("gui-admin-click-cancel")));
                 lore.add(ColorUtil.toComponent("§8ID: " + listing.getId()));
@@ -74,11 +75,13 @@ public class AdminGUI {
         // Fill empty slots
         ItemStack filler = buildItem(Material.GRAY_STAINED_GLASS_PANE, " ");
         for (int i = endIndex - startIndex; i < 45; i++) {
-            if (inv.getItem(i) == null) inv.setItem(i, filler);
+            if (inv.getItem(i) == null)
+                inv.setItem(i, filler);
         }
 
         // Bottom nav row
-        for (int i = 45; i < 54; i++) inv.setItem(i, filler);
+        for (int i = 45; i < 54; i++)
+            inv.setItem(i, filler);
 
         // Nav buttons
         if (page > 0) {
@@ -92,7 +95,8 @@ public class AdminGUI {
                 MessageUtil.get("gui-admin-stats"),
                 MessageUtil.get("gui-admin-total-listings", Map.of("count", String.valueOf(totalListings))),
                 MessageUtil.get("gui-admin-blacklist-count", Map.of("count", String.valueOf(blacklistCount))),
-                MessageUtil.get("gui-admin-page", Map.of("current", String.valueOf(page + 1), "total", String.valueOf(totalPages)))));
+                MessageUtil.get("gui-admin-page",
+                        Map.of("current", String.valueOf(page + 1), "total", String.valueOf(totalPages)))));
 
         // Blacklist management (slot 47)
         inv.setItem(47, buildItem(Material.BARRIER,

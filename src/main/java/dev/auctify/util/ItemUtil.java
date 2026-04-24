@@ -14,13 +14,9 @@ import java.util.logging.Logger;
 /**
  * Utility class for ItemStack serialization/deserialization and display name
  * extraction.
- * Uses Paper's {@link ItemStack#serializeAsBytes()} and
- * {@link ItemStack#deserializeBytes(byte[])}
+ * Uses Paper's ItemStack#serializeAsBytes() and ItemStack#deserializeBytes()
  * for reliable binary serialization stored as Base64 strings in the database.
- *
- * <p>
  * Uses Adventure API for display names to avoid deprecated Bukkit methods.
- * </p>
  */
 public final class ItemUtil {
 
@@ -36,12 +32,8 @@ public final class ItemUtil {
     }
 
     /**
-     * Serializes an {@link ItemStack} into a Base64-encoded string using Paper's
-     * binary serialization.
-     *
-     * @param item the ItemStack to serialize (must not be null)
-     * @return the Base64-encoded string representation of the item
-     * @throws IllegalArgumentException if the item is null or AIR
+     * Serializes an ItemStack into a Base64-encoded string using Paper's binary
+     * serialization.
      */
     public static String serializeToBase64(ItemStack item) {
         if (item == null || item.getType().isAir()) {
@@ -51,12 +43,7 @@ public final class ItemUtil {
         return Base64.getEncoder().encodeToString(bytes);
     }
 
-    /**
-     * Deserializes an {@link ItemStack} from a Base64-encoded string.
-     *
-     * @param base64 the Base64-encoded item data
-     * @return the deserialized ItemStack, or null if deserialization fails
-     */
+    /** Deserializes an ItemStack from a Base64-encoded string. */
     public static ItemStack deserializeFromBase64(String base64) {
         if (base64 == null || base64.isEmpty()) {
             LOGGER.warning("Attempted to deserialize a null or empty Base64 string.");
@@ -72,11 +59,8 @@ public final class ItemUtil {
     }
 
     /**
-     * Gets a human-readable display name for an {@link ItemStack}.
-     * Uses Adventure API's {@code displayName()} to avoid deprecated methods.
-     *
-     * @param item the ItemStack to get the display name for
-     * @return the display name string, or "Unknown Item" if the item is null
+     * Gets a human-readable display name for an ItemStack. Uses Adventure API's
+     * displayName() to avoid deprecated methods.
      */
     public static String getDisplayName(ItemStack item) {
         if (item == null || item.getType().isAir()) {
@@ -97,12 +81,7 @@ public final class ItemUtil {
         return formatMaterialName(item.getType());
     }
 
-    /**
-     * Formats a {@link Material} enum name into a human-readable string.
-     *
-     * @param material the material to format
-     * @return the formatted material name
-     */
+    /** Formats a Material enum name into a human-readable string. */
     public static String formatMaterialName(Material material) {
         String name = material.name().toLowerCase();
         String[] words = name.split("_");
@@ -119,12 +98,7 @@ public final class ItemUtil {
         return formatted.toString().trim();
     }
 
-    /**
-     * Checks whether an ItemStack is null or represents an empty/air slot.
-     *
-     * @param item the ItemStack to check
-     * @return true if the item is null or AIR
-     */
+    /** Checks whether an ItemStack is null or represents an empty/air slot. */
     public static boolean isEmpty(ItemStack item) {
         return item == null || item.getType().isAir();
     }

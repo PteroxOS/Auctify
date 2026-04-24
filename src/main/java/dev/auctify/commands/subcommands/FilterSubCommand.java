@@ -11,8 +11,8 @@ import org.bukkit.inventory.Inventory;
 import java.util.Map;
 
 /**
- * Handles the /ac filter command for managing advanced search filters.
- * Usage: /ac filter <type> <value> or /ac filter clear
+ * Handles the /ac filter command for managing advanced search filters. Usage:
+ * /ac filter <type> <value> or /ac filter clear
  */
 public class FilterSubCommand implements SubCommand {
 

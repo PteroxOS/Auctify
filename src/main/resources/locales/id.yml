@@ -351,7 +351,68 @@ bulksell-success: "§aBerhasil mendaftarkan {stacks} stack ({amount}x {item})!"
 bulksell-no-items: "§cTidak ada item yang cocok di inventori."
 
 # ═══════════════════════════════════════════════════════════════════════════════
+# ADVANCED SEARCH FILTERS
+# ═══════════════════════════════════════════════════════════════════════════════
+filter-usage: "§cPenggunaan: /ac filter <tipe> <nilai> atau /ac filter clear"
+filter-invalid-type: "§cTipe filter tidak valid. Tersedia: minprice, maxprice, seller, endtime, sort, clear"
+filter-invalid-price: "§cNilai harga tidak valid."
+filter-invalid-time: "§cNilai waktu tidak valid (harus dalam detik)."
+filter-invalid-sort: "§cMode sort tidak valid. Tersedia: TIME_ASC, TIME_DESC, PRICE_ASC, PRICE_DESC, BIDS, NEWEST, ENDING_SOON"
+filter-minprice-set: "§aHarga minimum diset ke §f{price}"
+filter-maxprice-set: "§aHarga maksimum diset ke §f{price}"
+filter-seller-set: "§aFilter penjual diset ke §f{seller}"
+filter-endtime-set: "§aFilter waktu akhir diset ke §f{seconds} detik dari sekarang"
+filter-sort-set: "§aMode sort diset ke §f{mode}"
+filter-cleared: "§aSemua filter dihapus."
+filter-not-in-auction: "§cKamu harus di GUI auction house untuk menggunakan filter."
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# AUCTION NOTIFICATIONS
+# ═══════════════════════════════════════════════════════════════════════════════
+notification-outbid: "§cKamu telah ditawar lebih tinggi pada §f{item}§c! Bid baru: §a{amount}"
+notification-buyout: "§aItemmu §f{item} §adibeli dengan harga §6{price} §aoleh §e{buyer}§a!"
+notification-auction-won: "§aKamu memenangkan lelang §f{item} §aseharga §6{amount}§a!"
+notification-item-sold: "§aItemmu §f{item} §aterjual ke §e{winner} §aseharga §6{amount}§a! §7(Pajak §c{tax}%§7: §a{net}§7)"
+notification-expiration-warning: "§eLelangmu untuk §f{item} §eakan berakhir dalam §c{minutes} menit§e! §7(ID: §f{listing_id}§7)"
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# NOTIFICATION PREFERENCES
+# ═══════════════════════════════════════════════════════════════════════════════
+notifications-usage: "§cPenggunaan: /ac notifications [toggle <tipe> | all <on|off>]"
+notifications-invalid-type: "§cTipe notifikasi tidak valid. Tersedia: outbid, buyout, auction-won, item-sold, expiration"
+notifications-enabled: "§aNotifikasi {type} diaktifkan."
+notifications-disabled: "§cNotifikasi {type} dinonaktifkan."
+notifications-all-enabled: "§aSemua notifikasi diaktifkan."
+notifications-all-disabled: "§cSemua notifikasi dinonaktifkan."
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# AUTO-BID
+# ═══════════════════════════════════════════════════════════════════════════════
+autobid-usage: "§cPenggunaan: /ac autobid [set <id> <max> | remove <id> | clear]"
+autobid-set: "§aAuto-bid diset untuk lelang §f{id} §asampai §6{max}"
+autobid-removed: "§aAuto-bid dihapus untuk lelang §f{id}"
+autobid-cleared: "§aSemua auto-bid dihapus."
+autobid-not-found: "§cTidak ada auto-bid untuk lelang §f{id}"
+autobid-own-listing: "§cKamu tidak bisa auto-bid pada lelang sendiri."
+autobid-too-low: "§cMax bid harus lebih tinggi dari bid saat ini: §f{current}"
+autobid-exhausted: "§cAuto-bid habis untuk §f{item} §c(max: §6{max_bid}§c)"
+autobid-insufficient-funds: "§cSaldo tidak cukup untuk auto-bid: §f{amount}"
+autobid-placed: "§aAuto-bid ditempatkan untuk §f{item} §apada §6{amount} §a(§e{remaining} tersisa§a)"
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# PRICE HISTORY
+# ═══════════════════════════════════════════════════════════════════════════════
+pricehistory-usage: "§cPenggunaan: /ac pricehistory [tipe_item]"
+pricehistory-no-data: "§cTidak ada data riwayat harga."
+pricehistory-viewing: "§eMelihat riwayat harga untuk §f{item_type}"
+
+# ═══════════════════════════════════════════════════════════════════════════════
 # STATISTICS
 # ═══════════════════════════════════════════════════════════════════════════════
 stats-usage: "§cPenggunaan: /ac stats [player]"
 stats-viewing: "§eMelihat statistik untuk §f{player}"
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# ADMIN COMMANDS
+# ═══════════════════════════════════════════════════════════════════════════════
+usage-blacklist: "§cPenggunaan: /ac admin blacklist <add|remove|list> [item|player]"

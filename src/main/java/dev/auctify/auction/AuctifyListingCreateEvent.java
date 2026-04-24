@@ -6,8 +6,8 @@ import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 
 /**
- * Custom event fired when a new auction listing is about to be created.
- * Other plugins can listen to this event and cancel it to prevent the listing.
+ * Custom event fired when a new auction listing is about to be created. Other
+ * plugins can listen and cancel to prevent the listing.
  */
 public class AuctifyListingCreateEvent extends Event implements Cancellable {
 
@@ -16,31 +16,38 @@ public class AuctifyListingCreateEvent extends Event implements Cancellable {
     private final Player seller;
     private boolean cancelled;
 
-    /**
-     * @param listing the listing being created
-     * @param seller  the player creating the listing
-     */
+    /** Constructor. */
     public AuctifyListingCreateEvent(AuctionListing listing, Player seller) {
         this.listing = listing;
         this.seller = seller;
         this.cancelled = false;
     }
 
-    /** @return the listing being created */
-    public AuctionListing getListing() { return listing; }
+    public AuctionListing getListing() {
+        return listing;
+    }
 
-    /** @return the seller */
-    public Player getSeller() { return seller; }
-
-    @Override
-    public boolean isCancelled() { return cancelled; }
-
-    @Override
-    public void setCancelled(boolean cancel) { this.cancelled = cancel; }
+    public Player getSeller() {
+        return seller;
+    }
 
     @Override
-    public HandlerList getHandlers() { return HANDLERS; }
+    public boolean isCancelled() {
+        return cancelled;
+    }
+
+    @Override
+    public void setCancelled(boolean cancel) {
+        this.cancelled = cancel;
+    }
+
+    @Override
+    public HandlerList getHandlers() {
+        return HANDLERS;
+    }
 
     /** @return the handler list */
-    public static HandlerList getHandlerList() { return HANDLERS; }
+    public static HandlerList getHandlerList() {
+        return HANDLERS;
+    }
 }

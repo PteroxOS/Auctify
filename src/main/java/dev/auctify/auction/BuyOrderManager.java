@@ -12,8 +12,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 /**
- * Manages Buy Orders (WTB - Want to Buy) system.
- * Players can post requests to buy items at specific prices.
+ * Manages Buy Orders (WTB - Want to Buy) system. Players can post requests to
+ * buy items at specific prices.
  */
 public class BuyOrderManager {
 
@@ -26,9 +26,7 @@ public class BuyOrderManager {
         loadBuyOrders();
     }
 
-    /**
-     * Loads active buy orders from storage.
-     */
+    /** Loads active buy orders from storage. */
     private void loadBuyOrders() {
         List<BuyOrder> orders = plugin.getStorageManager().getAllBuyOrders();
         for (BuyOrder order : orders) {
@@ -40,9 +38,7 @@ public class BuyOrderManager {
         plugin.getLogger().info("[BuyOrderManager] Loaded " + activeOrders.size() + " active buy orders.");
     }
 
-    /**
-     * Creates a new buy order (WTB).
-     */
+    /** Creates a new buy order (WTB). */
     public String createBuyOrder(Player buyer, Material itemType, int amount, double pricePerUnit) {
         if (!isEnabled()) {
             MessageUtil.send(buyer, "buyorder-disabled", null);
@@ -116,9 +112,7 @@ public class BuyOrderManager {
         return id;
     }
 
-    /**
-     * Fills a buy order by selling items to it.
-     */
+    /** Fills a buy order by selling items to it. */
     public boolean fillBuyOrder(Player seller, String orderId) {
         BuyOrder order = activeOrders.get(orderId);
         if (order == null || !order.isActive()) {
@@ -189,9 +183,7 @@ public class BuyOrderManager {
         return true;
     }
 
-    /**
-     * Cancels a buy order and refunds the buyer.
-     */
+    /** Cancels a buy order and refunds the buyer. */
     public boolean cancelBuyOrder(Player buyer, String orderId) {
         BuyOrder order = activeOrders.get(orderId);
         if (order == null || !order.isActive()) {
@@ -230,16 +222,12 @@ public class BuyOrderManager {
                 .collect(Collectors.toList());
     }
 
-    /**
-     * Gets all active orders.
-     */
+    /** Gets all active orders. */
     public Collection<BuyOrder> getActiveOrders() {
         return Collections.unmodifiableCollection(activeOrders.values());
     }
 
-    /**
-     * Gets orders for a specific buyer.
-     */
+    /** Gets orders for a specific buyer. */
     public List<BuyOrder> getOrdersByBuyer(UUID buyerUUID) {
         return ordersByBuyer.getOrDefault(buyerUUID, Collections.emptyList()).stream()
                 .map(activeOrders::get)
@@ -248,9 +236,7 @@ public class BuyOrderManager {
                 .collect(Collectors.toList());
     }
 
-    /**
-     * Cleans up expired orders.
-     */
+    /** Cleans up expired orders. */
     public void cleanupExpiredOrders() {
         long now = System.currentTimeMillis();
         Iterator<Map.Entry<String, BuyOrder>> it = activeOrders.entrySet().iterator();

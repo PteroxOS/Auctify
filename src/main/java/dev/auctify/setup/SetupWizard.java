@@ -26,8 +26,8 @@ import java.util.Set;
 import java.util.UUID;
 
 /**
- * Interactive chat-based setup wizard for first-time installation.
- * Guides admin through configuration with clickable options.
+ * Interactive chat-based setup wizard for first-time installation. Guides admin
+ * through configuration with clickable options.
  */
 public class SetupWizard implements Listener {
 
@@ -42,10 +42,9 @@ public class SetupWizard implements Listener {
     }
 
     /**
-     * Dedicated chat listener for webhook input with HIGH priority.
-     * This provides a second layer of protection to ensure webhook URLs are never
-     * broadcast to other players. Cancels the event if player is in webhook input
-     * mode.
+     * Dedicated chat listener for webhook input with HIGH priority. This provides a
+     * second layer of protection to ensure webhook URLs are never broadcast to
+     * other players. Cancels the event if player is in webhook input mode.
      */
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = false)
     public void onAsyncChat(AsyncChatEvent event) {

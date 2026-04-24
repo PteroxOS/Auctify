@@ -24,9 +24,7 @@ public class CrashHandler implements Thread.UncaughtExceptionHandler {
         this.crashFile = new File(plugin.getDataFolder(), "crash.txt");
     }
 
-    /**
-     * Registers this handler as the default uncaught exception handler.
-     */
+    /** Registers this handler as the default uncaught exception handler. */
     public void register() {
         this.previousHandler = Thread.getDefaultUncaughtExceptionHandler();
         Thread.setDefaultUncaughtExceptionHandler(this);
@@ -56,9 +54,7 @@ public class CrashHandler implements Thread.UncaughtExceptionHandler {
         }
     }
 
-    /**
-     * Generates a formatted crash report.
-     */
+    /** Generates a formatted crash report. */
     private String generateCrashReport(String timestamp, Thread thread, Throwable error) {
         StringBuilder sb = new StringBuilder();
         sb.append("╔═══════════════════════════════════════════════════════════════╗\n");
@@ -95,9 +91,7 @@ public class CrashHandler implements Thread.UncaughtExceptionHandler {
         return sb.toString();
     }
 
-    /**
-     * Writes the crash report to crash.txt file.
-     */
+    /** Writes the crash report to crash.txt file. */
     private void writeCrashFile(String report) {
         try (FileWriter writer = new FileWriter(crashFile, true)) {
             writer.write(report);
@@ -107,9 +101,7 @@ public class CrashHandler implements Thread.UncaughtExceptionHandler {
         }
     }
 
-    /**
-     * Sends crash report to Discord webhook if configured.
-     */
+    /** Sends crash report to Discord webhook if configured. */
     private void sendToDiscord(String timestamp, String report, Throwable error) {
         if (!plugin.getConfig().getBoolean("discord.crash-webhook.enabled", false)) {
             return;

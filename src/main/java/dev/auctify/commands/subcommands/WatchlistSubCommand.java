@@ -11,8 +11,8 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Handles the /ac watchlist command.
- * Shows and manages player's watchlisted auctions.
+ * Handles the /ac watchlist command. Shows and manages player's watchlisted
+ * auctions.
  */
 public class WatchlistSubCommand implements SubCommand {
 

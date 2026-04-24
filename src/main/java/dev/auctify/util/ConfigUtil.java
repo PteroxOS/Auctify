@@ -8,10 +8,12 @@ import java.util.List;
 import java.util.logging.Logger;
 
 /**
- * Type-safe wrapper around Bukkit's {@link FileConfiguration} for reading config values.
- * Logs warnings when a config value is missing or has an unexpected type, and always
- * returns a sensible default. All reads are performed at call-time (never cached) to
- * support hot-reload via {@code /ac reload}.
+ * Type-safe wrapper around Bukkit's FileConfiguration for reading config
+ * values.
+ * Logs warnings when a config value is missing or has an unexpected type, and
+ * always returns a sensible default.
+ * All reads are performed at call-time (never cached) to support hot-reload via
+ * /ac reload.
  */
 public final class ConfigUtil {
 
@@ -24,22 +26,14 @@ public final class ConfigUtil {
     }
 
     /**
-     * Initializes the ConfigUtil with the plugin instance.
-     * Must be called once during plugin startup.
-     *
-     * @param pluginInstance the main Auctify plugin instance
+     * Initializes the ConfigUtil with the plugin instance. Must be called once
+     * during plugin startup.
      */
     public static void init(JavaPlugin pluginInstance) {
         plugin = pluginInstance;
     }
 
-    /**
-     * Gets a string value from config with a default fallback.
-     *
-     * @param path         the config path (e.g., "general.prefix")
-     * @param defaultValue the default value if the path is missing
-     * @return the config string value or the default
-     */
+    /** Gets a string value from config with a default fallback. */
     public static String getString(String path, String defaultValue) {
         FileConfiguration config = plugin.getConfig();
         if (!config.contains(path)) {
@@ -49,13 +43,7 @@ public final class ConfigUtil {
         return config.getString(path, defaultValue);
     }
 
-    /**
-     * Gets an integer value from config with a default fallback.
-     *
-     * @param path         the config path
-     * @param defaultValue the default value if the path is missing or wrong type
-     * @return the config int value or the default
-     */
+    /** Gets an integer value from config with a default fallback. */
     public static int getInt(String path, int defaultValue) {
         FileConfiguration config = plugin.getConfig();
         if (!config.contains(path)) {
@@ -66,13 +54,7 @@ public final class ConfigUtil {
         return config.getInt(path, defaultValue);
     }
 
-    /**
-     * Gets a double value from config with a default fallback.
-     *
-     * @param path         the config path
-     * @param defaultValue the default value if the path is missing or wrong type
-     * @return the config double value or the default
-     */
+    /** Gets a double value from config with a default fallback. */
     public static double getDouble(String path, double defaultValue) {
         FileConfiguration config = plugin.getConfig();
         if (!config.contains(path)) {
@@ -82,13 +64,7 @@ public final class ConfigUtil {
         return config.getDouble(path, defaultValue);
     }
 
-    /**
-     * Gets a boolean value from config with a default fallback.
-     *
-     * @param path         the config path
-     * @param defaultValue the default value if the path is missing or wrong type
-     * @return the config boolean value or the default
-     */
+    /** Gets a boolean value from config with a default fallback. */
     public static boolean getBoolean(String path, boolean defaultValue) {
         FileConfiguration config = plugin.getConfig();
         if (!config.contains(path)) {
@@ -98,13 +74,7 @@ public final class ConfigUtil {
         return config.getBoolean(path, defaultValue);
     }
 
-    /**
-     * Gets a long value from config with a default fallback.
-     *
-     * @param path         the config path
-     * @param defaultValue the default value if the path is missing or wrong type
-     * @return the config long value or the default
-     */
+    /** Gets a long value from config with a default fallback. */
     public static long getLong(String path, long defaultValue) {
         FileConfiguration config = plugin.getConfig();
         if (!config.contains(path)) {
@@ -114,12 +84,7 @@ public final class ConfigUtil {
         return config.getLong(path, defaultValue);
     }
 
-    /**
-     * Gets a string list from config with an empty list as fallback.
-     *
-     * @param path the config path
-     * @return the config string list, or an empty list if missing
-     */
+    /** Gets a string list from config with an empty list as fallback. */
     public static List<String> getStringList(String path) {
         FileConfiguration config = plugin.getConfig();
         if (!config.contains(path)) {
@@ -130,12 +95,8 @@ public final class ConfigUtil {
     }
 
     /**
-     * Gets a {@link Material} from a config string value.
-     * Logs a warning if the material name is invalid and returns the default.
-     *
-     * @param path         the config path containing the material name
-     * @param defaultValue the default Material if the path is missing or invalid
-     * @return the parsed Material or the default
+     * Gets a Material from a config string value. Logs a warning if the material
+     * name is invalid and returns the default.
      */
     public static Material getMaterial(String path, Material defaultValue) {
         String name = getString(path, defaultValue.name());
@@ -148,20 +109,14 @@ public final class ConfigUtil {
         return material;
     }
 
-    /**
-     * Logs a warning about a missing config value.
-     *
-     * @param path         the missing config path
-     * @param defaultValue the default value being used instead
-     */
+    /** Logs a warning about a missing config value. */
     private static void logMissing(String path, Object defaultValue) {
         getLogger().warning("Config value missing at '" + path + "'. Using default: " + defaultValue);
     }
 
     /**
-     * Gets the plugin's logger. Falls back to the root "Auctify" logger if plugin is null.
-     *
-     * @return the logger instance
+     * Gets the plugin's logger. Falls back to the root "Auctify" logger if plugin
+     * is null.
      */
     private static Logger getLogger() {
         return plugin != null ? plugin.getLogger() : Logger.getLogger("Auctify");

@@ -6,8 +6,8 @@ import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 
 /**
- * Custom event fired when a bid is placed on an auction listing.
- * Other plugins can listen and cancel to prevent the bid.
+ * Custom event fired when a bid is placed on an auction listing. Other plugins
+ * can listen and cancel to prevent the bid.
  */
 public class AuctifyBidEvent extends Event implements Cancellable {
 
@@ -17,11 +17,7 @@ public class AuctifyBidEvent extends Event implements Cancellable {
     private final double amount;
     private boolean cancelled;
 
-    /**
-     * @param listing the listing being bid on
-     * @param bidder  the player placing the bid
-     * @param amount  the bid amount
-     */
+    /** Constructor. */
     public AuctifyBidEvent(AuctionListing listing, Player bidder, double amount) {
         this.listing = listing;
         this.bidder = bidder;
@@ -29,24 +25,34 @@ public class AuctifyBidEvent extends Event implements Cancellable {
         this.cancelled = false;
     }
 
-    /** @return the listing */
-    public AuctionListing getListing() { return listing; }
+    public AuctionListing getListing() {
+        return listing;
+    }
 
-    /** @return the bidder */
-    public Player getBidder() { return bidder; }
+    public Player getBidder() {
+        return bidder;
+    }
 
-    /** @return the bid amount */
-    public double getAmount() { return amount; }
-
-    @Override
-    public boolean isCancelled() { return cancelled; }
-
-    @Override
-    public void setCancelled(boolean cancel) { this.cancelled = cancel; }
+    public double getAmount() {
+        return amount;
+    }
 
     @Override
-    public HandlerList getHandlers() { return HANDLERS; }
+    public boolean isCancelled() {
+        return cancelled;
+    }
 
-    /** @return the handler list */
-    public static HandlerList getHandlerList() { return HANDLERS; }
+    @Override
+    public void setCancelled(boolean cancel) {
+        this.cancelled = cancel;
+    }
+
+    @Override
+    public HandlerList getHandlers() {
+        return HANDLERS;
+    }
+
+    public static HandlerList getHandlerList() {
+        return HANDLERS;
+    }
 }

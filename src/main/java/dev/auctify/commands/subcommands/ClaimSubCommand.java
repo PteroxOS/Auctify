@@ -5,9 +5,7 @@ import dev.auctify.util.MessageUtil;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-/**
- * /ac claim — Opens the mailbox GUI to collect pending deliveries.
- */
+/** /ac claim — Opens the mailbox GUI to collect pending deliveries. */
 public class ClaimSubCommand implements SubCommand {
 
     private final Auctify plugin;

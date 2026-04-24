@@ -18,25 +18,21 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
- * The main auction house GUI displayed when players run /ac open.
- * Shows paginated active listings with navigation and auto-refresh.
- * Uses Adventure API for all item display names and lore.
- * All display text is loaded from the locale file via MessageUtil.
+ * The main auction house GUI displayed when players run /ac open. Shows
+ * paginated active listings with navigation and auto-refresh. Uses Adventure
+ * API for all item display names and lore. All display text is loaded from the
+ * locale file via MessageUtil.
  */
 public class AuctionGUI {
 
     private final Auctify plugin;
 
-    /** @param plugin the main plugin instance */
+    /** Constructor. */
     public AuctionGUI(Auctify plugin) {
         this.plugin = plugin;
     }
 
-    /**
-     * Opens the main auction GUI for a player at page 0.
-     *
-     * @param player the player to show the GUI to
-     */
+    /** Opens the main auction GUI for a player at page 0. */
     public void open(Player player) {
         open(player, 0, "ALL");
     }
@@ -45,9 +41,7 @@ public class AuctionGUI {
         open(player, page, "ALL", "TIME_ASC");
     }
 
-    /**
-     * Opens the main auction GUI for a player at a specific page and category.
-     */
+    /** Opens the main auction GUI for a player at a specific page and category. */
     public void open(Player player, int page, String category) {
         open(player, page, category, "TIME_ASC");
     }

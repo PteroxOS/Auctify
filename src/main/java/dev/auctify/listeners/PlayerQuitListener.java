@@ -15,22 +15,22 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Handles player join and quit events for Auctify.
- * On quit: cleans up GUI state and chat bid tracking.
- * On join: delivers any pending items from auctions won while offline.
+ * Handles player join and quit events for Auctify. On quit: cleans up GUI state
+ * and chat bid tracking. On join: delivers any pending items from auctions won
+ * while offline.
  */
 public class PlayerQuitListener implements Listener {
 
     private final Auctify plugin;
 
-    /** @param plugin the main plugin instance */
+    /** Constructor. */
     public PlayerQuitListener(Auctify plugin) {
         this.plugin = plugin;
     }
 
     /**
-     * Cleans up all player state when they disconnect:
-     * GUI tracking, refresh tasks, and chat bid mode.
+     * Cleans up all player state when they disconnect: GUI tracking, refresh tasks,
+     * and chat bid mode.
      */
     @EventHandler
     public void onPlayerQuit(PlayerQuitEvent event) {
@@ -44,9 +44,8 @@ public class PlayerQuitListener implements Listener {
     }
 
     /**
-     * Delivers pending items and refunds when a player joins the server.
-     * Items are accumulated from auctions that resolved while the player was
-     * offline.
+     * Delivers pending items and refunds when a player joins the server. Items are
+     * accumulated from auctions that resolved while the player was offline.
      */
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {

@@ -1,9 +1,18 @@
+#
+#  █████╗ ██╗   ██╗ ██████╗████████╗██╗███████╗██╗   ██╗
+# ██╔══██╗██║   ██║██╔════╝╚══██╔══╝██║██╔════╝╚██╗ ██╔╝
+# ███████║██║   ██║██║        ██║   ██║█████╗   ╚████╔╝ 
+# ██╔══██║██║   ██║██║        ██║   ██║██╔══╝    ╚██╔╝  
+# ██║  ██║╚██████╔╝╚██████╗   ██║   ██║██║        ██║   
+# ╚═╝  ╚═╝ ╚═════╝  ╚═════╝   ╚═╝   ╚═╝╚═╝        ╚═╝   
+                                                      
+#
 # ╔═══════════════════════════════════════════════════════════════╗
 # ║                    AUCTIFY CONFIGURATION                      ║
 # ║                   Advanced Auction House                      ║
 # ║                                                               ║
 # ║  Author    : PteroxOS                                         ║
-# ║  Version   : 1.0.2                                            ║
+# ║  Version   : 1.1.0                                            ║
 # ║  GitHub    : https://github.com/PteroxOS/Auctify              ║
 # ║  Wiki      : https://github.com/PteroxOS/Auctify/wiki         ║
 # ║                                                               ║
@@ -224,6 +233,17 @@ autobid:
   max-per-player: 10
   # Minimum bid increment for auto-bids
   min-increment: 1.0
+
+# ─────────────────────────────────────────────
+#  PRICE HISTORY
+# ─────────────────────────────────────────────
+price-history:
+  # Enable price history tracking?
+  enabled: true
+  # How many days to keep price history records
+  retention-days: 30
+  # Maximum price history entries per item type
+  max-entries-per-item: 100
 
 # ─────────────────────────────────────────────
 #  ALERTS (Title & Action Bar)

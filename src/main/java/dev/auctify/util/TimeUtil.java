@@ -4,9 +4,9 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 
 /**
- * Utility class for formatting time durations into human-readable strings.
- * Uses the configurable time format pattern from config.yml so admins can
- * customize how remaining time appears in the auction GUI.
+ * Utility class for formatting time durations into human-readable strings. Uses
+ * the configurable time format pattern from config.yml so admins can customize
+ * how remaining time appears in the auction GUI.
  */
 public final class TimeUtil {
 
@@ -16,15 +16,9 @@ public final class TimeUtil {
     }
 
     /**
-     * Formats a duration in seconds into a human-readable time string using
-     * the pattern defined in {@code display.time-format} of config.yml.
-     * <p>
-     * The format supports placeholders: {@code {h}} for hours, {@code {m}} for minutes,
-     * {@code {s}} for seconds. If the duration exceeds 60 minutes, hours are included.
-     *
-     * @param seconds the number of seconds to format (must be >= 0)
-     * @param config  the plugin's FileConfiguration to read the format pattern from
-     * @return the formatted time string with placeholders replaced
+     * Formats a duration in seconds into a human-readable time string using the
+     * pattern defined in display.time-format of config.yml. The format supports
+     * placeholders: {h} for hours, {m} for minutes, {s} for seconds.
      */
     public static String formatSeconds(long seconds, FileConfiguration config) {
         // Clamp negative values to zero for safety
@@ -48,11 +42,8 @@ public final class TimeUtil {
     }
 
     /**
-     * Formats a duration in seconds into a simple "Xh Ym Zs" string without
-     * relying on config. Used for logging and internal purposes.
-     *
-     * @param seconds the number of seconds to format
-     * @return a simple formatted duration string
+     * Formats a duration in seconds into a simple "Xh Ym Zs" string without relying
+     * on config. Used for logging and internal purposes.
      */
     public static String formatSimple(long seconds) {
         if (seconds < 0) {

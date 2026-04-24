@@ -10,12 +10,9 @@ import java.util.Map;
 import java.util.UUID;
 
 /**
- * /ac admin — Opens the admin moderation panel.
- * Subcommands:
- * /ac admin — Open admin GUI
- * /ac admin blacklist add <player> [reason]
- * /ac admin blacklist remove <player>
- * /ac admin blacklist list
+ * /ac admin — Opens the admin moderation panel. Subcommands: /ac admin — Open
+ * admin GUI, /ac admin blacklist add <player> [reason], /ac admin blacklist
+ * remove <player>, /ac admin blacklist list.
  */
 public class AdminSubCommand implements SubCommand {
 

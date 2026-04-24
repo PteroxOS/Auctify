@@ -21,25 +21,20 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
- * Detailed item view GUI opened on right-click of a listing.
- * Shows full item metadata, bid history, and a back button.
- * All display text is loaded from the locale file via MessageUtil.
+ * Detailed item view GUI opened on right-click of a listing. Shows full item
+ * metadata, bid history, and a back button. All display text is loaded from the
+ * locale file via MessageUtil.
  */
 public class ItemDetailGUI {
 
     private final Auctify plugin;
 
-    /** @param plugin the main plugin instance */
+    /** Constructor. */
     public ItemDetailGUI(Auctify plugin) {
         this.plugin = plugin;
     }
 
-    /**
-     * Opens the detail view for a specific listing.
-     *
-     * @param player  the viewing player
-     * @param listing the listing to inspect
-     */
+    /** Opens the detail view for a specific listing. */
     public void open(Player player, AuctionListing listing) {
         AuctifyHolder holder = new AuctifyHolder("DETAIL");
         holder.setListingId(listing.getId());
@@ -55,10 +50,12 @@ public class ItemDetailGUI {
         inv.setItem(10, buildItem(Material.PLAYER_HEAD,
                 MessageUtil.get("gui-detail-seller-title"),
                 MessageUtil.get("gui-detail-seller", Map.of("seller", listing.getSellerName())),
-                MessageUtil.get("gui-detail-start-price", Map.of("price", plugin.getEconomyManager().format(listing.getStartPrice()))),
+                MessageUtil.get("gui-detail-start-price",
+                        Map.of("price", plugin.getEconomyManager().format(listing.getStartPrice()))),
                 MessageUtil.get("gui-detail-listing-id", Map.of("id", listing.getId())),
                 "",
-                MessageUtil.get("gui-detail-time-left", Map.of("time", TimeUtil.formatSeconds(listing.getTimeRemainingSeconds(), config)))));
+                MessageUtil.get("gui-detail-time-left",
+                        Map.of("time", TimeUtil.formatSeconds(listing.getTimeRemainingSeconds(), config)))));
 
         // Bid history panel (slot 16)
         List<String> historyLore = new ArrayList<>();
@@ -73,7 +70,8 @@ public class ItemDetailGUI {
                 historyLore.add("§e" + bid.bidderName() + " §7— §a" + plugin.getEconomyManager().format(bid.amount()));
             }
             if (bids.size() > 5) {
-                historyLore.add(MessageUtil.get("gui-detail-more-bids", Map.of("count", String.valueOf(bids.size() - 5))));
+                historyLore
+                        .add(MessageUtil.get("gui-detail-more-bids", Map.of("count", String.valueOf(bids.size() - 5))));
             }
         }
         inv.setItem(16, buildItem(Material.WRITABLE_BOOK,
@@ -84,7 +82,8 @@ public class ItemDetailGUI {
         if (listing.getBuyoutPrice() > 0) {
             inv.setItem(4, buildItem(Material.GOLD_INGOT,
                     MessageUtil.get("gui-detail-buyout-title"),
-                    MessageUtil.get("gui-detail-buyout-price", Map.of("price", plugin.getEconomyManager().format(listing.getBuyoutPrice())))));
+                    MessageUtil.get("gui-detail-buyout-price",
+                            Map.of("price", plugin.getEconomyManager().format(listing.getBuyoutPrice())))));
         }
 
         // Back button (slot 22)
@@ -93,7 +92,8 @@ public class ItemDetailGUI {
         // Fill remaining
         ItemStack filler = buildItem(Material.GRAY_STAINED_GLASS_PANE, " ");
         for (int i = 0; i < 27; i++) {
-            if (inv.getItem(i) == null) inv.setItem(i, filler);
+            if (inv.getItem(i) == null)
+                inv.setItem(i, filler);
         }
 
         plugin.getGUIManager().markOpen(player, "DETAIL");

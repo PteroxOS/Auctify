@@ -5,19 +5,18 @@ import dev.auctify.util.MessageUtil;
 import org.bukkit.command.CommandSender;
 
 /**
- * Handles the /ac reload command.
- * Reloads the plugin configuration from disk. Requires auctify.admin permission.
+ * Handles the /ac reload command. Reloads the plugin configuration from disk.
+ * Requires auctify.admin permission.
  */
 public class ReloadSubCommand implements SubCommand {
 
     private final Auctify plugin;
 
-    /** @param plugin the main plugin instance */
+    /** Constructor. */
     public ReloadSubCommand(Auctify plugin) {
         this.plugin = plugin;
     }
 
-    /** {@inheritDoc} */
     @Override
     public void execute(CommandSender sender, String[] args) {
         if (!sender.hasPermission("auctify.admin")) {
@@ -35,7 +34,6 @@ public class ReloadSubCommand implements SubCommand {
         plugin.getLogger().info("Configuration reloaded by " + sender.getName());
     }
 
-    /** {@inheritDoc} */
     @Override
     public boolean isPlayerOnly() {
         return false; // Console can reload too

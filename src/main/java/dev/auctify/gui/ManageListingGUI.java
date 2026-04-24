@@ -17,9 +17,9 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
- * Management GUI for a seller's own listing.
- * Allows them to view stats and cancel the listing.
- * All display text is loaded from the locale file via MessageUtil.
+ * Management GUI for a seller's own listing. Allows them to view stats and
+ * cancel the listing. All display text is loaded from the locale file via
+ * MessageUtil.
  */
 public class ManageListingGUI {
 
@@ -47,12 +47,13 @@ public class ManageListingGUI {
                 : MessageUtil.get("gui-manage-no-buyout");
         inv.setItem(11, buildItem(Material.PAPER,
                 MessageUtil.get("gui-manage-stats-title"),
-                MessageUtil.get("gui-manage-current-bid", Map.of("bid", plugin.getEconomyManager().format(listing.getCurrentBid()))),
+                MessageUtil.get("gui-manage-current-bid",
+                        Map.of("bid", plugin.getEconomyManager().format(listing.getCurrentBid()))),
                 MessageUtil.get("gui-manage-top-bidder", Map.of("bidder", topBidder)),
                 MessageUtil.get("gui-manage-buyout-price", Map.of("price", buyoutDisplay)),
                 "",
-                MessageUtil.get("gui-manage-time-left", Map.of("time", TimeUtil.formatSeconds((listing.getEndTime() - System.currentTimeMillis()) / 1000, config)))
-        ));
+                MessageUtil.get("gui-manage-time-left", Map.of("time",
+                        TimeUtil.formatSeconds((listing.getEndTime() - System.currentTimeMillis()) / 1000, config)))));
 
         // Slot 15: Cancel Listing
         inv.setItem(15, buildItem(Material.RED_WOOL,
@@ -67,7 +68,8 @@ public class ManageListingGUI {
         // Filler
         ItemStack filler = buildItem(Material.GRAY_STAINED_GLASS_PANE, " ");
         for (int i = 0; i < 27; i++) {
-            if (inv.getItem(i) == null) inv.setItem(i, filler);
+            if (inv.getItem(i) == null)
+                inv.setItem(i, filler);
         }
 
         plugin.getGUIManager().markOpen(player, "MANAGE");

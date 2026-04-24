@@ -16,9 +16,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.*;
 
-/**
- * Player Statistics GUI showing auction stats and activity.
- */
+/** Player Statistics GUI showing auction stats and activity. */
 public class StatsGUI {
 
     private final Auctify plugin;
@@ -27,13 +25,7 @@ public class StatsGUI {
         this.plugin = plugin;
     }
 
-    /**
-     * Opens the player statistics GUI.
-     *
-     * @param player     the player to show stats for
-     * @param targetUUID the target player UUID (for viewing others' stats)
-     * @param targetName the target player name
-     */
+    /** Opens the player statistics GUI. */
     public void open(Player player, UUID targetUUID, String targetName) {
         Inventory inv = Bukkit.createInventory(new StatsHolder(), 54,
                 Component.text("Player Statistics: " + targetName).color(NamedTextColor.GOLD)

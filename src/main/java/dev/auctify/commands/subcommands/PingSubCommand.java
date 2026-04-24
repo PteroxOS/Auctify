@@ -12,9 +12,7 @@ import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryMXBean;
 import java.lang.management.MemoryUsage;
 
-/**
- * /ac ping — Shows plugin status, performance metrics, and credits.
- */
+/** /ac ping — Shows plugin status, performance metrics, and credits. */
 public class PingSubCommand implements SubCommand {
 
     private final Auctify plugin;

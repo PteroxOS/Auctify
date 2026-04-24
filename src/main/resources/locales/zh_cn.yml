@@ -55,3 +55,52 @@ bulksell-no-items: "§c背包中没有匹配的物品。"
 # ─── Statistics ───────────────────────────
 stats-usage: "§c用法：/ac stats [玩家]"
 stats-viewing: "§e查看 §f{player} §e的统计"
+
+# ─── Advanced Search Filters ───────────────
+filter-usage: "§c用法：/ac filter <类型> <值> 或 /ac filter clear"
+filter-invalid-type: "§c无效的过滤器类型。可用: minprice, maxprice, seller, endtime, sort, clear"
+filter-invalid-price: "§c无效的价格值。"
+filter-invalid-time: "§c无效的时间值（必须以秒为单位）。"
+filter-invalid-sort: "§c无效的排序模式。可用: TIME_ASC, TIME_DESC, PRICE_ASC, PRICE_DESC, BIDS, NEWEST, ENDING_SOON"
+filter-minprice-set: "§a最低价格设置为 §f{price}"
+filter-maxprice-set: "§a最高价格设置为 §f{price}"
+filter-seller-set: "§a卖家过滤器设置为 §f{seller}"
+filter-endtime-set: "§a结束时间过滤器设置为从现在起 §f{seconds} §a秒"
+filter-sort-set: "§a排序模式设置为 §f{mode}"
+filter-cleared: "§a所有过滤器已清除。"
+filter-not-in-auction: "§c您必须在拍卖行GUI中使用过滤器。"
+
+# ─── Auction Notifications ─────────────────
+notification-outbid: "§c您在 §f{item} §c上被出价超过！新出价: §a{amount}"
+notification-buyout: "§a您的物品 §f{item} §a以 §6{price} §a的价格被 §e{buyer}§a 购买！"
+notification-auction-won: "§a您以 §6{amount} §a的出价赢得了 §f{item} §a的拍卖！"
+notification-item-sold: "§a您的物品 §f{item} §a以 §6{amount} §a的价格卖给了 §e{winner}§a！ §7(§c{tax}% §7税费后: §a{net}§7)"
+notification-expiration-warning: "§e您的 §f{item} §e拍卖将在 §c{minutes} §e分钟后结束！ §7(ID: §f{listing_id}§7)"
+
+# ─── Notification Preferences ───────────────
+notifications-usage: "§c用法：/ac notifications [toggle <类型> | all <on|off>]"
+notifications-invalid-type: "§c无效的通知类型。可用: outbid, buyout, auction-won, item-sold, expiration"
+notifications-enabled: "§a{type} 通知已启用。"
+notifications-disabled: "§c{type} 通知已禁用。"
+notifications-all-enabled: "§a所有通知已启用。"
+notifications-all-disabled: "§c所有通知已禁用。"
+
+# ─── Auto-Bid ─────────────────────────────
+autobid-usage: "§c用法：/ac autobid [set <id> <max> | remove <id> | clear]"
+autobid-set: "§a拍卖 §f{id} §a的自动出价设置为 §6{max}"
+autobid-removed: "§a拍卖 §f{id} §a的自动出价已删除"
+autobid-cleared: "§a所有自动出价已清除。"
+autobid-not-found: "§c未找到拍卖 §f{id} §c的自动出价"
+autobid-own-listing: "§c您不能对自己的拍卖进行自动出价。"
+autobid-too-low: "§c最高出价必须高于当前出价: §f{current}"
+autobid-exhausted: "§c§f{item} §c的自动出价已用尽 (最大: §6{max_bid}§c)"
+autobid-insufficient-funds: "§c自动出价资金不足: §f{amount}"
+autobid-placed: "§a为 §f{item} §a以 §6{amount} §a放置了自动出价 (§e{remaining} §a剩余)"
+
+# ─── Price History ────────────────────────
+pricehistory-usage: "§c用法：/ac pricehistory [物品类型]"
+pricehistory-no-data: "§c没有价格历史数据。"
+pricehistory-viewing: "§e查看 §f{item_type} §e的价格历史"
+
+# ─── Admin Commands ───────────────────────
+usage-blacklist: "§c用法：/ac admin blacklist <add|remove|list> [item|player]"

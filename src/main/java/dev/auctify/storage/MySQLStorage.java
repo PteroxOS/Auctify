@@ -15,8 +15,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * MySQL implementation of {@link StorageManager} using HikariCP connection
- * pooling.
+ * MySQL implementation of StorageManager using HikariCP connection pooling.
  * Recommended for production servers with high traffic.
  */
 public class MySQLStorage implements StorageManager {
@@ -25,13 +24,12 @@ public class MySQLStorage implements StorageManager {
     private final Logger logger;
     private HikariDataSource dataSource;
 
-    /** @param plugin the main plugin instance */
+    /** Constructor. */
     public MySQLStorage(JavaPlugin plugin) {
         this.plugin = plugin;
         this.logger = plugin.getLogger();
     }
 
-    /** {@inheritDoc} */
     @Override
     public void initialize() {
         var cfg = plugin.getConfig();
@@ -112,7 +110,6 @@ public class MySQLStorage implements StorageManager {
         }
     }
 
-    /** {@inheritDoc} */
     @Override
     public void saveListing(AuctionListing l) {
         String sql = "REPLACE INTO auctify_listings (id,seller_uuid,seller_name,item_data,start_price,buyout_price,current_bid,top_bidder_uuid,top_bidder_name,created_at,end_time,bin_only,tax_exempt) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)";
@@ -136,7 +133,6 @@ public class MySQLStorage implements StorageManager {
         }
     }
 
-    /** {@inheritDoc} */
     @Override
     public void deleteListing(String id) {
         try (Connection c = dataSource.getConnection();
@@ -148,7 +144,6 @@ public class MySQLStorage implements StorageManager {
         }
     }
 
-    /** {@inheritDoc} */
     @Override
     public List<AuctionListing> getAllListings() {
         List<AuctionListing> res = new ArrayList<>();
@@ -185,7 +180,6 @@ public class MySQLStorage implements StorageManager {
         return res;
     }
 
-    /** {@inheritDoc} */
     @Override
     public void saveHistory(AuctionHistory h) {
         String sql = "REPLACE INTO auctify_history (id,seller_uuid,seller_name,winner_uuid,winner_name,item_data,start_price,final_price,tax_amount,resolved_at,reason) VALUES (?,?,?,?,?,?,?,?,?,?,?)";
@@ -207,7 +201,6 @@ public class MySQLStorage implements StorageManager {
         }
     }
 
-    /** {@inheritDoc} */
     @Override
     public List<AuctionHistory> getHistory(UUID playerUUID, int limit) {
         List<AuctionHistory> res = new ArrayList<>();
@@ -233,7 +226,6 @@ public class MySQLStorage implements StorageManager {
         return res;
     }
 
-    /** {@inheritDoc} */
     @Override
     public void savePendingDelivery(UUID playerUUID, ItemStack item) {
         String sql = "INSERT INTO auctify_pending_deliveries (player_uuid,item_data,created_at) VALUES (?,?,?)";
@@ -247,7 +239,6 @@ public class MySQLStorage implements StorageManager {
         }
     }
 
-    /** {@inheritDoc} */
     @Override
     public List<ItemStack> getPendingDeliveries(UUID playerUUID) {
         List<ItemStack> res = new ArrayList<>();
@@ -268,7 +259,6 @@ public class MySQLStorage implements StorageManager {
         return res;
     }
 
-    /** {@inheritDoc} */
     @Override
     public void clearPendingDeliveries(UUID playerUUID) {
         try (Connection c = dataSource.getConnection();
@@ -621,71 +611,219 @@ public class MySQLStorage implements StorageManager {
 
     @Override
     public void saveBuyOrder(dev.auctify.auction.BuyOrder order) {
-        // TODO: Implement buy order storage
+        String sql = "INSERT INTO auctify_buy_orders (id,buyer_uuid,buyer_name,item_type,amount,price_per_unit,created_at,expiry_time,active) VALUES (?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE buyer_uuid=?,buyer_name=?,item_type=?,amount=?,price_per_unit=?,created_at=?,expiry_time=?,active=?";
+        try (Connection c = dataSource.getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setString(1, order.getId());
+            ps.setString(2, order.getBuyerUUID().toString());
+            ps.setString(3, order.getBuyerName());
+            ps.setString(4, order.getItemType().name());
+            ps.setInt(5, order.getAmount());
+            ps.setDouble(6, order.getPricePerUnit());
+            ps.setLong(7, order.getCreatedAt());
+            ps.setLong(8, order.getExpiryTime());
+            ps.setInt(9, order.isActive() ? 1 : 0);
+            ps.setString(10, order.getBuyerUUID().toString());
+            ps.setString(11, order.getBuyerName());
+            ps.setString(12, order.getItemType().name());
+            ps.setInt(13, order.getAmount());
+            ps.setDouble(14, order.getPricePerUnit());
+            ps.setLong(15, order.getCreatedAt());
+            ps.setLong(16, order.getExpiryTime());
+            ps.setInt(17, order.isActive() ? 1 : 0);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            logger.log(Level.SEVERE, "Failed to save buy order", e);
+        }
     }
 
     @Override
     public void deleteBuyOrder(String orderId) {
-        // TODO: Implement buy order deletion
+        try (Connection c = dataSource.getConnection();
+                PreparedStatement ps = c.prepareStatement("DELETE FROM auctify_buy_orders WHERE id=?")) {
+            ps.setString(1, orderId);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            logger.log(Level.SEVERE, "Failed to delete buy order", e);
+        }
     }
 
     @Override
     public java.util.List<dev.auctify.auction.BuyOrder> getAllBuyOrders() {
-        // TODO: Implement buy order retrieval
-        return java.util.Collections.emptyList();
+        java.util.List<dev.auctify.auction.BuyOrder> res = new java.util.ArrayList<>();
+        try (Connection c = dataSource.getConnection();
+                Statement st = c.createStatement();
+                ResultSet rs = st.executeQuery("SELECT * FROM auctify_buy_orders WHERE active=1")) {
+            while (rs.next()) {
+                dev.auctify.auction.BuyOrder order = deserializeBuyOrder(rs);
+                if (order != null)
+                    res.add(order);
+            }
+        } catch (SQLException e) {
+            logger.log(Level.SEVERE, "Failed to get buy orders", e);
+        }
+        return res;
     }
 
     @Override
     public java.util.List<dev.auctify.auction.BuyOrder> getBuyOrdersByPlayer(UUID playerUUID) {
-        // TODO: Implement buy order retrieval by player
-        return java.util.Collections.emptyList();
+        java.util.List<dev.auctify.auction.BuyOrder> res = new java.util.ArrayList<>();
+        try (Connection c = dataSource.getConnection();
+                PreparedStatement ps = c
+                        .prepareStatement("SELECT * FROM auctify_buy_orders WHERE buyer_uuid=? AND active=1")) {
+            ps.setString(1, playerUUID.toString());
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    dev.auctify.auction.BuyOrder order = deserializeBuyOrder(rs);
+                    if (order != null)
+                        res.add(order);
+                }
+            }
+        } catch (SQLException e) {
+            logger.log(Level.SEVERE, "Failed to get player buy orders", e);
+        }
+        return res;
+    }
+
+    private dev.auctify.auction.BuyOrder deserializeBuyOrder(ResultSet rs) throws SQLException {
+        try {
+            String id = rs.getString("id");
+            UUID buyerUUID = UUID.fromString(rs.getString("buyer_uuid"));
+            String buyerName = rs.getString("buyer_name");
+            org.bukkit.Material itemType = org.bukkit.Material.valueOf(rs.getString("item_type"));
+            int amount = rs.getInt("amount");
+            double pricePerUnit = rs.getDouble("price_per_unit");
+            long createdAt = rs.getLong("created_at");
+            long expiryTime = rs.getLong("expiry_time");
+
+            dev.auctify.auction.BuyOrder order = new dev.auctify.auction.BuyOrder(
+                    id, buyerUUID, buyerName, itemType, amount, pricePerUnit, createdAt, expiryTime);
+            order.setActive(rs.getInt("active") == 1);
+            return order;
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     // ─── Watchlist Implementation ───────────────────
 
     @Override
     public void addToWatchlist(UUID playerUUID, String listingId) {
-        // TODO: Implement watchlist storage
+        String sql = "INSERT IGNORE INTO auctify_watchlist (player_uuid,listing_id,added_at) VALUES (?,?,?)";
+        try (Connection c = dataSource.getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setString(1, playerUUID.toString());
+            ps.setString(2, listingId);
+            ps.setLong(3, System.currentTimeMillis());
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            logger.log(Level.SEVERE, "Failed to add to watchlist", e);
+        }
     }
 
     @Override
     public void removeFromWatchlist(UUID playerUUID, String listingId) {
-        // TODO: Implement watchlist removal
+        try (Connection c = dataSource.getConnection();
+                PreparedStatement ps = c
+                        .prepareStatement("DELETE FROM auctify_watchlist WHERE player_uuid=? AND listing_id=?")) {
+            ps.setString(1, playerUUID.toString());
+            ps.setString(2, listingId);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            logger.log(Level.SEVERE, "Failed to remove from watchlist", e);
+        }
     }
 
     @Override
     public boolean isInWatchlist(UUID playerUUID, String listingId) {
-        // TODO: Implement watchlist check
+        try (Connection c = dataSource.getConnection();
+                PreparedStatement ps = c
+                        .prepareStatement("SELECT 1 FROM auctify_watchlist WHERE player_uuid=? AND listing_id=?")) {
+            ps.setString(1, playerUUID.toString());
+            ps.setString(2, listingId);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next();
+            }
+        } catch (SQLException e) {
+            logger.log(Level.SEVERE, "Failed to check watchlist", e);
+        }
         return false;
     }
 
     @Override
     public java.util.List<String> getWatchlist(UUID playerUUID) {
-        // TODO: Implement watchlist retrieval
-        return java.util.Collections.emptyList();
+        java.util.List<String> res = new java.util.ArrayList<>();
+        try (Connection c = dataSource.getConnection();
+                PreparedStatement ps = c.prepareStatement(
+                        "SELECT listing_id FROM auctify_watchlist WHERE player_uuid=? ORDER BY added_at DESC")) {
+            ps.setString(1, playerUUID.toString());
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    res.add(rs.getString("listing_id"));
+                }
+            }
+        } catch (SQLException e) {
+            logger.log(Level.SEVERE, "Failed to get watchlist", e);
+        }
+        return res;
     }
 
     @Override
     public void clearWatchlist(UUID playerUUID) {
-        // TODO: Implement watchlist clear
+        try (Connection c = dataSource.getConnection();
+                PreparedStatement ps = c.prepareStatement("DELETE FROM auctify_watchlist WHERE player_uuid=?")) {
+            ps.setString(1, playerUUID.toString());
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            logger.log(Level.SEVERE, "Failed to clear watchlist", e);
+        }
     }
 
     // ─── Pending Buy Order Deliveries ───────────────
 
     @Override
     public void addPendingBuyDelivery(UUID playerUUID, org.bukkit.inventory.ItemStack item, String orderId) {
-        // TODO: Implement pending buy delivery storage for MySQL
+        String sql = "INSERT INTO auctify_pending_buy_deliveries (player_uuid,item_data,order_id,created_at) VALUES (?,?,?,?)";
+        try (Connection c = dataSource.getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setString(1, playerUUID.toString());
+            ps.setString(2, dev.auctify.util.ItemUtil.serializeToBase64(item));
+            ps.setString(3, orderId);
+            ps.setLong(4, System.currentTimeMillis());
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            logger.log(Level.SEVERE, "Failed to save pending buy delivery", e);
+        }
     }
 
     @Override
     public java.util.List<org.bukkit.inventory.ItemStack> getPendingBuyDeliveries(UUID playerUUID) {
-        // TODO: Implement pending buy delivery retrieval for MySQL
-        return java.util.Collections.emptyList();
+        java.util.List<org.bukkit.inventory.ItemStack> res = new java.util.ArrayList<>();
+        try (Connection c = dataSource.getConnection();
+                PreparedStatement ps = c
+                        .prepareStatement("SELECT item_data FROM auctify_pending_buy_deliveries WHERE player_uuid=?")) {
+            ps.setString(1, playerUUID.toString());
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    org.bukkit.inventory.ItemStack item = dev.auctify.util.ItemUtil
+                            .deserializeFromBase64(rs.getString("item_data"));
+                    if (item != null)
+                        res.add(item);
+                }
+            }
+        } catch (SQLException e) {
+            logger.log(Level.SEVERE, "Failed to get pending buy deliveries", e);
+        }
+        return res;
     }
 
     @Override
     public void clearPendingBuyDeliveries(UUID playerUUID) {
-        // TODO: Implement pending buy delivery clear for MySQL
+        try (Connection c = dataSource.getConnection();
+                PreparedStatement ps = c
+                        .prepareStatement("DELETE FROM auctify_pending_buy_deliveries WHERE player_uuid=?")) {
+            ps.setString(1, playerUUID.toString());
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            logger.log(Level.SEVERE, "Failed to clear pending buy deliveries", e);
+        }
     }
 
     // ─── Price History System ─────────────────────────
@@ -873,7 +1011,6 @@ public class MySQLStorage implements StorageManager {
         }
     }
 
-    /** {@inheritDoc} */
     @Override
     public void shutdown() {
         if (dataSource != null && !dataSource.isClosed()) {

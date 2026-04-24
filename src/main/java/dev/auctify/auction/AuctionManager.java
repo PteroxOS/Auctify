@@ -17,16 +17,11 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 /**
- * Central coordinator for all auction operations.
- * All bid/buyout/cancel operations are synchronized per-listing to prevent race conditions.
- */
-
-/**
  * Central coordinator for all auction operations: creating listings, placing
- * bids,
- * buyouts, cancellations, and auction resolution. Holds the in-memory map of
- * active
- * listings and delegates persistence to {@link StorageManager}.
+ * bids, buyouts, cancellations, and auction resolution. Holds the in-memory map
+ * of active listings and delegates persistence to StorageManager. All
+ * bid/buyout/cancel operations are synchronized per-listing to prevent race
+ * conditions.
  */
 public class AuctionManager {
 
@@ -43,9 +38,8 @@ public class AuctionManager {
 
     /**
      * Constructs the AuctionManager and loads non-expired listings from storage.
-     * Does NOT resolve expired listings here — call
-     * {@link #resolveExpiredOnStartup()}
-     * after all managers (especially EconomyManager) are fully initialized.
+     * Does NOT resolve expired listings here — call resolveExpiredOnStartup() after
+     * all managers are initialized.
      */
     public AuctionManager(Auctify plugin, EconomyManager economy, StorageManager storage) {
         this.plugin = plugin;
@@ -62,8 +56,8 @@ public class AuctionManager {
     }
 
     /**
-     * Resolves listings that expired while the server was offline.
-     * Must be called AFTER all managers are initialized (economy hooked).
+     * Resolves listings that expired while the server was offline. Must be called
+     * after all managers are initialized.
      */
     public void resolveExpiredOnStartup() {
         List<AuctionListing> expired = activeListings.values().stream()
@@ -77,9 +71,7 @@ public class AuctionManager {
         }
     }
 
-    /**
-     * Safely deposits money, logging failures and saving to pending refunds.
-     */
+    /** Safely deposits money, logging failures and saving to pending refunds. */
     private void safeDeposit(UUID playerUUID, double amount, String reason) {
         TransactionResult r = economy.deposit(playerUUID, amount);
         if (!r.success()) {
@@ -90,16 +82,7 @@ public class AuctionManager {
         }
     }
 
-    /**
-     * Creates a new auction listing from the item in the seller's hand.
-     *
-     * @param seller          the selling player
-     * @param item            the item to list
-     * @param startPrice      the starting bid price
-     * @param buyoutPrice     the buyout price (0 for no buyout)
-     * @param durationSeconds the auction duration in seconds
-     * @return the listing ID if successful, or null on failure
-     */
+    /** Creates a new auction listing from the item in the seller's hand. */
     public String createListing(Player seller, ItemStack item, double startPrice,
             double buyoutPrice, int durationSeconds) {
         var config = plugin.getConfig();
@@ -268,14 +251,7 @@ public class AuctionManager {
         return id;
     }
 
-    /**
-     * Places a bid on an active listing.
-     *
-     * @param bidder    the bidding player
-     * @param listingId the ID of the listing to bid on
-     * @param amount    the bid amount
-     * @return true if the bid was placed successfully
-     */
+    /** Places a bid on an active listing. */
     public boolean placeBid(Player bidder, String listingId, double amount) {
         AuctionListing listing = activeListings.get(listingId);
         if (listing == null || !listing.isActive() || listing.isExpired()) {
@@ -419,13 +395,7 @@ public class AuctionManager {
         return true;
     }
 
-    /**
-     * Processes a buyout (instant purchase) on a listing.
-     *
-     * @param buyer     the buying player
-     * @param listingId the listing ID
-     * @return true if the buyout was successful
-     */
+    /** Processes a buyout (instant purchase) on a listing. */
     public boolean buyout(Player buyer, String listingId) {
         AuctionListing listing = activeListings.get(listingId);
         if (listing == null || !listing.isActive() || listing.isExpired()) {
@@ -515,13 +485,7 @@ public class AuctionManager {
         return true;
     }
 
-    /**
-     * Cancels an active listing. Only the seller or admin can cancel.
-     *
-     * @param player    the player requesting cancellation
-     * @param listingId the listing ID to cancel
-     * @return true if successfully cancelled
-     */
+    /** Cancels an active listing. Only the seller or admin can cancel. */
     public boolean cancelListing(Player player, String listingId) {
         AuctionListing listing = activeListings.get(listingId);
         if (listing == null || !listing.isActive()) {
@@ -582,10 +546,8 @@ public class AuctionManager {
     }
 
     /**
-     * Resolves an expired or bought-out auction. Handles item delivery,
-     * economy transactions, tax, and notifications.
-     *
-     * @param listing the listing to resolve
+     * Resolves an expired or bought-out auction. Handles item delivery, economy
+     * transactions, tax, and notifications.
      */
     public void resolveAuction(AuctionListing listing) {
         // Double-resolve protection: deactivate and remove FIRST
@@ -737,11 +699,7 @@ public class AuctionManager {
 
     /**
      * Delivers an item to a player. If online, adds to inventory (drops at feet if
-     * full).
-     * If offline, saves to pending deliveries.
-     *
-     * @param playerUUID the recipient's UUID
-     * @param item       the item to deliver
+     * full). If offline, saves to pending deliveries.
      */
     private void deliverItem(UUID playerUUID, ItemStack item) {
         Player player = Bukkit.getPlayer(playerUUID);
@@ -763,12 +721,7 @@ public class AuctionManager {
         }
     }
 
-    /**
-     * Gets all pending deliveries for a player and clears them from storage.
-     *
-     * @param playerUUID the player's UUID
-     * @return list of items to deliver
-     */
+    /** Gets all pending deliveries for a player and clears them from storage. */
     public List<ItemStack> claimPendingDeliveries(UUID playerUUID) {
         // MEDIUM-4: Use atomic claimAndClear to prevent TOCTOU duplication
         if (!claimingPlayers.add(playerUUID)) {
@@ -781,40 +734,22 @@ public class AuctionManager {
         }
     }
 
-    /**
-     * Returns an unmodifiable view of all active listings.
-     *
-     * @return list of active listings
-     */
+    /** Returns an unmodifiable view of all active listings. */
     public List<AuctionListing> getActiveListings() {
         return new ArrayList<>(activeListings.values());
     }
 
-    /**
-     * Gets a listing by its ID.
-     *
-     * @param id the listing ID
-     * @return Optional containing the listing, or empty
-     */
+    /** Gets a listing by its ID. */
     public Optional<AuctionListing> getListingById(String id) {
         return Optional.ofNullable(activeListings.get(id));
     }
 
-    /**
-     * Gets the economy manager.
-     *
-     * @return the EconomyManager
-     */
+    /** Returns the economy manager. */
     public EconomyManager getEconomy() {
         return economy;
     }
 
-    /**
-     * Searches active listings by item name (case-insensitive partial match).
-     *
-     * @param query the search query
-     * @return list of matching listings
-     */
+    /** Searches active listings by item name (case-insensitive partial match). */
     public List<AuctionListing> searchListings(String query) {
         String lower = query.toLowerCase();
         return activeListings.values().stream()
@@ -830,22 +765,12 @@ public class AuctionManager {
                 .collect(Collectors.toList());
     }
 
-    /**
-     * Gets auction history for a player.
-     *
-     * @param playerUUID the player's UUID
-     * @param limit      max records to return
-     * @return list of history records
-     */
+    /** Gets auction history for a player. */
     public List<AuctionHistory> getHistory(UUID playerUUID, int limit) {
         return storage.getHistory(playerUUID, limit);
     }
 
-    /**
-     * Returns all expired active listings for processing by the expiry task.
-     *
-     * @return list of expired listings
-     */
+    /** Returns all expired active listings for processing by the expiry task. */
     public List<AuctionListing> getExpiredListings() {
         return activeListings.values().stream()
                 .filter(l -> l.isActive() && l.isExpired())
@@ -854,9 +779,7 @@ public class AuctionManager {
 
     /**
      * Saves all active listings to storage (for auto-save and graceful shutdown).
-     * This persists remaining time so timers pause while the server is offline.
-     *
-     * @return the number of listings saved
+     * Persists remaining time so timers pause while server is offline.
      */
     public int saveAllListings() {
         int saved = 0;
@@ -880,7 +803,7 @@ public class AuctionManager {
 
     /**
      * Gracefully shuts down: saves all active listings with remaining time intact.
-     * Listings are NOT resolved — they will resume when the server restarts.
+     * Listings are NOT resolved — they will resume when server restarts.
      */
     public void shutdown() {
         int saved = saveAllListings();
@@ -890,8 +813,8 @@ public class AuctionManager {
 
     /**
      * Gets the maximum number of listings allowed for a player based on
-     * permissions.
-     * Permission tiers: auctify.listings.unlimited (ops), .10, .5, default 3
+     * permissions. Permission tiers: auctify.listings.unlimited (ops), .10, .5,
+     * default 3.
      */
     public int getMaxListingsForPlayer(Player player) {
         if (player.isOp() || player.hasPermission("auctify.listings.unlimited")) {
@@ -908,13 +831,8 @@ public class AuctionManager {
     }
 
     /**
-     * Extends the expiry time of an auction if it has no bids.
-     * Seller can extend to keep the auction alive longer.
-     *
-     * @param player    the seller
-     * @param listingId the auction ID
-     * @param minutes   how many minutes to extend
-     * @return true if extended successfully
+     * Extends the expiry time of an auction if it has no bids. Seller can extend to
+     * keep the auction alive longer.
      */
     public boolean extendAuction(Player player, String listingId, int minutes) {
         AuctionListing listing = activeListings.get(listingId);

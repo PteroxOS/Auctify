@@ -6,8 +6,8 @@ import org.bstats.charts.AdvancedPie;
 import org.bstats.charts.SimplePie;
 
 /**
- * bStats Metrics for Auctify plugin analytics.
- * Anonymous usage data to help improve the plugin.
+ * bStats Metrics for Auctify plugin analytics. Anonymous usage data to help
+ * improve the plugin.
  */
 public class MetricsManager {
 
@@ -20,9 +20,7 @@ public class MetricsManager {
         this.plugin = plugin;
     }
 
-    /**
-     * Initializes bStats metrics.
-     */
+    /** Initializes bStats metrics. */
     public void init() {
         // Skip if pluginId not set (0 means disabled)
         if (pluginId == 0) {
@@ -55,24 +53,18 @@ public class MetricsManager {
         }
     }
 
-    /**
-     * Language usage chart.
-     */
+    /** Language usage chart. */
     private void addLanguageChart(Metrics metrics) {
         metrics.addCustomChart(new SimplePie("language", () -> plugin.getConfig().getString("general.language", "en")));
     }
 
-    /**
-     * Storage type usage chart.
-     */
+    /** Storage type usage chart. */
     private void addStorageTypeChart(Metrics metrics) {
         metrics.addCustomChart(
                 new SimplePie("storage_type", () -> plugin.getConfig().getString("storage.type", "sqlite")));
     }
 
-    /**
-     * Average active listings count.
-     */
+    /** Average active listings count. */
     private void addActiveListingsChart(Metrics metrics) {
         metrics.addCustomChart(new SimplePie("active_listings_range", () -> {
             int count = plugin.getAuctionManager().getActiveListings().size();
@@ -90,9 +82,7 @@ public class MetricsManager {
         }));
     }
 
-    /**
-     * Feature usage pie chart.
-     */
+    /** Feature usage pie chart. */
     private void addFeatureUsageChart(Metrics metrics) {
         metrics.addCustomChart(new AdvancedPie("features_enabled", () -> {
             java.util.Map<String, Integer> map = new java.util.HashMap<>();

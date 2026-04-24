@@ -11,9 +11,7 @@ import org.bukkit.inventory.ItemStack;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Handles player join events for pending deliveries and notifications.
- */
+/** Handles player join events for pending deliveries and notifications. */
 public class PlayerJoinListener implements Listener {
 
     private final Auctify plugin;
@@ -25,28 +23,27 @@ public class PlayerJoinListener implements Listener {
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
-        
+
         // Deliver pending buy order items
         deliverPendingBuyOrders(player);
     }
 
-    /**
-     * Delivers pending buy order items to the player.
-     */
+    /** Delivers pending buy order items to the player. */
     private void deliverPendingBuyOrders(Player player) {
         List<ItemStack> pendingItems = plugin.getStorageManager().getPendingBuyDeliveries(player.getUniqueId());
-        
+
         if (pendingItems.isEmpty()) {
             return;
         }
 
         int delivered = 0;
         for (ItemStack item : pendingItems) {
-            if (item == null || item.getType().isAir()) continue;
-            
+            if (item == null || item.getType().isAir())
+                continue;
+
             // Try to add to inventory
             java.util.HashMap<Integer, ItemStack> overflow = player.getInventory().addItem(item);
-            
+
             if (!overflow.isEmpty()) {
                 // Drop items if inventory full
                 for (ItemStack drop : overflow.values()) {
@@ -61,8 +58,7 @@ public class PlayerJoinListener implements Listener {
 
         if (delivered > 0) {
             MessageUtil.send(player, "buyorder-delivered", Map.of(
-                "count", String.valueOf(delivered)
-            ));
+                    "count", String.valueOf(delivered)));
             plugin.getSoundManager().playSuccess(player);
         }
     }

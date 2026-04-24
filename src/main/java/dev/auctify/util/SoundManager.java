@@ -4,9 +4,7 @@ import dev.auctify.Auctify;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 
-/**
- * Manages sound effects for auction events to enhance UX.
- */
+/** Manages sound effects for auction events to enhance UX. */
 public class SoundManager {
 
     private final Auctify plugin;
@@ -17,11 +15,10 @@ public class SoundManager {
         this.enabled = plugin.getConfig().getBoolean("sounds.enabled", true);
     }
 
-    /**
-     * Plays a sound if enabled in config.
-     */
+    /** Plays a sound if enabled in config. */
     private void play(Player player, Sound sound, float volume, float pitch) {
-        if (!enabled || player == null || !player.isOnline()) return;
+        if (!enabled || player == null || !player.isOnline())
+            return;
         try {
             player.playSound(player.getLocation(), sound, volume, pitch);
         } catch (Exception e) {

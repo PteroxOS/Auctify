@@ -9,9 +9,9 @@ import org.bukkit.inventory.ItemStack;
 import java.util.Map;
 
 /**
- * /ac bulksell — Sell multiple stacks of items at once.
- * Usage: /ac bulksell <start_price> <buyout_price> [duration_minutes]
- * Sells all items of the same type as the held item from inventory.
+ * /ac bulksell — Sell multiple stacks of items at once. Usage: /ac bulksell
+ * <start_price> <buyout_price> [duration_minutes]. Sells all items of the same
+ * type as the held item from inventory.
  */
 public class BulkSellSubCommand implements SubCommand {
 

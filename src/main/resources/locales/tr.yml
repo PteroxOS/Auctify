@@ -55,3 +55,52 @@ bulksell-no-items: "§cEnvanterde eşleşen eşya bulunamadı."
 # ─── Statistics ───────────────────────────
 stats-usage: "§cKullanım: /ac stats [oyuncu]"
 stats-viewing: "§e{player} kullanıcısının istatistikleri görüntüleniyor"
+
+# ─── Advanced Search Filters ───────────────
+filter-usage: "§cKullanım: /ac filter <tür> <değer> veya /ac filter clear"
+filter-invalid-type: "§cGeçersiz filtre türü. Kullanılabilir: minprice, maxprice, seller, endtime, sort, clear"
+filter-invalid-price: "§cGeçersiz fiyat değeri."
+filter-invalid-time: "§cGeçersiz zaman değeri (saniye cinsinden olmalı)."
+filter-invalid-sort: "§cGeçersiz sıralama modu. Kullanılabilir: TIME_ASC, TIME_DESC, PRICE_ASC, PRICE_DESC, BIDS, NEWEST, ENDING_SOON"
+filter-minprice-set: "§aMinimum fiyat §f{price} §aolarak ayarlandı"
+filter-maxprice-set: "§aMaksimum fiyat §f{price} §aolarak ayarlandı"
+filter-seller-set: "§aSatıcı filtresi §f{seller} §aolarak ayarlandı"
+filter-endtime-set: "§aBitiş zamanı filtresi şimdiden §f{seconds} §asaniye olarak ayarlandı"
+filter-sort-set: "§aSıralama modu §f{mode} §aolarak ayarlandı"
+filter-cleared: "§aTüm filtreler temizlendi."
+filter-not-in-auction: "§cFiltreleri kullanmak için müzayede evi GUI'sinde olmalısınız."
+
+# ─── Auction Notifications ─────────────────
+notification-outbid: "§c§f{item} §cöğesinde daha yüksek teklif verildi! Yeni teklif: §a{amount}"
+notification-buyout: "§aEşyanız §f{item} §a§6{price} §akarşılığında §e{buyer} §atarafından satın alındı!"
+notification-auction-won: "§a§f{item} §amüzayedesini §6{amount} §ateklifle kazandınız!"
+notification-item-sold: "§aEşyanız §f{item} §a§e{winner} §akullanıcısına §6{amount} §akarşılığında satıldı! §7(§c{tax}% §7vergi sonrası: §a{net}§7)"
+notification-expiration-warning: "§e§f{item} §emüzayedeniz §c{minutes} §edakika içinde sona erecek! §7(ID: §f{listing_id}§7)"
+
+# ─── Notification Preferences ───────────────
+notifications-usage: "§cKullanım: /ac notifications [toggle <tür> | all <on|off>]"
+notifications-invalid-type: "§cGeçersiz bildirim türü. Kullanılabilir: outbid, buyout, auction-won, item-sold, expiration"
+notifications-enabled: "§a{type} bildirimleri etkinleştirildi."
+notifications-disabled: "§c{type} bildirimleri devre dışı bırakıldı."
+notifications-all-enabled: "§aTüm bildirimler etkinleştirildi."
+notifications-all-disabled: "§cTüm bildirimler devre dışı bırakıldı."
+
+# ─── Auto-Bid ─────────────────────────────
+autobid-usage: "§cKullanım: /ac autobid [set <id> <max> | remove <id> | clear]"
+autobid-set: "§aMüzayede §f{id} §aiçin otomatik teklif §6{max} §aolarak ayarlandı"
+autobid-removed: "§aMüzayede §f{id} §aiçin otomatik teklif kaldırıldı"
+autobid-cleared: "§aTüm otomatik teklifler kaldırıldı."
+autobid-not-found: "§cMüzayede §f{id} §ciçin otomatik teklif bulunamadı"
+autobid-own-listing: "§cKendi müzayedenize otomatik teklif veremezsiniz."
+autobid-too-low: "§cMaksimum teklif mevcut tekliften yüksek olmalı: §f{current}"
+autobid-exhausted: "§c§f{item} §aiçin otomatik teklif tükendi (maks: §6{max_bid}§c)"
+autobid-insufficient-funds: "§cOtomatik teklif için yetersiz bakiye: §f{amount}"
+autobid-placed: "§a§f{item} §aiçin §6{amount} §aile otomatik teklif verildi (§e{remaining} §akaldı)"
+
+# ─── Price History ────────────────────────
+pricehistory-usage: "§cKullanım: /ac pricehistory [eşya_türü]"
+pricehistory-no-data: "§cFiyat geçmişi verisi yok."
+pricehistory-viewing: "§e§f{item_type} §eiçin fiyat geçmişi görüntüleniyor"
+
+# ─── Admin Commands ───────────────────────
+usage-blacklist: "§cKullanım: /ac admin blacklist <add|remove|list> [item|oyuncu]"

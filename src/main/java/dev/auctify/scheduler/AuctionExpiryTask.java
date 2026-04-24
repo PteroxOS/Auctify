@@ -9,16 +9,14 @@ import java.util.List;
 /**
  * Repeating task that checks for expired auctions every second (20 ticks).
  * Collects expired listings into a separate list first to avoid
- * ConcurrentModificationException,
- * then resolves each one via the AuctionManager.
+ * ConcurrentModificationException, then resolves each one via the
+ * AuctionManager.
  */
 public class AuctionExpiryTask extends BukkitRunnable {
 
     private final Auctify plugin;
 
-    /**
-     * @param plugin the main plugin instance
-     */
+    /** Constructor. */
     public AuctionExpiryTask(Auctify plugin) {
         this.plugin = plugin;
     }

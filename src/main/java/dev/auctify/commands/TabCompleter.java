@@ -12,8 +12,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * Tab completion handler for the /ac command.
- * Provides context-aware suggestions for subcommands and their arguments.
+ * Tab completion handler for the /ac command. Provides context-aware
+ * suggestions for subcommands and their arguments.
  */
 public class TabCompleter implements org.bukkit.command.TabCompleter {
 
@@ -26,14 +26,12 @@ public class TabCompleter implements org.bukkit.command.TabCompleter {
             "bidhistory", "extend", "bulkcancel", "watchlist", "ping",
             "buyorder", "stats", "bulksell", "filter", "notifications", "autobid", "pricehistory");
 
-    /** @param plugin the main plugin instance */
+    /** Constructor. */
     public TabCompleter(Auctify plugin) {
         this.plugin = plugin;
     }
 
-    /**
-     * Provides tab completion suggestions based on the current input.
-     */
+    /** Provides tab completion suggestions based on the current input. */
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
         if (args.length == 1) {

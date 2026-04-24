@@ -200,3 +200,52 @@ bulksell-no-items: "§cAucun item correspondant trouvé dans l'inventaire."
 # ─── Statistics ───────────────────────────
 stats-usage: "§cUsage: /ac stats [joueur]"
 stats-viewing: "§eAffichage des stats de §f{player}"
+
+# ─── Advanced Search Filters ───────────────
+filter-usage: "§cUsage: /ac filter <type> <valeur> ou /ac filter clear"
+filter-invalid-type: "§cType de filtre invalide. Disponibles: minprice, maxprice, seller, endtime, sort, clear"
+filter-invalid-price: "§cValeur de prix invalide."
+filter-invalid-time: "§cValeur de temps invalide (doit être en secondes)."
+filter-invalid-sort: "§cMode de tri invalide. Disponibles: TIME_ASC, TIME_DESC, PRICE_ASC, PRICE_DESC, BIDS, NEWEST, ENDING_SOON"
+filter-minprice-set: "§aPrix minimum défini à §f{price}"
+filter-maxprice-set: "§aPrix maximum défini à §f{price}"
+filter-seller-set: "§aFiltre vendeur défini à §f{seller}"
+filter-endtime-set: "§aFiltre temps de fin défini à §f{seconds} secondes à partir de maintenant"
+filter-sort-set: "§aMode de tri défini à §f{mode}"
+filter-cleared: "§aTous les filtres effacés."
+filter-not-in-auction: "§cVous devez être dans la GUI de la maison des enchères pour utiliser les filtres."
+
+# ─── Auction Notifications ─────────────────
+notification-outbid: "§cVous avez été surenchéri sur §f{item}§c! Nouvelle enchère: §a{amount}"
+notification-buyout: "§aVotre item §f{item} §aa été acheté pour §6{price} §apar §e{buyer}§a!"
+notification-auction-won: "§aVous avez gagné l'enchère pour §f{item} §apour §6{amount}§a!"
+notification-item-sold: "§aVotre item §f{item} §aa été vendu à §e{winner} §apour §6{amount}§a! §7(Après §c{tax}% §7de taxe: §a{net}§7)"
+notification-expiration-warning: "§eVotre enchère pour §f{item} §eexpire dans §c{minutes} minutes§e! §7(ID: §f{listing_id}§7)"
+
+# ─── Notification Preferences ───────────────
+notifications-usage: "§cUsage: /ac notifications [toggle <type> | all <on|off>]"
+notifications-invalid-type: "§cType de notification invalide. Disponibles: outbid, buyout, auction-won, item-sold, expiration"
+notifications-enabled: "§aNotifications {type} activées."
+notifications-disabled: "§cNotifications {type} désactivées."
+notifications-all-enabled: "§aToutes les notifications activées."
+notifications-all-disabled: "§cToutes les notifications désactivées."
+
+# ─── Auto-Bid ─────────────────────────────
+autobid-usage: "§cUsage: /ac autobid [set <id> <max> | remove <id> | clear]"
+autobid-set: "§aAuto-enchère définie pour l'enchère §f{id} §ajusqu'à §6{max}"
+autobid-removed: "§aAuto-enchère supprimée pour l'enchère §f{id}"
+autobid-cleared: "§aToutes les auto-enchères supprimées."
+autobid-not-found: "§cAuto-enchère non trouvée pour l'enchère §f{id}"
+autobid-own-listing: "§cVous ne pouvez pas auto-enchérir sur votre propre enchère."
+autobid-too-low: "§cL'enchère maximale doit être supérieure à l'enchère actuelle: §f{current}"
+autobid-exhausted: "§cAuto-enchère épuisée pour §f{item} §c(max: §6{max_bid}§c)"
+autobid-insufficient-funds: "§cFonds insuffisants pour auto-enchère: §f{amount}"
+autobid-placed: "§aAuto-enchère placée pour §f{item} §aà §6{amount} §a(§e{remaining} restant§a)"
+
+# ─── Price History ────────────────────────
+pricehistory-usage: "§cUsage: /ac pricehistory [type_item]"
+pricehistory-no-data: "§cAucune donnée d'historique de prix."
+pricehistory-viewing: "§eAffichage de l'historique des prix pour §f{item_type}"
+
+# ─── Admin Commands ───────────────────────
+usage-blacklist: "§cUsage: /ac admin blacklist <add|remove|list> [item|joueur]"

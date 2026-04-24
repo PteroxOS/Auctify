@@ -94,3 +94,24 @@ CREATE TABLE IF NOT EXISTS auctify_pending_buy_deliveries (
     order_id TEXT NOT NULL,
     created_at INTEGER NOT NULL
 );
+
+-- Price history for tracking item prices over time
+CREATE TABLE IF NOT EXISTS auctify_price_history (
+    id TEXT PRIMARY KEY,
+    item_material TEXT NOT NULL,
+    item_name TEXT NOT NULL,
+    final_price REAL NOT NULL,
+    seller_name TEXT NOT NULL,
+    winner_name TEXT,
+    timestamp INTEGER NOT NULL
+);
+
+-- Auto-bid configurations for players
+CREATE TABLE IF NOT EXISTS auctify_auto_bid (
+    player_uuid TEXT NOT NULL,
+    player_name TEXT NOT NULL,
+    listing_id TEXT NOT NULL,
+    max_bid_amount REAL NOT NULL,
+    created_at INTEGER NOT NULL,
+    PRIMARY KEY (player_uuid, listing_id)
+);

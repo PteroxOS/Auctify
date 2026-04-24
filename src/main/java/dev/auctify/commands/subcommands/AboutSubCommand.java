@@ -6,19 +6,18 @@ import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 
 /**
- * Handles the /ac about command.
- * Shows detailed plugin information, credits, and server stats.
+ * Handles the /ac about command. Shows detailed plugin information, credits,
+ * and server stats.
  */
 public class AboutSubCommand implements SubCommand {
 
     private final Auctify plugin;
 
-    /** @param plugin the main plugin instance */
+    /** Constructor. */
     public AboutSubCommand(Auctify plugin) {
         this.plugin = plugin;
     }
 
-    /** {@inheritDoc} */
     @Override
     public void execute(CommandSender sender, String[] args) {
         if (!sender.hasPermission("auctify.about")) {
@@ -73,7 +72,6 @@ public class AboutSubCommand implements SubCommand {
         return text + " ".repeat(width - text.length());
     }
 
-    /** {@inheritDoc} */
     @Override
     public boolean isPlayerOnly() {
         return false; // Console can view about too

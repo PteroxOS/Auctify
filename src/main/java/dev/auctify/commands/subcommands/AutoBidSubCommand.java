@@ -10,9 +10,7 @@ import org.bukkit.entity.Player;
 import java.util.Map;
 import java.util.UUID;
 
-/**
- * Handles the /ac autobid command for managing auto-bid configurations.
- */
+/** Handles the /ac autobid command for managing auto-bid configurations. */
 public class AutoBidSubCommand implements SubCommand {
 
     private final Auctify plugin;

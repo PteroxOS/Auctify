@@ -39,7 +39,8 @@ public class ClaimGUI {
         // Place pending items
         int slot = 0;
         for (ItemStack item : pending) {
-            if (slot >= size - 9) break; // Leave bottom row for navigation
+            if (slot >= size - 9)
+                break; // Leave bottom row for navigation
             inv.setItem(slot++, item);
         }
 

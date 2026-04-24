@@ -15,9 +15,9 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Listens for chat messages from players in search-input mode.
- * When a player is awaiting search input, their chat message is intercepted
- * and used as the search query.
+ * Listens for chat messages from players in search-input mode. When a player is
+ * awaiting search input, their chat message is intercepted and used as the
+ * search query.
  */
 public class ChatSearchListener implements Listener {
 
@@ -31,19 +31,13 @@ public class ChatSearchListener implements Listener {
         plugin.getServer().getScheduler().runTaskTimer(plugin, this::cleanupExpiredSearchInputs, 20L * 30, 20L * 30);
     }
 
-    /**
-     * Puts a player into search-input mode.
-     *
-     * @param player the player
-     */
+    /** Puts a player into search-input mode. */
     public void startSearchInput(Player player) {
         searchInputStartTime.put(player.getUniqueId(), System.currentTimeMillis());
         MessageUtil.send(player, "search-prompt", null);
     }
 
-    /**
-     * Removes expired search-input entries.
-     */
+    /** Removes expired search-input entries. */
     private void cleanupExpiredSearchInputs() {
         long now = System.currentTimeMillis();
         long timeoutMs = searchTimeoutSeconds * 1000L;

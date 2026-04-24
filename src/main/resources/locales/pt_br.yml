@@ -200,3 +200,52 @@ bulksell-no-items: "§cNenhum item correspondente encontrado no inventário."
 # ─── Statistics ───────────────────────────
 stats-usage: "§cUso: /ac stats [jogador]"
 stats-viewing: "§eVendo estatísticas de §f{player}"
+
+# ─── Advanced Search Filters ───────────────
+filter-usage: "§cUso: /ac filter <tipo> <valor> ou /ac filter clear"
+filter-invalid-type: "§cTipo de filtro inválido. Disponíveis: minprice, maxprice, seller, endtime, sort, clear"
+filter-invalid-price: "§cValor de preço inválido."
+filter-invalid-time: "§cValor de tempo inválido (deve estar em segundos)."
+filter-invalid-sort: "§cModo de ordenação inválido. Disponíveis: TIME_ASC, TIME_DESC, PRICE_ASC, PRICE_DESC, BIDS, NEWEST, ENDING_SOON"
+filter-minprice-set: "§aPreço mínimo definido para §f{price}"
+filter-maxprice-set: "§aPreço máximo definido para §f{price}"
+filter-seller-set: "§aFiltro de vendedor definido para §f{seller}"
+filter-endtime-set: "§aFiltro de tempo final definido para §f{seconds} segundos a partir de agora"
+filter-sort-set: "§aModo de ordenação definido para §f{mode}"
+filter-cleared: "§aTodos os filtros limpos."
+filter-not-in-auction: "§cVocê deve estar na GUI da casa de leilões para usar filtros."
+
+# ─── Auction Notifications ─────────────────
+notification-outbid: "§cVocê foi superado em §f{item}§c! Novo lance: §a{amount}"
+notification-buyout: "§aSeu item §f{item} §afoi comprado por §6{price} §apor §e{buyer}§a!"
+notification-auction-won: "§aVocê ganhou o leilão de §f{item} §apor §6{amount}§a!"
+notification-item-sold: "§aSeu item §f{item} §afoi vendido para §e{winner} §apor §6{amount}§a! §7(Após §c{tax}% §7de imposto: §a{net}§7)"
+notification-expiration-warning: "§eSeu leilão de §f{item} §eexpira em §c{minutes} minutos§e! §7(ID: §f{listing_id}§7)"
+
+# ─── Notification Preferences ───────────────
+notifications-usage: "§cUso: /ac notifications [toggle <tipo> | all <on|off>]"
+notifications-invalid-type: "§cTipo de notificação inválido. Disponíveis: outbid, buyout, auction-won, item-sold, expiration"
+notifications-enabled: "§aNotificações {type} ativadas."
+notifications-disabled: "§cNotificações {type} desativadas."
+notifications-all-enabled: "§aTodas as notificações ativadas."
+notifications-all-disabled: "§cTodas as notificações desativadas."
+
+# ─── Auto-Bid ─────────────────────────────
+autobid-usage: "§cUso: /ac autobid [set <id> <max> | remove <id> | clear]"
+autobid-set: "§aAuto-lance definido para leilão §f{id} §aaté §6{max}"
+autobid-removed: "§aAuto-lance removido para leilão §f{id}"
+autobid-cleared: "§aTodos os auto-lances removidos."
+autobid-not-found: "§cAuto-lance não encontrado para leilão §f{id}"
+autobid-own-listing: "§cVocê não pode auto-lancear no seu próprio leilão."
+autobid-too-low: "§cO lance máximo deve ser maior que o lance atual: §f{current}"
+autobid-exhausted: "§cAuto-lance esgotado para §f{item} §c(max: §6{max_bid}§c)"
+autobid-insufficient-funds: "§cFundos insuficientes para auto-lance: §f{amount}"
+autobid-placed: "§aAuto-lance colocado para §f{item} §aem §6{amount} §a(§e{remaining} restante§a)"
+
+# ─── Price History ────────────────────────
+pricehistory-usage: "§cUso: /ac pricehistory [tipo_item]"
+pricehistory-no-data: "§cNenhum dado de histórico de preços."
+pricehistory-viewing: "§eVendo histórico de preços para §f{item_type}"
+
+# ─── Admin Commands ───────────────────────
+usage-blacklist: "§cUso: /ac admin blacklist <add|remove|list> [item|jogador]"

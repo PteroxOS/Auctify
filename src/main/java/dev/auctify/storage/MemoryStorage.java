@@ -14,9 +14,9 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 
 /**
- * In-memory implementation of {@link StorageManager}.
- * Data is lost on server restart — suitable for development and testing only.
- * All operations are thread-safe via concurrent collections.
+ * In-memory implementation of StorageManager. Data is lost on server restart —
+ * suitable for development and testing only. All operations are thread-safe via
+ * concurrent collections.
  */
 public class MemoryStorage implements StorageManager {
 

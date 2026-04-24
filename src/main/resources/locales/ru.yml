@@ -200,3 +200,52 @@ bulksell-no-items: "§cПодходящих предметов в инвента
 # ─── Statistics ───────────────────────────
 stats-usage: "§cИспользование: /ac stats [игрок]"
 stats-viewing: "§eПросмотр статистики игрока §f{player}"
+
+# ─── Advanced Search Filters ───────────────
+filter-usage: "§cИспользование: /ac filter <тип> <значение> или /ac filter clear"
+filter-invalid-type: "§cНеверный тип фильтра. Доступны: minprice, maxprice, seller, endtime, sort, clear"
+filter-invalid-price: "§cНеверное значение цены."
+filter-invalid-time: "§cНеверное значение времени (должно быть в секундах)."
+filter-invalid-sort: "§cНеверный режим сортировки. Доступны: TIME_ASC, TIME_DESC, PRICE_ASC, PRICE_DESC, BIDS, NEWEST, ENDING_SOON"
+filter-minprice-set: "§aМинимальная цена установлена на §f{price}"
+filter-maxprice-set: "§aМаксимальная цена установлена на §f{price}"
+filter-seller-set: "§aФильтр продавца установлен на §f{seller}"
+filter-endtime-set: "§aФильтр времени окончания установлен на §f{seconds} секунд от сейчас"
+filter-sort-set: "§aРежим сортировки установлен на §f{mode}"
+filter-cleared: "§aВсе фильтры очищены."
+filter-not-in-auction: "§cВы должны быть в GUI аукционного дома для использования фильтров."
+
+# ─── Auction Notifications ─────────────────
+notification-outbid: "§cВас перебили на §f{item}§c! Новая ставка: §a{amount}"
+notification-buyout: "§aВаш предмет §f{item} §aбыл куплен за §6{price} §aигроком §e{buyer}§a!"
+notification-auction-won: "§aВы выиграли аукцион на §f{item} §аза §6{amount}§a!"
+notification-item-sold: "§aВаш предмет §f{item} §aпродан §e{winner} §aza §6{amount}§a! §7(После §c{tax}% §7налога: §a{net}§7)"
+notification-expiration-warning: "§eВаш аукцион на §f{item} §eистекает через §c{minutes} минут§e! §7(ID: §f{listing_id}§7)"
+
+# ─── Notification Preferences ───────────────
+notifications-usage: "§cИспользование: /ac notifications [toggle <тип> | all <on|off>]"
+notifications-invalid-type: "§cНеверный тип уведомления. Доступны: outbid, buyout, auction-won, item-sold, expiration"
+notifications-enabled: "§aУведомления {type} включены."
+notifications-disabled: "§cУведомления {type} отключены."
+notifications-all-enabled: "§aВсе уведомления включены."
+notifications-all-disabled: "§cВсе уведомления отключены."
+
+# ─── Auto-Bid ─────────────────────────────
+autobid-usage: "§cИспользование: /ac autobid [set <id> <max> | remove <id> | clear]"
+autobid-set: "§aАвто-ставка установлена для аукциона §f{id} §ado §6{max}"
+autobid-removed: "§aАвто-ставка удалена для аукциона §f{id}"
+autobid-cleared: "§aВсе авто-ставки удалены."
+autobid-not-found: "§cАвто-ставка не найдена для аукциона §f{id}"
+autobid-own-listing: "§cВы не можете авто-ставить на свой собственный аукцион."
+autobid-too-low: "§cМаксимальная ставка должна быть выше текущей ставки: §f{current}"
+autobid-exhausted: "§cАвто-ставка исчерпана для §f{item} §c(max: §6{max_bid}§c)"
+autobid-insufficient-funds: "§cНедостаточно средств для авто-ставки: §f{amount}"
+autobid-placed: "§aАвто-ставка размещена для §f{item} §aна §6{amount} §a(§e{remaining} осталось§a)"
+
+# ─── Price History ────────────────────────
+pricehistory-usage: "§cИспользование: /ac pricehistory [тип_предмета]"
+pricehistory-no-data: "§cНет данных истории цен."
+pricehistory-viewing: "§eПросмотр истории цен для §f{item_type}"
+
+# ─── Admin Commands ───────────────────────
+usage-blacklist: "§cИспользование: /ac admin blacklist <add|remove|list> [item|игрок]"

@@ -11,9 +11,8 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 
 /**
- * Utility for sending Discord webhook embeds.
- * All HTTP calls are performed asynchronously to avoid blocking the main
- * thread.
+ * Utility for sending Discord webhook embeds. All HTTP calls are performed
+ * asynchronously to avoid blocking the main thread.
  */
 public class DiscordWebhookUtil {
 
@@ -23,9 +22,7 @@ public class DiscordWebhookUtil {
         this.plugin = plugin;
     }
 
-    /**
-     * Sends an embed for a newly created listing.
-     */
+    /** Sends an embed for a newly created listing. */
     public void sendNewListingEmbed(String seller, String item, String startPrice, String buyoutPrice) {
         FileConfiguration config = plugin.getConfig();
         if (!config.getBoolean("discord.enabled", false))
@@ -49,9 +46,7 @@ public class DiscordWebhookUtil {
         sendAsync(webhookUrl, jsonPayload);
     }
 
-    /**
-     * Sends an embed for a successfully sold listing.
-     */
+    /** Sends an embed for a successfully sold listing. */
     public void sendSoldEmbed(String seller, String winner, String item, String finalPrice) {
         FileConfiguration config = plugin.getConfig();
         if (!config.getBoolean("discord.enabled", false))
@@ -75,9 +70,7 @@ public class DiscordWebhookUtil {
         sendAsync(webhookUrl, jsonPayload);
     }
 
-    /**
-     * Sends an embed for an expired listing (ended without bids).
-     */
+    /** Sends an embed for an expired listing (ended without bids). */
     public void sendExpiredEmbed(String seller, String item, String startPrice) {
         FileConfiguration config = plugin.getConfig();
         if (!config.getBoolean("discord.enabled", false))
@@ -101,9 +94,7 @@ public class DiscordWebhookUtil {
         sendAsync(webhookUrl, jsonPayload);
     }
 
-    /**
-     * Validates and returns the webhook URL, or null if invalid/placeholder.
-     */
+    /** Validates and returns the webhook URL, or null if invalid/placeholder. */
     private String getWebhookUrl(FileConfiguration config) {
         String url = config.getString("discord.webhook-url", "");
         if (url == null || url.trim().isEmpty()) {
@@ -122,9 +113,7 @@ public class DiscordWebhookUtil {
         return url;
     }
 
-    /**
-     * Builds a JSON embed payload with player head as icon.
-     */
+    /** Builds a JSON embed payload with player head as icon. */
     private String buildJson(String title, int color, String playerName, String... fields) {
         StringBuilder fieldsJson = new StringBuilder();
         for (int i = 0; i < fields.length; i++) {
@@ -151,9 +140,7 @@ public class DiscordWebhookUtil {
                 + "}]}";
     }
 
-    /**
-     * Creates a JSON field string.
-     */
+    /** Creates a JSON field string. */
     private String field(String name, String value, boolean inline) {
         return "{\"name\":\"" + escapeJson(name) + "\",\"value\":\"" + escapeJson(value)
                 + "\",\"inline\":" + inline + "}";
@@ -197,9 +184,7 @@ public class DiscordWebhookUtil {
         });
     }
 
-    /**
-     * Sends a crash notification to the crash webhook.
-     */
+    /** Sends a crash notification to the crash webhook. */
     public void sendCrashNotification(String timestamp, String exceptionType, String message) {
         FileConfiguration config = plugin.getConfig();
         if (!config.getBoolean("discord.crash-webhook.enabled", false))

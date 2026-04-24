@@ -13,9 +13,8 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Handles the /ac search command.
- * Usage: /ac search &lt;query&gt;
- * Searches by item name or seller name (case-insensitive).
+ * Handles the /ac search command. Usage: /ac search <query>. Searches by item
+ * name or seller name (case-insensitive).
  */
 public class SearchSubCommand implements SubCommand {
 
@@ -25,12 +24,11 @@ public class SearchSubCommand implements SubCommand {
     private final Map<UUID, Long> cooldowns = new ConcurrentHashMap<>();
     private static final long COOLDOWN_MS = 1500;
 
-    /** @param plugin the main plugin instance */
+    /** Constructor. */
     public SearchSubCommand(Auctify plugin) {
         this.plugin = plugin;
     }
 
-    /** {@inheritDoc} */
     @Override
     public void execute(CommandSender sender, String[] args) {
         Player player = (Player) sender;
@@ -75,7 +73,6 @@ public class SearchSubCommand implements SubCommand {
         }
     }
 
-    /** {@inheritDoc} */
     @Override
     public boolean isPlayerOnly() {
         return true;

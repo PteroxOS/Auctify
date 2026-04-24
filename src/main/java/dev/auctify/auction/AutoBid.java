@@ -3,8 +3,9 @@ package dev.auctify.auction;
 import java.util.UUID;
 
 /**
- * Represents an auto-bid configuration for a player on a specific listing.
- * When the player is outbid, the system will automatically bid up to their max amount.
+ * Represents an auto-bid configuration for a player on a specific listing. When
+ * the player is outbid, the system will automatically bid up to their max
+ * amount.
  */
 public class AutoBid {
 

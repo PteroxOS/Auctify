@@ -6,19 +6,18 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 /**
- * Handles the /ac bid command for direct CLI bidding.
- * Usage: /ac bid &lt;listing_id&gt; &lt;amount&gt;
+ * Handles the /ac bid command for direct CLI bidding. Usage: /ac bid
+ * <listing_id> <amount>
  */
 public class BidSubCommand implements SubCommand {
 
     private final Auctify plugin;
 
-    /** @param plugin the main plugin instance */
+    /** Constructor. */
     public BidSubCommand(Auctify plugin) {
         this.plugin = plugin;
     }
 
-    /** {@inheritDoc} */
     @Override
     public void execute(CommandSender sender, String[] args) {
         if (!(sender instanceof Player player)) {
@@ -58,7 +57,6 @@ public class BidSubCommand implements SubCommand {
         plugin.getAuctionManager().placeBid(player, listingId, amount);
     }
 
-    /** {@inheritDoc} */
     @Override
     public boolean isPlayerOnly() {
         return true;

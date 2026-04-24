@@ -15,19 +15,12 @@ import java.util.logging.Logger;
 
 /**
  * Manages automatic downloading of plugin dependencies.
- * Dependencies are split into two categories:
- * <ul>
- *   <li><b>REQUIRED</b> — Plugin cannot function without these.
- *       If missing and download fails, the plugin will disable itself.</li>
- *   <li><b>OPTIONAL</b> — Extra features that enhance the plugin.
- *       If missing, plugin continues normally without those features.</li>
- * </ul>
- *
- * <p>Downloads missing jars from configured URLs into the server's plugins folder.
- * All downloads happen on the main thread during startup (before the server is
- * fully loaded) to ensure dependencies are available when needed.</p>
- *
- * <p>Controlled by the {@code dependencies.auto-download} config toggle.</p>
+ * Dependencies are split into two categories: REQUIRED (plugin cannot function
+ * without these) and OPTIONAL (extra features).
+ * Downloads missing jars from configured URLs into the server's plugins folder.
+ * All downloads happen on the main thread during startup to ensure dependencies
+ * are available when needed.
+ * Controlled by the dependencies.auto-download config toggle.
  */
 public class DependencyManager {
 
@@ -36,8 +29,8 @@ public class DependencyManager {
 
     static {
         // ═══════════════════════════════════════════
-        //  REQUIRED DEPENDENCIES
-        //  Plugin will DISABLE if these are missing
+        // REQUIRED DEPENDENCIES
+        // Plugin will DISABLE if these are missing
         // ═══════════════════════════════════════════
         KNOWN_DEPS.put("Vault", new DependencyInfo(
                 "Vault",
@@ -48,8 +41,8 @@ public class DependencyManager {
         ));
 
         // ═══════════════════════════════════════════
-        //  OPTIONAL DEPENDENCIES
-        //  Plugin works without these, but features are limited
+        // OPTIONAL DEPENDENCIES
+        // Plugin works without these, but features are limited
         // ═══════════════════════════════════════════
         KNOWN_DEPS.put("PlaceholderAPI", new DependencyInfo(
                 "PlaceholderAPI",
@@ -70,23 +63,16 @@ public class DependencyManager {
     private final JavaPlugin plugin;
     private final Logger logger;
 
-    /**
-     * Creates a new DependencyManager.
-     *
-     * @param plugin the main plugin instance
-     */
+    /** Constructor. */
     public DependencyManager(JavaPlugin plugin) {
         this.plugin = plugin;
         this.logger = plugin.getLogger();
     }
 
     /**
-     * Checks for missing dependencies and downloads them if auto-download is enabled.
-     * Should be called during {@code onEnable()} before any managers are initialized.
-     *
-     * @return true if all REQUIRED dependencies are present (or were downloaded),
-     *         false if any REQUIRED dependency is missing and could not be obtained.
-     *         When false is returned, the caller should disable the plugin.
+     * Checks for missing dependencies and downloads them if auto-download is
+     * enabled. Should be called during onEnable() before any managers are
+     * initialized.
      */
     public boolean checkAndDownload() {
         boolean autoDownload = plugin.getConfig().getBoolean("dependencies.auto-download", true);
@@ -183,17 +169,19 @@ public class DependencyManager {
     }
 
     /**
-     * Searches for a jar file by name, also checking for versioned filenames.
-     * For example, finds "PlaceholderAPI-2.11.6.jar" when looking for "PlaceholderAPI".
+     * Searches for a jar file by name, also checking for versioned filenames. For
+     * example, finds "PlaceholderAPI-2.11.6.jar" when looking for "PlaceholderAPI".
      */
     private File findJarFile(File pluginsDir, String pluginName, String defaultFileName) {
         // Check exact filename first
         File exact = new File(pluginsDir, defaultFileName);
-        if (exact.exists()) return exact;
+        if (exact.exists())
+            return exact;
 
-        // Check for versioned filenames (e.g., "Vault-1.7.3.jar", "PlaceholderAPI-2.11.6.jar")
-        File[] files = pluginsDir.listFiles((dir, name) ->
-                name.toLowerCase().startsWith(pluginName.toLowerCase()) && name.endsWith(".jar"));
+        // Check for versioned filenames (e.g., "Vault-1.7.3.jar",
+        // "PlaceholderAPI-2.11.6.jar")
+        File[] files = pluginsDir.listFiles(
+                (dir, name) -> name.toLowerCase().startsWith(pluginName.toLowerCase()) && name.endsWith(".jar"));
         if (files != null && files.length > 0) {
             return files[0];
         }
@@ -202,12 +190,8 @@ public class DependencyManager {
     }
 
     /**
-     * Downloads a file from a URL to a local destination.
-     * Follows HTTP redirects (301, 302, 307, 308) up to 5 times.
-     *
-     * @param urlStr      the download URL
-     * @param destination the local file to save to
-     * @return true if the download was successful
+     * Downloads a file from a URL to a local destination. Follows HTTP redirects
+     * (301, 302, 307, 308) up to 5 times.
      */
     private boolean downloadFile(String urlStr, File destination) {
         try {
@@ -231,7 +215,7 @@ public class DependencyManager {
 
             // Stream the download to disk
             try (InputStream in = connection.getInputStream();
-                 FileOutputStream out = new FileOutputStream(destination)) {
+                    FileOutputStream out = new FileOutputStream(destination)) {
 
                 byte[] buffer = new byte[8192];
                 int bytesRead;
@@ -262,11 +246,6 @@ public class DependencyManager {
     /**
      * Opens an HTTP connection, following redirects up to maxRedirects times.
      * GitHub releases use redirects (302 → S3), so this is essential.
-     *
-     * @param urlStr       the URL to connect to
-     * @param maxRedirects maximum number of redirects to follow
-     * @return the final HttpURLConnection, or null if too many redirects
-     * @throws IOException if a connection error occurs
      */
     private HttpURLConnection openConnectionWithRedirects(String urlStr, int maxRedirects) throws IOException {
         for (int i = 0; i < maxRedirects; i++) {
@@ -307,16 +286,8 @@ public class DependencyManager {
         return null;
     }
 
-    /**
-     * Immutable record holding info about a downloadable dependency.
-     *
-     * @param pluginName  the Bukkit plugin name to check for
-     * @param fileName    the jar filename to save as
-     * @param url         the download URL
-     * @param description a human-readable description
-     * @param required    whether this dependency is required (true) or optional (false)
-     */
+    /** Immutable record holding info about a downloadable dependency. */
     private record DependencyInfo(String pluginName, String fileName, String url,
-                                   String description, boolean required) {
+            String description, boolean required) {
     }
 }

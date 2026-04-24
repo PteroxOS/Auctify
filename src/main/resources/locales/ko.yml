@@ -55,3 +55,52 @@ bulksell-no-items: "§c인벤토리에 일치하는 아이템이 없습니다."
 # ─── Statistics ───────────────────────────
 stats-usage: "§c사용법: /ac stats [플레이어]"
 stats-viewing: "§e§f{player}§e님의 통계 보기"
+
+# ─── Advanced Search Filters ───────────────
+filter-usage: "§c사용법: /ac filter <타입> <값> 또는 /ac filter clear"
+filter-invalid-type: "§c잘못된 필터 타입. 사용 가능: minprice, maxprice, seller, endtime, sort, clear"
+filter-invalid-price: "§c잘못된 가격 값."
+filter-invalid-time: "§c잘못된 시간 값 (초 단위여야 합니다)."
+filter-invalid-sort: "§c잘못된 정렬 모드. 사용 가능: TIME_ASC, TIME_DESC, PRICE_ASC, PRICE_DESC, BIDS, NEWEST, ENDING_SOON"
+filter-minprice-set: "§a최소 가격을 §f{price}§a로 설정"
+filter-maxprice-set: "§a최대 가격을 §f{price}§a로 설정"
+filter-seller-set: "§a판매자 필터를 §f{seller}§a로 설정"
+filter-endtime-set: "§a종료 시간 필터를 현재부터 §f{seconds}§a초로 설정"
+filter-sort-set: "§a정렬 모드를 §f{mode}§a로 설정"
+filter-cleared: "§a모든 필터가 지워졌습니다."
+filter-not-in-auction: "§c필터를 사용하려면 경매장 GUI에 있어야 합니다."
+
+# ─── Auction Notifications ─────────────────
+notification-outbid: "§c§f{item} §c에서 더 높은 입찰이 들어왔습니다! 새 입찰: §a{amount}"
+notification-buyout: "§a당신의 아이템 §f{item} §a이(가) §6{price} §a에 §e{buyer}§a님에게 구매되었습니다!"
+notification-auction-won: "§a§f{item} §a경매를 §6{amount} §a에 낙찰받았습니다!"
+notification-item-sold: "§a당신의 아이템 §f{item} §a이(가) §e{winner} §a에게 §6{amount} §a에 판매되었습니다! §7(§c{tax}% §7세금 후: §a{net}§7)"
+notification-expiration-warning: "§e당신의 §f{item} §e경매가 §c{minutes} §e분 후 종료됩니다! §7(ID: §f{listing_id}§7)"
+
+# ─── Notification Preferences ───────────────
+notifications-usage: "§c사용법: /ac notifications [toggle <타입> | all <on|off>]"
+notifications-invalid-type: "§c잘못된 알림 타입. 사용 가능: outbid, buyout, auction-won, item-sold, expiration"
+notifications-enabled: "§a알림 {type}이(가) 활성화되었습니다."
+notifications-disabled: "§c알림 {type}이(가) 비활성화되었습니다."
+notifications-all-enabled: "§a모든 알림이 활성화되었습니다."
+notifications-all-disabled: "§c모든 알림이 비활성화되었습니다."
+
+# ─── Auto-Bid ─────────────────────────────
+autobid-usage: "§c사용법: /ac autobid [set <id> <max> | remove <id> | clear]"
+autobid-set: "§a경매 §f{id} §a의 자동 입찰을 §6{max}§a까지 설정"
+autobid-removed: "§a경매 §f{id} §a의 자동 입찰을 제거"
+autobid-cleared: "§a모든 자동 입찰을 제거했습니다."
+autobid-not-found: "§c경매 §f{id} §c의 자동 입찰을 찾을 수 없습니다"
+autobid-own-listing: "§c자신의 경매에는 자동 입찰할 수 없습니다."
+autobid-too-low: "§c최대 입찰가는 현재 입찰가보다 높아야 합니다: §f{current}"
+autobid-exhausted: "§c§f{item} §c의 자동 입찰이 소진되었습니다 (최대: §6{max_bid}§c)"
+autobid-insufficient-funds: "§c자동 입찰 자금이 부족합니다: §f{amount}"
+autobid-placed: "§a§f{item} §a에 §6{amount} §a로 자동 입찰을 배치했습니다 (§e{remaining} §a남음)"
+
+# ─── Price History ────────────────────────
+pricehistory-usage: "§c사용법: /ac pricehistory [아이템_타입]"
+pricehistory-no-data: "§c가격 기록 데이터가 없습니다."
+pricehistory-viewing: "§e§f{item_type} §e의 가격 기록 보기"
+
+# ─── Admin Commands ───────────────────────
+usage-blacklist: "§c사용법: /ac admin blacklist <add|remove|list> [item|player]"

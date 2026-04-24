@@ -12,7 +12,6 @@ import dev.auctify.gui.ManageListingGUI;
 import dev.auctify.gui.ShulkerPreviewGUI;
 import dev.auctify.gui.RateGUI;
 import dev.auctify.gui.AdminGUI;
-import dev.auctify.gui.StatsGUI;
 import dev.auctify.gui.GUIManager;
 import dev.auctify.listeners.ChatBidListener;
 import dev.auctify.listeners.ChatSearchListener;
@@ -36,11 +35,7 @@ import java.util.logging.Logger;
 /**
  * Main plugin class for Auctify — a professional live auction house plugin.
  * Initializes all managers in dependency order, registers commands and
- * listeners,
- * and handles graceful shutdown with item preservation.
- *
- * @author Jephyruu
- * @version 1.0.0
+ * listeners, and handles graceful shutdown with item preservation.
  */
 public class Auctify extends JavaPlugin {
 
@@ -121,9 +116,7 @@ public class Auctify extends JavaPlugin {
 
     /**
      * Called when the plugin is enabled. Initializes everything in dependency
-     * order:
-     * Config → Banner → Dependencies → Economy → Storage → AuctionManager → GUI →
-     * Commands → Listeners → Tasks
+     * order.
      */
     @Override
     public void onEnable() {
@@ -314,11 +307,7 @@ public class Auctify extends JavaPlugin {
         log.info("");
     }
 
-    /**
-     * Prints a summary of the startup process including timing and status.
-     *
-     * @param elapsedMs the time taken to enable the plugin in milliseconds
-     */
+    /** Prints a summary of the startup process including timing and status. */
     private void printStartupSummary(long elapsedMs) {
         Logger log = getLogger();
         String storageType = getConfig().getString("storage.type", "sqlite").toUpperCase();
@@ -351,11 +340,7 @@ public class Auctify extends JavaPlugin {
         return text + " ".repeat(padWidth - text.length());
     }
 
-    /**
-     * Creates the appropriate StorageManager based on the config setting.
-     *
-     * @return the configured storage manager instance
-     */
+    /** Creates the appropriate StorageManager based on the config setting. */
     private StorageManager createStorageManager() {
         String type = getConfig().getString("storage.type", "sqlite").toLowerCase();
         return switch (type) {
@@ -374,9 +359,7 @@ public class Auctify extends JavaPlugin {
         };
     }
 
-    /**
-     * Registers the /ac command and its tab completer.
-     */
+    /** Registers the /ac command and its tab completer. */
     private void registerCommands() {
         PluginCommand acCommand = getCommand("ac");
         if (acCommand != null) {
@@ -388,9 +371,7 @@ public class Auctify extends JavaPlugin {
         }
     }
 
-    /**
-     * Registers all event listeners with the plugin manager.
-     */
+    /** Registers all event listeners with the plugin manager. */
     private void registerListeners() {
         chatBidListener = new ChatBidListener(this);
         chatSearchListener = new ChatSearchListener(this);
@@ -398,62 +379,62 @@ public class Auctify extends JavaPlugin {
         getServer().getPluginManager().registerEvents(chatBidListener, this);
         getServer().getPluginManager().registerEvents(chatSearchListener, this);
         getServer().getPluginManager().registerEvents(new PlayerQuitListener(this), this);
-        getServer().getPluginManager().registerEvents(new StatsGUIListener(), this);
+        getServer().getPluginManager().registerEvents(new StatsGUIListener(this), this);
         getServer().getPluginManager().registerEvents(new PlayerJoinListener(this), this);
         getServer().getPluginManager().registerEvents(new InventoryCloseListener(this), this);
     }
 
-    /** @return the economy manager */
+    /** Returns the economy manager. */
     public EconomyManager getEconomyManager() {
         return economyManager;
     }
 
-    /** @return the storage manager */
+    /** Returns the storage manager. */
     public StorageManager getStorageManager() {
         return storageManager;
     }
 
-    /** @return the auction manager */
+    /** Returns the auction manager. */
     public AuctionManager getAuctionManager() {
         return auctionManager;
     }
 
-    /** @return the setup wizard */
+    /** Returns the setup wizard. */
     public SetupWizard getSetupWizard() {
         return setupWizard;
     }
 
-    /** @return the GUI state manager */
+    /** Returns the GUI state manager. */
     public GUIManager getGUIManager() {
         return guiManager;
     }
 
-    /** @return the main auction GUI builder */
+    /** Returns the main auction GUI builder. */
     public AuctionGUI getAuctionGUI() {
         return auctionGUI;
     }
 
-    /** @return the bid confirmation GUI builder */
+    /** Returns the bid confirmation GUI builder. */
     public ConfirmBidGUI getConfirmBidGUI() {
         return confirmBidGUI;
     }
 
-    /** @return the item detail GUI builder */
+    /** Returns the item detail GUI builder. */
     public ItemDetailGUI getItemDetailGUI() {
         return itemDetailGUI;
     }
 
-    /** @return the manage listing GUI builder */
+    /** Returns the manage listing GUI builder. */
     public dev.auctify.gui.ManageListingGUI getManageListingGUI() {
         return manageListingGUI;
     }
 
-    /** @return the chat bid listener (for starting bid input mode) */
+    /** Returns the chat bid listener (for starting bid input mode). */
     public ChatBidListener getChatBidListener() {
         return chatBidListener;
     }
 
-    /** @return the chat search listener (for search via GUI) */
+    /** Returns the chat search listener (for search via GUI). */
     public ChatSearchListener getChatSearchListener() {
         return chatSearchListener;
     }
@@ -462,52 +443,52 @@ public class Auctify extends JavaPlugin {
         return discordWebhookUtil;
     }
 
-    /** @return the claim/mailbox GUI builder */
+    /** Returns the claim/mailbox GUI builder. */
     public ClaimGUI getClaimGUI() {
         return claimGUI;
     }
 
-    /** @return the shulker preview GUI builder */
+    /** Returns the shulker preview GUI builder. */
     public ShulkerPreviewGUI getShulkerPreviewGUI() {
         return shulkerPreviewGUI;
     }
 
-    /** @return the rating GUI builder */
+    /** Returns the rating GUI builder. */
     public RateGUI getRateGUI() {
         return rateGUI;
     }
 
-    /** @return the admin GUI builder */
+    /** Returns the admin GUI builder. */
     public AdminGUI getAdminGUI() {
         return adminGUI;
     }
 
-    /** @return the world manager for per-world auction house */
+    /** Returns the world manager for per-world auction house. */
     public dev.auctify.util.WorldManager getWorldManager() {
         return worldManager;
     }
 
-    /** @return the logger manager for transaction logs */
+    /** Returns the logger manager for transaction logs. */
     public dev.auctify.util.LoggerManager getLoggerManager() {
         return loggerManager;
     }
 
-    /** @return the sound manager for auction sound effects */
+    /** Returns the sound manager for auction sound effects. */
     public dev.auctify.util.SoundManager getSoundManager() {
         return soundManager;
     }
 
-    /** @return the buy order manager for WTB system */
+    /** Returns the buy order manager for WTB system. */
     public dev.auctify.auction.BuyOrderManager getBuyOrderManager() {
         return buyOrderManager;
     }
 
-    /** @return the notification manager */
+    /** Returns the notification manager. */
     public NotificationManager getNotificationManager() {
         return notificationManager;
     }
 
-    /** @return the statistics GUI builder */
+    /** Returns the statistics GUI builder. */
     public dev.auctify.gui.StatsGUI getStatsGUI() {
         return statsGUI;
     }

@@ -7,20 +7,16 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
-/**
- * Handles the /ac sell command.
- * Usage: /ac sell &lt;price&gt; [buyout] [duration]
- */
+/** Handles the /ac sell command. Usage: /ac sell <price> [buyout] [duration] */
 public class SellSubCommand implements SubCommand {
 
     private final Auctify plugin;
 
-    /** @param plugin the main plugin instance */
+    /** Constructor. */
     public SellSubCommand(Auctify plugin) {
         this.plugin = plugin;
     }
 
-    /** {@inheritDoc} */
     @Override
     public void execute(CommandSender sender, String[] args) {
         if (!(sender instanceof Player player)) {
@@ -100,7 +96,6 @@ public class SellSubCommand implements SubCommand {
         plugin.getAuctionManager().createListing(player, item, startPrice, buyoutPrice, duration);
     }
 
-    /** {@inheritDoc} */
     @Override
     public boolean isPlayerOnly() {
         return true;

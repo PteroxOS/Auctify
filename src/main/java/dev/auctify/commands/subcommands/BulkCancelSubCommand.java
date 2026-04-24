@@ -8,9 +8,8 @@ import org.bukkit.entity.Player;
 import java.util.Map;
 
 /**
- * Handles the /ac bulkcancel command.
- * Usage: /ac bulkcancel
- * Cancels all active listings owned by the player (only those without bids).
+ * Handles the /ac bulkcancel command. Usage: /ac bulkcancel. Cancels all active
+ * listings owned by the player (only those without bids).
  */
 public class BulkCancelSubCommand implements SubCommand {
 
@@ -20,13 +19,11 @@ public class BulkCancelSubCommand implements SubCommand {
         this.plugin = plugin;
     }
 
-    /** {@inheritDoc} */
     @Override
     public boolean isPlayerOnly() {
         return true;
     }
 
-    /** {@inheritDoc} */
     @Override
     public void execute(CommandSender sender, String[] args) {
         Player player = (Player) sender;

@@ -22,29 +22,25 @@ import java.util.Map;
 import java.util.Optional;
 
 /**
- * Handles all inventory click events within Auctify GUIs.
- * Uses {@link AuctifyHolder} as the primary detection method for Auctify GUIs.
- * This ensures clicks are ALWAYS cancelled even when the GUIManager state
- * is cleared during inventory transitions.
- *
- * <p>
- * The GUIManager is still used for routing logic (which sub-handler to call),
- * but the holder-based check is the security gate.
- * </p>
+ * Handles all inventory click events within Auctify GUIs. Uses AuctifyHolder as
+ * the primary detection method for Auctify GUIs. This ensures clicks are ALWAYS
+ * cancelled even when the GUIManager state is cleared during inventory
+ * transitions. The GUIManager is still used for routing logic, but the
+ * holder-based check is the security gate.
  */
 public class GUIClickListener implements Listener {
 
     private final Auctify plugin;
 
-    /** @param plugin the main plugin instance */
+    /** Constructor. */
     public GUIClickListener(Auctify plugin) {
         this.plugin = plugin;
     }
 
     /**
-     * Main click handler. Uses AuctifyHolder to detect Auctify GUIs
-     * and unconditionally cancels ALL clicks. Then routes to the
-     * correct handler based on the holder's GUI type.
+     * Main click handler. Uses AuctifyHolder to detect Auctify GUIs and
+     * unconditionally cancels ALL clicks. Then routes to the correct handler based
+     * on the holder's GUI type.
      */
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = false)
     public void onInventoryClick(InventoryClickEvent event) {

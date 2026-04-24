@@ -55,3 +55,52 @@ bulksell-no-items: "§cNie znaleziono pasujących przedmiotów w ekwipunku."
 # ─── Statistics ───────────────────────────
 stats-usage: "§cUżycie: /ac stats [gracz]"
 stats-viewing: "§eWyświetlanie statystyk gracza §f{player}"
+
+# ─── Advanced Search Filters ───────────────
+filter-usage: "§cUżycie: /ac filter <typ> <wartość> lub /ac filter clear"
+filter-invalid-type: "§cNieprawidłowy typ filtra. Dostępne: minprice, maxprice, seller, endtime, sort, clear"
+filter-invalid-price: "§cNieprawidłowa wartość ceny."
+filter-invalid-time: "§cNieprawidłowa wartość czasu (musi być w sekundach)."
+filter-invalid-sort: "§cNieprawidłowy tryb sortowania. Dostępne: TIME_ASC, TIME_DESC, PRICE_ASC, PRICE_DESC, BIDS, NEWEST, ENDING_SOON"
+filter-minprice-set: "§aMinimalna cena ustawiona na §f{price}"
+filter-maxprice-set: "§aMaksymalna cena ustawiona na §f{price}"
+filter-seller-set: "§aFiltr sprzedawcy ustawiony na §f{seller}"
+filter-endtime-set: "§aFiltr czasu końca ustawiony na §f{seconds} sekund od teraz"
+filter-sort-set: "§aTryb sortowania ustawiony na §f{mode}"
+filter-cleared: "§aWszystkie filtry wyczyszczone."
+filter-not-in-auction: "§cMusisz być w GUI domu aukcyjnego, aby używać filtrów."
+
+# ─── Auction Notifications ─────────────────
+notification-outbid: "§cZostałeś przebił w §f{item}§c! Nowa oferta: §a{amount}"
+notification-buyout: "§aTwój przedmiot §f{item} §azostał kupiony za §6{price} §aprzez §e{buyer}§a!"
+notification-auction-won: "§aWygrałeś aukcję na §f{item} §aza §6{amount}§a!"
+notification-item-sold: "§aTwój przedmiot §f{item} §azostał sprzedany graczowi §e{winner} §aza §6{amount}§a! §7(Po §c{tax}% §7podatku: §a{net}§7)"
+notification-expiration-warning: "§eTwoja aukcja na §f{item} §ewygasa za §c{minutes} minut§e! §7(ID: §f{listing_id}§7)"
+
+# ─── Notification Preferences ───────────────
+notifications-usage: "§cUżycie: /ac notifications [toggle <typ> | all <on|off>]"
+notifications-invalid-type: "§cNieprawidłowy typ powiadomienia. Dostępne: outbid, buyout, auction-won, item-sold, expiration"
+notifications-enabled: "§aPowiadomienia {type} włączone."
+notifications-disabled: "§cPowiadomienia {type} wyłączone."
+notifications-all-enabled: "§aWszystkie powiadomienia włączone."
+notifications-all-disabled: "§cWszystkie powiadomienia wyłączone."
+
+# ─── Auto-Bid ─────────────────────────────
+autobid-usage: "§cUżycie: /ac autobid [set <id> <max> | remove <id> | clear]"
+autobid-set: "§aAuto-oferta ustawiona dla aukcji §f{id} §ado §6{max}"
+autobid-removed: "§aAuto-oferta usunięta dla aukcji §f{id}"
+autobid-cleared: "§aWszystkie auto-oferty usunięte."
+autobid-not-found: "§cNie znaleziono auto-oferty dla aukcji §f{id}"
+autobid-own-listing: "§cNie możesz auto-ofertować na własnej aukcji."
+autobid-too-low: "§cMaksymalna oferta musi być wyższa niż obecna oferta: §f{current}"
+autobid-exhausted: "§cAuto-oferta wyczerpana dla §f{item} §c(max: §6{max_bid}§c)"
+autobid-insufficient-funds: "§cNiewystarczające środki na auto-ofertę: §f{amount}"
+autobid-placed: "§aAuto-oferta złożona dla §f{item} §ana §6{amount} §a(§e{remaining} pozostało§a)"
+
+# ─── Price History ────────────────────────
+pricehistory-usage: "§cUżycie: /ac pricehistory [typ_przedmiotu]"
+pricehistory-no-data: "§cBrak danych historii cen."
+pricehistory-viewing: "§eWyświetlanie historii cen dla §f{item_type}"
+
+# ─── Admin Commands ───────────────────────
+usage-blacklist: "§cUżycie: /ac admin blacklist <add|remove|list> [item|gracz]"

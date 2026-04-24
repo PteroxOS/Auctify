@@ -5,20 +5,16 @@ import dev.auctify.util.MessageUtil;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-/**
- * Handles the /ac cancel command.
- * Usage: /ac cancel &lt;listing_id&gt;
- */
+/** Handles the /ac cancel command. Usage: /ac cancel <listing_id> */
 public class CancelSubCommand implements SubCommand {
 
     private final Auctify plugin;
 
-    /** @param plugin the main plugin instance */
+    /** Constructor. */
     public CancelSubCommand(Auctify plugin) {
         this.plugin = plugin;
     }
 
-    /** {@inheritDoc} */
     @Override
     public void execute(CommandSender sender, String[] args) {
         if (!(sender instanceof Player player)) {
@@ -38,7 +34,6 @@ public class CancelSubCommand implements SubCommand {
         plugin.getAuctionManager().cancelListing(player, args[1]);
     }
 
-    /** {@inheritDoc} */
     @Override
     public boolean isPlayerOnly() {
         return true;

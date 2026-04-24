@@ -4,8 +4,8 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 /**
- * Represents a historical record of a completed auction sale.
- * Used for price tracking and trend analysis.
+ * Represents a historical record of a completed auction sale. Used for price
+ * tracking and trend analysis.
  */
 public class PriceHistory {
 
@@ -18,7 +18,7 @@ public class PriceHistory {
     private final long timestamp;
 
     public PriceHistory(String id, String itemMaterial, String itemName, double finalPrice,
-                       String sellerName, String winnerName, long timestamp) {
+            String sellerName, String winnerName, long timestamp) {
         this.id = id;
         this.itemMaterial = itemMaterial;
         this.itemName = itemName;
@@ -59,8 +59,7 @@ public class PriceHistory {
     public String getFormattedDate() {
         LocalDateTime dateTime = LocalDateTime.ofInstant(
                 java.time.Instant.ofEpochMilli(timestamp),
-                java.time.ZoneId.systemDefault()
-        );
+                java.time.ZoneId.systemDefault());
         return dateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
     }
 }

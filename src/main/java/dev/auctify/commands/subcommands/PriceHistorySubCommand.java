@@ -6,9 +6,7 @@ import dev.auctify.util.MessageUtil;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-/**
- * Handles the /ac pricehistory command for viewing price trends.
- */
+/** Handles the /ac pricehistory command for viewing price trends. */
 public class PriceHistorySubCommand implements SubCommand {
 
     private final Auctify plugin;

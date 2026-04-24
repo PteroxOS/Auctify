@@ -12,9 +12,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Root command dispatcher for the /ac command.
- * Running /ac with no args opens the auction GUI directly (for players).
- * Routes subcommands to their respective handlers.
+ * Root command dispatcher for the /ac command. Running /ac with no args opens
+ * the auction GUI directly (for players). Routes subcommands to their
+ * respective handlers.
  */
 public class AuctifyCommand implements CommandExecutor {
 
@@ -23,11 +23,7 @@ public class AuctifyCommand implements CommandExecutor {
     /** Map of subcommand names to their handler instances. */
     private final Map<String, SubCommand> subCommands = new HashMap<>();
 
-    /**
-     * Registers all subcommands.
-     *
-     * @param plugin the main plugin instance
-     */
+    /** Registers all subcommands. */
     public AuctifyCommand(Auctify plugin) {
         this.plugin = plugin;
 
@@ -57,10 +53,7 @@ public class AuctifyCommand implements CommandExecutor {
         // Setup wizard is handled directly in onCommand
     }
 
-    /**
-     * Dispatches the /ac command to the appropriate subcommand handler.
-     * Running /ac with no args opens the GUI directly for players.
-     */
+    /** Dispatches the /ac command to the appropriate subcommand handler. */
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         // No args → open GUI directly for players, show help for console
@@ -137,9 +130,7 @@ public class AuctifyCommand implements CommandExecutor {
         return true;
     }
 
-    /**
-     * Sends the help menu with all available subcommands.
-     */
+    /** Sends the help menu with all available subcommands. */
     private void sendHelpMenu(CommandSender sender) {
         MessageUtil.sendRaw(sender, "");
         MessageUtil.sendRaw(sender, "§6§l✦ AUCTIFY §8— §7Command Reference");
@@ -166,11 +157,7 @@ public class AuctifyCommand implements CommandExecutor {
         MessageUtil.sendRaw(sender, "");
     }
 
-    /**
-     * Returns the subcommand map for tab completion.
-     *
-     * @return the map of subcommand names to handlers
-     */
+    /** Returns the subcommand map for tab completion. */
     public Map<String, SubCommand> getSubCommands() {
         return subCommands;
     }

@@ -10,11 +10,10 @@ import org.bukkit.inventory.ItemStack;
 import java.util.Map;
 
 /**
- * /ac buyorder — Manage buy orders (WTB system).
- * Usage: /ac buyorder create <price per unit> — Creates buy order for held item
- * /ac buyorder list — List your active buy orders
- * /ac buyorder cancel <id> — Cancel a buy order
- * /ac buyorder browse — Browse active buy orders from others
+ * /ac buyorder — Manage buy orders (WTB system). Usage: /ac buyorder create
+ * <price per unit> — Creates buy order for held item, /ac buyorder list — List
+ * your active buy orders, /ac buyorder cancel <id> — Cancel a buy order, /ac
+ * buyorder browse — Browse active buy orders from others.
  */
 public class BuyOrderSubCommand implements SubCommand {
 

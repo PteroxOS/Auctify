@@ -11,15 +11,12 @@ import java.util.UUID;
 import java.util.logging.Logger;
 
 /**
- * Wraps Vault's {@link Economy} provider with comprehensive null safety.
+ * Wraps Vault's Economy provider with comprehensive null safety.
  * Never throws unchecked exceptions to callers — instead returns
- * {@link TransactionResult}
+ * TransactionResult
  * objects with descriptive success/failure states.
- *
- * <p>
  * If Vault or an economy provider is not found at startup, all methods
- * gracefully return failure results and log appropriate warnings.
- * </p>
+ * gracefully return failure results.
  */
 public class EconomyManager {
 
@@ -35,8 +32,6 @@ public class EconomyManager {
     /**
      * Creates a new EconomyManager and attempts to hook into Vault's economy
      * provider.
-     *
-     * @param plugin the main plugin instance for service registration lookup
      */
     public EconomyManager(JavaPlugin plugin) {
         this.logger = plugin.getLogger();
@@ -47,8 +42,6 @@ public class EconomyManager {
     /**
      * Attempts to hook into the Vault economy provider via Bukkit's service
      * manager.
-     * If Vault is not installed or no economy plugin is registered, logs a warning
-     * and sets {@code economyAvailable} to false.
      */
     private void setupEconomy() {
         // Check if Vault plugin is present on the server
@@ -70,13 +63,7 @@ public class EconomyManager {
         logger.info("Successfully hooked into economy provider: " + economy.getName());
     }
 
-    /**
-     * Deposits money into a player's account.
-     *
-     * @param playerUUID the UUID of the player to deposit to
-     * @param amount     the amount to deposit (must be positive)
-     * @return a TransactionResult indicating success or failure with reason
-     */
+    /** Deposits money into a player's account. */
     public TransactionResult deposit(UUID playerUUID, double amount) {
         if (!economyAvailable) {
             return TransactionResult.failure("Economy is not available.");
@@ -95,13 +82,7 @@ public class EconomyManager {
         }
     }
 
-    /**
-     * Withdraws money from a player's account.
-     *
-     * @param playerUUID the UUID of the player to withdraw from
-     * @param amount     the amount to withdraw (must be positive)
-     * @return a TransactionResult indicating success or failure with reason
-     */
+    /** Withdraws money from a player's account. */
     public TransactionResult withdraw(UUID playerUUID, double amount) {
         if (!economyAvailable) {
             return TransactionResult.failure("Economy is not available.");
@@ -126,12 +107,7 @@ public class EconomyManager {
         }
     }
 
-    /**
-     * Gets the balance of a player's account.
-     *
-     * @param playerUUID the UUID of the player
-     * @return the player's balance, or 0.0 if economy is unavailable
-     */
+    /** Gets the balance of a player's account. */
     public double getBalance(UUID playerUUID) {
         if (!economyAvailable) {
             return 0.0;
@@ -140,14 +116,7 @@ public class EconomyManager {
         return economy.getBalance(player);
     }
 
-    /**
-     * Checks whether a player has at least the specified amount of money.
-     *
-     * @param playerUUID the UUID of the player
-     * @param amount     the amount to check against
-     * @return true if the player has sufficient funds, false otherwise or if
-     *         economy unavailable
-     */
+    /** Checks whether a player has at least the specified amount of money. */
     public boolean has(UUID playerUUID, double amount) {
         if (!economyAvailable) {
             return false;
@@ -157,11 +126,8 @@ public class EconomyManager {
     }
 
     /**
-     * Formats an amount using Vault's currency formatting.
-     * Falls back to a simple two-decimal format if economy is unavailable.
-     *
-     * @param amount the amount to format
-     * @return the formatted currency string (e.g., "$1,000.00")
+     * Formats an amount using Vault's currency formatting. Falls back to simple
+     * two-decimal format if economy is unavailable.
      */
     public String format(double amount) {
         if (!economyAvailable) {
@@ -170,25 +136,12 @@ public class EconomyManager {
         return economy.format(amount);
     }
 
-    /**
-     * Returns whether a valid economy provider is available.
-     *
-     * @return true if Vault and an economy provider are hooked
-     */
+    /** Returns whether a valid economy provider is available. */
     public boolean isAvailable() {
         return economyAvailable;
     }
 
-    /**
-     * Deposits an amount into a named server/bank account via Vault.
-     * If the account does not exist and the economy provider supports it, it will
-     * be created.
-     *
-     * @param accountName the Vault account name (from config:
-     *                    economy.tax-account-name)
-     * @param amount      the amount to deposit
-     * @return TransactionResult indicating success or failure
-     */
+    /** Deposits an amount into a named server/bank account via Vault. */
     public TransactionResult depositToAccount(String accountName, double amount) {
         if (!economyAvailable) {
             return TransactionResult.failure("Economy not available");

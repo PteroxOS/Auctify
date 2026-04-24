@@ -55,3 +55,52 @@ bulksell-no-items: "§cインベントリに一致するアイテムがありま
 # ─── Statistics ───────────────────────────
 stats-usage: "§c使い方：/ac stats [プレイヤー]"
 stats-viewing: "§e§f{player} §eの統計を表示中"
+
+# ─── Advanced Search Filters ───────────────
+filter-usage: "§c使い方：/ac filter <タイプ> <値> または /ac filter clear"
+filter-invalid-type: "§c無効なフィルタータイプ。使用可能: minprice, maxprice, seller, endtime, sort, clear"
+filter-invalid-price: "§c無効な価格値。"
+filter-invalid-time: "§c無効な時間値（秒単位である必要があります）。"
+filter-invalid-sort: "§c無効なソートモード。使用可能: TIME_ASC, TIME_DESC, PRICE_ASC, PRICE_DESC, BIDS, NEWEST, ENDING_SOON"
+filter-minprice-set: "§a最低価格を §f{price} §aに設定"
+filter-maxprice-set: "§a最高価格を §f{price} §aに設定"
+filter-seller-set: "§a出品者フィルターを §f{seller} §aに設定"
+filter-endtime-set: "§a終了時間フィルターを現在から §f{seconds} §a秒に設定"
+filter-sort-set: "§aソートモードを §f{mode} §aに設定"
+filter-cleared: "§aすべてのフィルターをクリアしました。"
+filter-not-in-auction: "§cフィルターを使用するにはオークションハウスのGUIにいる必要があります。"
+
+# ─── Auction Notifications ─────────────────
+notification-outbid: "§c§f{item} §cで上回られました！新しい入札: §a{amount}"
+notification-buyout: "§aあなたのアイテム §f{item} §aが §6{price} §aで §e{buyer}§a に購入されました！"
+notification-auction-won: "§a§f{item} §aのオークションを §6{amount} §aで落札しました！"
+notification-item-sold: "§aあなたのアイテム §f{item} §aが §e{winner} §aに §6{amount} §aで売れました！ §7(§c{tax}% §7の税金後: §a{net}§7)"
+notification-expiration-warning: "§eあなたの §f{item} §eのオークションが §c{minutes} §e分で終了します！ §7(ID: §f{listing_id}§7)"
+
+# ─── Notification Preferences ───────────────
+notifications-usage: "§c使い方：/ac notifications [toggle <タイプ> | all <on|off>]"
+notifications-invalid-type: "§c無効な通知タイプ。使用可能: outbid, buyout, auction-won, item-sold, expiration"
+notifications-enabled: "§a通知 {type} が有効になりました。"
+notifications-disabled: "§c通知 {type} が無効になりました。"
+notifications-all-enabled: "§aすべての通知が有効になりました。"
+notifications-all-disabled: "§cすべての通知が無効になりました。"
+
+# ─── Auto-Bid ─────────────────────────────
+autobid-usage: "§c使い方：/ac autobid [set <id> <max> | remove <id> | clear]"
+autobid-set: "§aオークション §f{id} §aの自動入札を §6{max} §aまで設定"
+autobid-removed: "§aオークション §f{id} §aの自動入札を削除"
+autobid-cleared: "§aすべての自動入札を削除しました。"
+autobid-not-found: "§cオークション §f{id} §cの自動入札が見つかりません"
+autobid-own-listing: "§c自分のオークションには自動入札できません。"
+autobid-too-low: "§c最大入札額は現在の入札額より高くする必要があります: §f{current}"
+autobid-exhausted: "§c§f{item} §cの自動入札が尽きました (最大: §6{max_bid}§c)"
+autobid-insufficient-funds: "§c自動入札の資金が不足しています: §f{amount}"
+autobid-placed: "§a§f{item} §aに §6{amount} §aで自動入札を配置しました (§e{remaining} §a残り)"
+
+# ─── Price History ────────────────────────
+pricehistory-usage: "§c使い方：/ac pricehistory [アイテムタイプ]"
+pricehistory-no-data: "§c価格履歴データがありません。"
+pricehistory-viewing: "§e§f{item_type} §eの価格履歴を表示中"
+
+# ─── Admin Commands ───────────────────────
+usage-blacklist: "§c使い方：/ac admin blacklist <add|remove|list> [item|player]"

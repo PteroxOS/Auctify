@@ -5,15 +5,10 @@ import org.bukkit.inventory.InventoryHolder;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * Custom InventoryHolder that marks an inventory as belonging to Auctify.
- * This is the most reliable way to detect Auctify GUIs because it survives
- * across all inventory events regardless of GUIManager state.
- *
- * <p>
- * Every GUI created by Auctify (Main, Confirm, Detail, Manage) must use
- * this holder so that {@link dev.auctify.listeners.GUIClickListener} can
- * unconditionally cancel all clicks, preventing item theft.
- * </p>
+ * Custom InventoryHolder that marks an inventory as belonging to Auctify. This
+ * is the most reliable way to detect Auctify GUIs because it survives across
+ * all inventory events. Every GUI created by Auctify must use this holder so
+ * GUIClickListener can unconditionally cancel all clicks.
  */
 public class AuctifyHolder implements InventoryHolder {
 
@@ -53,12 +48,7 @@ public class AuctifyHolder implements InventoryHolder {
     /** Optional: Target player UUID for admin views. */
     private String targetPlayerUUID;
 
-    /**
-     * Creates a new AuctifyHolder for a specific GUI type.
-     *
-     * @param guiType the GUI type identifier (e.g., "MAIN", "CONFIRM", "DETAIL",
-     *                "MANAGE", "CLAIM", "ADMIN", "SHULKER", "RATE")
-     */
+    /** Creates a new AuctifyHolder for a specific GUI type. */
     public AuctifyHolder(String guiType) {
         this.guiType = guiType;
     }
@@ -148,8 +138,8 @@ public class AuctifyHolder implements InventoryHolder {
     }
 
     /**
-     * Not used — Bukkit requires this method but we never need to retrieve
-     * the inventory from the holder.
+     * Not used — Bukkit requires this method but we never need to retrieve the
+     * inventory from the holder.
      */
     @Override
     public @NotNull Inventory getInventory() {

@@ -13,11 +13,10 @@ import java.util.Map;
 
 /**
  * Utility class for sending formatted messages to players.
- * Reads message templates from the {@code locales/} folder based on the
- * language setting,
- * replaces placeholders in {@code {key}} format, prepends the configured
- * prefix,
- * and sends the result as an Adventure Component.
+ * Reads message templates from the locales/ folder based on the language
+ * setting,
+ * replaces placeholders in {key} format, prepends the configured prefix, and
+ * sends the result as an Adventure Component.
  */
 public final class MessageUtil {
 
@@ -28,19 +27,13 @@ public final class MessageUtil {
         throw new UnsupportedOperationException("Utility class cannot be instantiated.");
     }
 
-    /**
-     * Initializes the MessageUtil and loads the configured language file.
-     *
-     * @param pluginInstance the main Auctify plugin instance
-     */
+    /** Initializes the MessageUtil and loads the configured language file. */
     public static void init(JavaPlugin pluginInstance) {
         plugin = pluginInstance;
         reload();
     }
 
-    /**
-     * Reloads the language file based on the config setting.
-     */
+    /** Reloads the language file based on the config setting. */
     public static void reload() {
         String lang = plugin.getConfig().getString("general.language", "en");
         File localesFolder = new File(plugin.getDataFolder(), "locales");
@@ -93,14 +86,7 @@ public final class MessageUtil {
         }
     }
 
-    /**
-     * Sends a message to a player using a key from the locale file.
-     *
-     * @param sender       the recipient of the message
-     * @param key          the message key (e.g., "bid-success")
-     * @param placeholders a map of placeholder keys (without braces) to replacement
-     *                     values
-     */
+    /** Sends a message to a player using a key from the locale file. */
     public static void send(CommandSender sender, String key, Map<String, String> placeholders) {
         if (sender == null || plugin == null || messagesConfig == null)
             return;
@@ -122,12 +108,7 @@ public final class MessageUtil {
         sender.sendMessage(ColorUtil.toComponent(prefix + message));
     }
 
-    /**
-     * Retrieves a raw message string from the locale file.
-     *
-     * @param key the message key
-     * @return the message string, or empty string if not found
-     */
+    /** Retrieves a raw message string from the locale file. */
     public static String getMessage(String key) {
         if (plugin == null || messagesConfig == null)
             return "";
@@ -135,9 +116,7 @@ public final class MessageUtil {
         return messagesConfig.getString(key, "");
     }
 
-    /**
-     * Sends a raw string message to a player with the configured prefix.
-     */
+    /** Sends a raw string message to a player with the configured prefix. */
     public static void sendRaw(CommandSender sender, String message) {
         if (sender == null || plugin == null)
             return;
@@ -146,8 +125,8 @@ public final class MessageUtil {
     }
 
     /**
-     * Sends a message WITHOUT prefix (for UI formatting like borders).
-     * Use this for wizard interfaces where prefix would break alignment.
+     * Sends a message WITHOUT prefix (for UI formatting like borders). Use this for
+     * wizard interfaces where prefix would break alignment.
      */
     public static void sendPlain(CommandSender sender, String message) {
         if (sender == null || plugin == null)
@@ -155,9 +134,7 @@ public final class MessageUtil {
         sender.sendMessage(ColorUtil.toComponent(message));
     }
 
-    /**
-     * Broadcasts a message to all online players using a locale key.
-     */
+    /** Broadcasts a message to all online players using a locale key. */
     public static void broadcast(String key, Map<String, String> placeholders) {
         if (plugin == null || messagesConfig == null)
             return;
@@ -184,11 +161,6 @@ public final class MessageUtil {
     /**
      * Returns a translated string from the locale file with placeholders replaced.
      * Used by GUI builders to fetch configurable display text.
-     *
-     * @param key          the message key (e.g., "gui-search-title")
-     * @param placeholders a map of placeholder keys to replacement values
-     *                     (nullable)
-     * @return the translated string, or the key itself if not found
      */
     public static String get(String key, Map<String, String> placeholders) {
         if (messagesConfig == null)
@@ -202,16 +174,12 @@ public final class MessageUtil {
         return message;
     }
 
-    /**
-     * Returns a translated string with no placeholders.
-     */
+    /** Returns a translated string with no placeholders. */
     public static String get(String key) {
         return get(key, null);
     }
 
-    /**
-     * Broadcasts a raw message string to all online players with the prefix.
-     */
+    /** Broadcasts a raw message string to all online players with the prefix. */
     public static void broadcastRaw(String message) {
         if (plugin == null)
             return;

@@ -13,8 +13,8 @@ import java.util.Map;
 import java.util.UUID;
 
 /**
- * Handles the /ac history command.
- * Shows the player's recent auction history (as seller or winner).
+ * Handles the /ac history command. Shows the player's recent auction history
+ * (as seller or winner).
  */
 public class HistorySubCommand implements SubCommand {
 
@@ -23,12 +23,11 @@ public class HistorySubCommand implements SubCommand {
     /** Date formatter for displaying resolved timestamps. */
     private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("MM/dd HH:mm");
 
-    /** @param plugin the main plugin instance */
+    /** Constructor. */
     public HistorySubCommand(Auctify plugin) {
         this.plugin = plugin;
     }
 
-    /** {@inheritDoc} */
     @Override
     public void execute(CommandSender sender, String[] args) {
         if (!(sender instanceof Player player)) {
@@ -101,7 +100,6 @@ public class HistorySubCommand implements SubCommand {
         }
     }
 
-    /** {@inheritDoc} */
     @Override
     public boolean isPlayerOnly() {
         return true;
