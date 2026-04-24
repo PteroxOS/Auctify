@@ -149,8 +149,7 @@ public class AuctionManager {
         if (buyoutPrice > 0) {
             double multiplier = config.getDouble("bidding.buyout-min-multiplier", 1.5);
             if (buyoutPrice < startPrice * multiplier) {
-                MessageUtil.sendRaw(seller, "§cBuyout price must be at least §f"
-                        + economy.format(startPrice * multiplier) + "§c.");
+                MessageUtil.send(seller, "buyout-min-price", Map.of("min", economy.format(startPrice * multiplier)));
                 return null;
             }
         }
@@ -363,7 +362,7 @@ public class AuctionManager {
         }
 
         if (listing.getBuyoutPrice() <= 0) {
-            MessageUtil.sendRaw(buyer, "§cThis listing does not have a buyout price.");
+            MessageUtil.send(buyer, "buyout-not-set", null);
             return false;
         }
 
@@ -382,7 +381,7 @@ public class AuctionManager {
         // Withdraw buyout price
         TransactionResult result = economy.withdraw(buyer.getUniqueId(), price);
         if (!result.success()) {
-            MessageUtil.sendRaw(buyer, "§cInsufficient funds. You need §f" + economy.format(price) + "§c.");
+            MessageUtil.send(buyer, "insufficient-funds", Map.of("amount", economy.format(price)));
             return false;
         }
 
@@ -631,7 +630,7 @@ public class AuctionManager {
                             + ": " + ItemUtil.getDisplayName(drop) + " x" + drop.getAmount()
                             + " at " + player.getLocation().toVector());
                 }
-                MessageUtil.sendRaw(player, "§7Your inventory was full. Some items were dropped at your feet.");
+                MessageUtil.send(player, "inventory-full-items-dropped", null);
             }
         } else {
             // Save for offline delivery

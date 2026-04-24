@@ -1,7 +1,14 @@
-# ╔══════════════════════════════════════════╗
-# ║           Auctify Configuration          ║
-# ║     Edit values and run /ac reload       ║
-# ╚══════════════════════════════════════════╝
+# ╔═══════════════════════════════════════════════════════════════╗
+# ║                    AUCTIFY CONFIGURATION                      ║
+# ║                   Advanced Auction House                      ║
+# ║                                                               ║
+# ║  Author    : PteroxOS                                         ║
+# ║  Version   : 1.0.1                                            ║
+# ║  GitHub    : https://github.com/PteroxOS/Auctify              ║
+# ║  Wiki      : https://github.com/PteroxOS/Auctify/wiki         ║
+# ║                                                               ║
+# ║  Edit values and run /ac reload to apply changes              ║
+# ╚═══════════════════════════════════════════════════════════════╝
 
 # ─────────────────────────────────────────────
 #  DEPENDENCY SETTINGS

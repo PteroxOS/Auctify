@@ -8,6 +8,9 @@
 no-permission: "§cYou don't have permission to do that."
 player-only: "§cThis command can only be run by a player."
 listing-created: "§aYour listing has been created! §7ID: §f{listing_id}"
+buyout-min-price: "§cBuyout price must be at least §f{min}§c."
+buyout-not-set: "§cThis listing does not have a buyout price."
+inventory-full-items-dropped: "§7Your inventory was full. Some items were dropped at your feet."
 listing-cancelled: "§aListing cancelled. Your item has been returned."
 listing-not-found: "§cListing §f{listing_id} §cnot found or has already ended."
 bid-success: "§aYou are now the top bidder on §f{item}§a!"
@@ -113,6 +116,7 @@ gui-claim-collect-all: "§a📥 Collect All"
 gui-claim-collect-all-lore: "§7Click to collect all items."
 gui-claim-no-items: "§cMailbox Empty"
 gui-claim-no-items-lore: "§7You have no pending items."
+no-pending-items: "§7You have no pending items to claim."
 gui-claim-close: "§c✘ Close"
 
 # ─── SHULKER PREVIEW GUI ────────────────────
@@ -171,7 +175,9 @@ bulk-cancel-none: "§7No eligible auctions to cancel (only auctions without bids
 # --- Command Messages (previously hardcoded) ---
 # History
 history-empty: "§7You have no auction history yet."
+history-empty-other: "§7{player} has no auction history yet."
 history-header: "§6§lYour Auction History §8(last {count})"
+history-header-other: "§6§l{player}'s Auction History §8(last {count})"
 history-line-sold: "§8[§7{date}§8] §a✔ SOLD §8| §7ID: §f{id} §8» §a{price} §8(§ctax: {tax}§8)"
 history-line-sold-no-tax: "§8[§7{date}§8] §a✔ SOLD §8| §7ID: §f{id} §8» §a{price}"
 history-line-expired: "§8[§7{date}§8] §c✘ EXPIRED §8| §7ID: §f{id}"

@@ -133,7 +133,7 @@ public class AuctifyCommand implements CommandExecutor {
         MessageUtil.sendRaw(sender, " §e/ac bid §6<id> <amount> §8» §7Place a bid");
         MessageUtil.sendRaw(sender, " §e/ac cancel §6<id> §8» §7Cancel your listing");
         MessageUtil.sendRaw(sender, " §e/ac search §6<query> §8» §7Search listings");
-        MessageUtil.sendRaw(sender, " §e/ac history §8» §7View your auction history");
+        MessageUtil.sendRaw(sender, " §e/ac history §7[player] §8» §7View auction history §b[Admin: view others]");
         MessageUtil.sendRaw(sender, " §e/ac bidhistory §6<id> §8» §7View bid history §b(NEW)");
         MessageUtil.sendRaw(sender, " §e/ac extend §6<id> <minutes> §8» §7Extend auction §b(NEW)");
         MessageUtil.sendRaw(sender, " §e/ac bulkcancel §8» §7Cancel all your auctions §b(NEW)");

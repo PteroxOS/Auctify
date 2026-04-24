@@ -72,6 +72,16 @@ public class TabCompleter implements org.bukkit.command.TabCompleter {
                     yield List.of();
                 }
                 case "search" -> List.of("<query>");
+                case "history" -> {
+                    // Suggest online player names for admin history lookup
+                    if (sender instanceof Player player && player.hasPermission("auctify.admin.history")) {
+                        yield plugin.getServer().getOnlinePlayers().stream()
+                                .map(p -> p.getName())
+                                .filter(name -> name.toLowerCase().startsWith(args[1].toLowerCase()))
+                                .collect(Collectors.toList());
+                    }
+                    yield List.of();
+                }
                 case "admin" -> List.of("blacklist", "cancel", "backup");
                 default -> List.of();
             };

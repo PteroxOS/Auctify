@@ -27,8 +27,10 @@ import java.util.Optional;
  * This ensures clicks are ALWAYS cancelled even when the GUIManager state
  * is cleared during inventory transitions.
  *
- * <p>The GUIManager is still used for routing logic (which sub-handler to call),
- * but the holder-based check is the security gate.</p>
+ * <p>
+ * The GUIManager is still used for routing logic (which sub-handler to call),
+ * but the holder-based check is the security gate.
+ * </p>
  */
 public class GUIClickListener implements Listener {
 
@@ -46,11 +48,14 @@ public class GUIClickListener implements Listener {
      */
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = false)
     public void onInventoryClick(InventoryClickEvent event) {
-        if (!(event.getWhoClicked() instanceof Player player)) return;
+        if (!(event.getWhoClicked() instanceof Player player))
+            return;
 
-        // PRIMARY SECURITY: Check if the top inventory belongs to Auctify via the holder
+        // PRIMARY SECURITY: Check if the top inventory belongs to Auctify via the
+        // holder
         Inventory topInv = event.getView().getTopInventory();
-        if (!(topInv.getHolder() instanceof AuctifyHolder holder)) return;
+        if (!(topInv.getHolder() instanceof AuctifyHolder holder))
+            return;
 
         // UNCONDITIONALLY cancel ALL clicks when an Auctify GUI is open.
         // This is the single most important line — it prevents ALL item theft.
@@ -71,8 +76,10 @@ public class GUIClickListener implements Listener {
         ItemStack clicked = event.getCurrentItem();
 
         // Ignore clicks on empty slots or filler items
-        if (clicked == null || clicked.getType().isAir()) return;
-        if (isFillerItem(clicked)) return;
+        if (clicked == null || clicked.getType().isAir())
+            return;
+        if (isFillerItem(clicked))
+            return;
 
         // Route based on the holder's GUI type (reliable, no HashMap needed)
         String guiType = holder.getGuiType();
@@ -94,10 +101,12 @@ public class GUIClickListener implements Listener {
      */
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = false)
     public void onInventoryDrag(InventoryDragEvent event) {
-        if (!(event.getWhoClicked() instanceof Player)) return;
+        if (!(event.getWhoClicked() instanceof Player))
+            return;
 
         Inventory topInv = event.getView().getTopInventory();
-        if (!(topInv.getHolder() instanceof AuctifyHolder)) return;
+        if (!(topInv.getHolder() instanceof AuctifyHolder))
+            return;
 
         // Cancel ALL drags when an Auctify GUI is open — no exceptions
         event.setCancelled(true);
@@ -113,8 +122,10 @@ public class GUIClickListener implements Listener {
         int nextSlot = config.getInt("gui.navigation.next-page-slot", 53);
         int infoSlot = config.getInt("gui.navigation.info-slot", 49);
         int rows = config.getInt("gui.rows", 6);
-        if (rows < 3) rows = 3;
-        if (rows > 6) rows = 6;
+        if (rows < 3)
+            rows = 3;
+        if (rows > 6)
+            rows = 6;
 
         GUIManager guiManager = plugin.getGUIManager();
         int currentPage = holder.getPage();
@@ -132,7 +143,8 @@ public class GUIClickListener implements Listener {
             plugin.getAuctionGUI().open(player, currentPage + 1);
             return;
         }
-        if (slot == infoSlot) return; // Info item, do nothing
+        if (slot == infoSlot)
+            return; // Info item, do nothing
 
         // Bottom row clicks that aren't nav buttons
         if (slot >= (rows - 1) * 9) {
@@ -176,7 +188,8 @@ public class GUIClickListener implements Listener {
 
         // Clicked on a listing item — find which listing this is
         int itemsPerPage = config.getInt("gui.items-per-page", -1);
-        if (itemsPerPage <= 0) itemsPerPage = (rows - 1) * 9;
+        if (itemsPerPage <= 0)
+            itemsPerPage = (rows - 1) * 9;
 
         var listings = plugin.getAuctionManager().getActiveListings().stream()
                 .filter(l -> !l.isExpired())
@@ -185,7 +198,8 @@ public class GUIClickListener implements Listener {
                 .toList();
 
         int listingIndex = currentPage * itemsPerPage + slot;
-        if (listingIndex >= listings.size()) return;
+        if (listingIndex >= listings.size())
+            return;
 
         AuctionListing listing = listings.get(listingIndex);
 
@@ -356,9 +370,10 @@ public class GUIClickListener implements Listener {
             plugin.getServer().getScheduler().runTask(plugin, () -> {
                 player.closeInventory();
                 // MEDIUM-4: Use atomic claimAndClear to prevent TOCTOU duplication
-                java.util.List<ItemStack> pending = plugin.getStorageManager().claimAndClearDeliveries(player.getUniqueId());
+                java.util.List<ItemStack> pending = plugin.getStorageManager()
+                        .claimAndClearDeliveries(player.getUniqueId());
                 if (pending.isEmpty()) {
-                    MessageUtil.sendRaw(player, "§7You have no pending items to claim.");
+                    MessageUtil.send(player, "no-pending-items", null);
                     return;
                 }
 
@@ -388,8 +403,8 @@ public class GUIClickListener implements Listener {
             // Back button — go to detail view
             String listingId = holder.getListingId();
             if (listingId != null) {
-                plugin.getAuctionManager().getListingById(listingId).ifPresent(listing ->
-                        plugin.getItemDetailGUI().open(player, listing));
+                plugin.getAuctionManager().getListingById(listingId)
+                        .ifPresent(listing -> plugin.getItemDetailGUI().open(player, listing));
             } else {
                 plugin.getAuctionGUI().open(player);
             }
@@ -426,14 +441,16 @@ public class GUIClickListener implements Listener {
 
         // Navigation
         if (slot == 45 && clicked.getType() == Material.ARROW) {
-            if (currentPage > 0) plugin.getAdminGUI().open(player, currentPage - 1);
+            if (currentPage > 0)
+                plugin.getAdminGUI().open(player, currentPage - 1);
             return;
         }
         if (slot == 53 && clicked.getType() == Material.ARROW) {
             plugin.getAdminGUI().open(player, currentPage + 1);
             return;
         }
-        if (slot >= 45) return; // Bottom nav row, ignore
+        if (slot >= 45)
+            return; // Bottom nav row, ignore
 
         // Clicked on a listing — force cancel
         var listings = plugin.getAuctionManager().getActiveListings().stream()
@@ -442,7 +459,8 @@ public class GUIClickListener implements Listener {
                 .toList();
 
         int listingIndex = currentPage * 45 + slot;
-        if (listingIndex >= listings.size()) return;
+        if (listingIndex >= listings.size())
+            return;
 
         var listing = listings.get(listingIndex);
         String cancelId = listing.getId();
@@ -456,13 +474,15 @@ public class GUIClickListener implements Listener {
      * Checks if an item is a GUI filler (glass pane with blank name).
      */
     private boolean isFillerItem(ItemStack item) {
-        if (item == null) return false;
+        if (item == null)
+            return false;
         String name = item.getType().name();
         return name.endsWith("_STAINED_GLASS_PANE") || name.equals("GLASS_PANE");
     }
 
     private boolean matchesCategory(Material mat, String category) {
-        if (category == null || "ALL".equals(category)) return true;
+        if (category == null || "ALL".equals(category))
+            return true;
         String name = mat.name();
         switch (category) {
             case "WEAPONS_TOOLS":

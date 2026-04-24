@@ -10,6 +10,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 /**
  * Handles the /ac history command.
@@ -30,21 +31,51 @@ public class HistorySubCommand implements SubCommand {
     /** {@inheritDoc} */
     @Override
     public void execute(CommandSender sender, String[] args) {
-        Player player = (Player) sender;
+        if (!(sender instanceof Player player)) {
+            MessageUtil.send(sender, "player-only", null);
+            return;
+        }
 
         if (!player.hasPermission("auctify.history")) {
             MessageUtil.send(player, "no-permission", null);
             return;
         }
 
-        List<AuctionHistory> history = plugin.getAuctionManager().getHistory(player.getUniqueId(), 10);
+        UUID targetUUID;
+        String targetName;
+
+        // Admin can view other players' history
+        if (args.length >= 2 && player.hasPermission("auctify.admin.history")) {
+            Player target = plugin.getServer().getPlayer(args[1]);
+            if (target == null) {
+                // Try to get offline player
+                targetUUID = plugin.getServer().getOfflinePlayer(args[1]).getUniqueId();
+                targetName = args[1];
+            } else {
+                targetUUID = target.getUniqueId();
+                targetName = target.getName();
+            }
+        } else {
+            targetUUID = player.getUniqueId();
+            targetName = player.getName();
+        }
+
+        List<AuctionHistory> history = plugin.getAuctionManager().getHistory(targetUUID, 10);
 
         if (history.isEmpty()) {
-            MessageUtil.send(player, "history-empty", null);
+            if (targetUUID.equals(player.getUniqueId())) {
+                MessageUtil.send(player, "history-empty", null);
+            } else {
+                MessageUtil.send(player, "history-empty-other", Map.of("player", targetName));
+            }
             return;
         }
 
-        MessageUtil.send(player, "history-header", Map.of("count", "10"));
+        if (targetUUID.equals(player.getUniqueId())) {
+            MessageUtil.send(player, "history-header", Map.of("count", "10"));
+        } else {
+            MessageUtil.send(player, "history-header-other", Map.of("count", "10", "player", targetName));
+        }
 
         for (AuctionHistory h : history) {
             String date = DATE_FORMAT.format(new Date(h.resolvedAt()));

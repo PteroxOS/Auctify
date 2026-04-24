@@ -8,6 +8,9 @@
 no-permission: "§cKamu tidak punya izin untuk melakukan itu."
 player-only: "§cPerintah ini hanya bisa dijalankan oleh pemain."
 listing-created: "§aLelang berhasil dibuat! §7ID: §f{listing_id}"
+buyout-min-price: "§cHarga buyout minimal §f{min}§c."
+buyout-not-set: "§cLelang ini tidak punya harga buyout."
+inventory-full-items-dropped: "§7Inventory kamu penuh. Beberapa item dijatuhkan di kakimu."
 listing-cancelled: "§aLelang dibatalkan. Itemmu telah dikembalikan."
 listing-not-found: "§cLelang §f{listing_id} §ctidak ditemukan atau sudah berakhir."
 bid-success: "§aKamu sekarang penawar tertinggi untuk §f{item}§a!"
@@ -112,8 +115,9 @@ gui-claim-title: "§8✦ §6Kotak Surat §8✦"
 gui-claim-item-lore: "§7Klik untuk mengambil"
 gui-claim-collect-all: "§a📥 Ambil Semua"
 gui-claim-collect-all-lore: "§7Klik untuk mengambil semua barang."
-gui-claim-no-items: "§cKotak Surat Kosong"
-gui-claim-no-items-lore: "§7Tidak ada barang tertunda."
+gui-claim-no-items: "§cMailbox Kosong"
+gui-claim-no-items-lore: "§7Tidak ada item pending."
+no-pending-items: "§7Kamu tidak punya item pending untuk diklaim."
 gui-claim-close: "§c✘ Tutup"
 
 # ─── SHULKER PREVIEW GUI ────────────────────
@@ -172,7 +176,9 @@ bulk-cancel-none: "§7Tidak ada lelang yang bisa dibatalkan (hanya yang belum pu
 # --- Pesan Command (sebelumnya hardcoded) ---
 # History
 history-empty: "§7Kamu belum punya riwayat lelang."
+history-empty-other: "§7{player} belum punya riwayat lelang."
 history-header: "§6§lRiwayat Lelang Kamu §8({count} terakhir)"
+history-header-other: "§6§lRiwayat Lelang {player} §8({count} terakhir)"
 history-line-sold: "§8[§7{date}§8] §a✔ TERJUAL §8| §7ID: §f{id} §8» §a{price} §8(§cpajak: {tax}§8)"
 history-line-sold-no-tax: "§8[§7{date}§8] §a✔ TERJUAL §8| §7ID: §f{id} §8» §a{price}"
 history-line-expired: "§8[§7{date}§8] §c✘ KADALUARSA §8| §7ID: §f{id}"
