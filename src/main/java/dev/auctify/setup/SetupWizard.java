@@ -72,7 +72,7 @@ public class SetupWizard {
      */
     public void startSetup(Player player) {
         if (!player.isOp() && !player.hasPermission("auctify.admin")) {
-            MessageUtil.sendRaw(player, "§cYou don't have permission to run the setup wizard.");
+            MessageUtil.sendPlain(player, "§cYou don't have permission to run the setup wizard.");
             return;
         }
 
@@ -88,16 +88,16 @@ public class SetupWizard {
     }
 
     private void showWelcomeMessage(Player player) {
-        MessageUtil.sendRaw(player, "");
-        MessageUtil.sendRaw(player, "§8|════════════════════════════════════════════════|");
-        MessageUtil.sendRaw(player, "§8|                                                |");
-        MessageUtil.sendRaw(player, "§8|     §6✦ §e§lWELCOME TO AUCTIFY §6✦              §8|");
-        MessageUtil.sendRaw(player, "§8|                                                |");
-        MessageUtil.sendRaw(player, "§8|  §7This is your first time installing Auctify! §8|");
-        MessageUtil.sendRaw(player, "§8|  §7Would you like to run the setup wizard?    §8|");
-        MessageUtil.sendRaw(player, "§8|                                                |");
-        MessageUtil.sendRaw(player, "§8|════════════════════════════════════════════════|");
-        MessageUtil.sendRaw(player, "");
+        MessageUtil.sendPlain(player, "");
+        MessageUtil.sendPlain(player, "§8|================================================|");
+        MessageUtil.sendPlain(player, "§8|                                                |");
+        MessageUtil.sendPlain(player, "§8|       §6✦ §e§lWELCOME TO AUCTIFY §6✦            §8|");
+        MessageUtil.sendPlain(player, "§8|                                                |");
+        MessageUtil.sendPlain(player, "§8| §7This is your first time installing Auctify!  §8|");
+        MessageUtil.sendPlain(player, "§8| §7Would you like to run the setup wizard?      §8|");
+        MessageUtil.sendPlain(player, "§8|                                                |");
+        MessageUtil.sendPlain(player, "§8|================================================|");
+        MessageUtil.sendPlain(player, "");
 
         // Clickable buttons
         TextComponent yesButton = new TextComponent("    ");
@@ -116,7 +116,7 @@ public class SetupWizard {
 
         player.spigot().sendMessage(yesButton);
         player.spigot().sendMessage(noButton);
-        MessageUtil.sendRaw(player, "");
+        MessageUtil.sendPlain(player, "");
     }
 
     // ========== STEP 1: LANGUAGE ==========
@@ -125,20 +125,20 @@ public class SetupWizard {
         if (state == null)
             return;
 
-        MessageUtil.sendRaw(player, "");
-        MessageUtil.sendRaw(player, "§8==================================================");
-        MessageUtil.sendRaw(player, "§8|          §6§lSETUP WIZARD §7(Step 1/7)            §8|");
-        MessageUtil.sendRaw(player, "§8|                                                §8|");
-        MessageUtil.sendRaw(player, "§8|  §eSelect your language / Pilih bahasa:        §8|");
-        MessageUtil.sendRaw(player, "§8|                                                §8|");
-        MessageUtil.sendRaw(player, "§8==================================================");
-        MessageUtil.sendRaw(player, "");
+        MessageUtil.sendPlain(player, "");
+        MessageUtil.sendPlain(player, "§8|================================================|");
+        MessageUtil.sendPlain(player, "§8|          §6§lSETUP WIZARD §7(Step 1/7)            §8|");
+        MessageUtil.sendPlain(player, "§8|                                                §8|");
+        MessageUtil.sendPlain(player, "§8|  §eSelect your language / Pilih bahasa:        §8|");
+        MessageUtil.sendPlain(player, "§8|                                                §8|");
+        MessageUtil.sendPlain(player, "§8|================================================|");
+        MessageUtil.sendPlain(player, "");
 
         sendClickableOption(player, "  [ §aEnglish §r]", "en",
                 "Click to select English", "/ac setup step1 en");
         sendClickableOption(player, "  [ §2Bahasa Indonesia §r]", "id",
                 "Klik untuk pilih Indonesia", "/ac setup step1 id");
-        MessageUtil.sendRaw(player, "");
+        MessageUtil.sendPlain(player, "");
     }
 
     // ========== STEP 2: STORAGE ==========
@@ -150,15 +150,15 @@ public class SetupWizard {
         String title = state.locale.equals("id") ? "SETUP WIZARD (Step 2/7)" : "SETUP WIZARD (Step 2/7)";
         String prompt = state.locale.equals("id") ? "Pilih tipe penyimpanan:" : "Choose storage type:";
 
-        MessageUtil.sendRaw(player, "");
-        MessageUtil.sendRaw(player, "§8|════════════════════════════════════════════════|");
-        MessageUtil.sendRaw(player, "§8|           §6§l" + title + "         §8|");
-        MessageUtil.sendRaw(player, "§8|════════════════════════════════════════════════|");
-        MessageUtil.sendRaw(player, "§8|                                                |");
-        MessageUtil.sendRaw(player, "§8|  §e" + padRight(prompt, 38) + "§8|");
-        MessageUtil.sendRaw(player, "§8|                                                |");
-        MessageUtil.sendRaw(player, "§8|════════════════════════════════════════════════|");
-        MessageUtil.sendRaw(player, "");
+        MessageUtil.sendPlain(player, "");
+        MessageUtil.sendPlain(player, "§8|================================================|");
+        MessageUtil.sendPlain(player, "§8|           §6§l" + title + "         §8|");
+        MessageUtil.sendPlain(player, "§8|================================================|");
+        MessageUtil.sendPlain(player, "§8|                                                |");
+        MessageUtil.sendPlain(player, "§8|  §e" + padRight(prompt, 38) + "§8|");
+        MessageUtil.sendPlain(player, "§8|                                                |");
+        MessageUtil.sendPlain(player, "§8|================================================|");
+        MessageUtil.sendPlain(player, "");
 
         sendClickableOption(player, "  [ §aSQLite §r]§7 - File-based, easy setup", "sqlite",
                 "Best for small-medium servers", "/ac setup step2 sqlite");
@@ -166,7 +166,7 @@ public class SetupWizard {
                 "Best for large servers", "/ac setup step2 mysql");
         sendClickableOption(player, "  [ §eMemory §r]§7 - No persistence (testing)", "memory",
                 "Data lost on restart!", "/ac setup step2 memory");
-        MessageUtil.sendRaw(player, "");
+        MessageUtil.sendPlain(player, "");
     }
 
     // ========== STEP 3: ECONOMY TAX ==========
@@ -179,15 +179,15 @@ public class SetupWizard {
         String title = isId ? "SETUP WIZARD (Step 3/7)" : "SETUP WIZARD (Step 3/7)";
         String prompt = isId ? "Pengaturan pajak penjual:" : "Seller tax settings:";
 
-        MessageUtil.sendRaw(player, "");
-        MessageUtil.sendRaw(player, "§8|════════════════════════════════════════════════|");
-        MessageUtil.sendRaw(player, "§8|           §6§l" + title + "         §8|");
-        MessageUtil.sendRaw(player, "§8|════════════════════════════════════════════════|");
-        MessageUtil.sendRaw(player, "§8|                                                |");
-        MessageUtil.sendRaw(player, "§8|  §e" + padRight(prompt, 38) + "§8|");
-        MessageUtil.sendRaw(player, "§8|                                                |");
-        MessageUtil.sendRaw(player, "§8|════════════════════════════════════════════════|");
-        MessageUtil.sendRaw(player, "");
+        MessageUtil.sendPlain(player, "");
+        MessageUtil.sendPlain(player, "§8|================================================|");
+        MessageUtil.sendPlain(player, "§8|           §6§l" + title + "         §8|");
+        MessageUtil.sendPlain(player, "§8|================================================|");
+        MessageUtil.sendPlain(player, "§8|                                                |");
+        MessageUtil.sendPlain(player, "§8|  §e" + padRight(prompt, 38) + "§8|");
+        MessageUtil.sendPlain(player, "§8|                                                |");
+        MessageUtil.sendPlain(player, "§8|================================================|");
+        MessageUtil.sendPlain(player, "");
 
         sendClickableOption(player, "  [ §a0% §r]§7 - No tax", "0",
                 isId ? "Tidak ada pajak" : "No tax on sales", "/ac setup step3 0");
@@ -197,8 +197,8 @@ public class SetupWizard {
                 isId ? "Pajak 10%" : "10% tax", "/ac setup step3 10");
         sendClickableOption(player, "  [ §bCustom §r]§7 - Enter percentage", "custom",
                 isId ? "Masukkan angka 0-100" : "Enter 0-100", "/ac setup step3 custom");
-        MessageUtil.sendRaw(player, "");
-        MessageUtil.sendRaw(player, isId ? "§7§oPajak: persen dari harga jual yang diambil server"
+        MessageUtil.sendPlain(player, "");
+        MessageUtil.sendPlain(player, isId ? "§7§oPajak: persen dari harga jual yang diambil server"
                 : "§7§oTax: percentage taken from seller's earnings");
     }
 
@@ -212,15 +212,15 @@ public class SetupWizard {
         String title = isId ? "SETUP WIZARD (Step 4/7)" : "SETUP WIZARD (Step 4/7)";
         String prompt = isId ? "Pengaturan umum lelang:" : "General auction settings:";
 
-        MessageUtil.sendRaw(player, "");
-        MessageUtil.sendRaw(player, "§8|════════════════════════════════════════════════|");
-        MessageUtil.sendRaw(player, "§8|           §6§l" + title + "         §8|");
-        MessageUtil.sendRaw(player, "§8|════════════════════════════════════════════════|");
-        MessageUtil.sendRaw(player, "§8|                                                |");
-        MessageUtil.sendRaw(player, "§8|  §e" + padRight(prompt, 38) + "§8|");
-        MessageUtil.sendRaw(player, "§8|                                                |");
-        MessageUtil.sendRaw(player, "§8|════════════════════════════════════════════════|");
-        MessageUtil.sendRaw(player, "");
+        MessageUtil.sendPlain(player, "");
+        MessageUtil.sendPlain(player, "§8|================================================|");
+        MessageUtil.sendPlain(player, "§8|           §6§l" + title + "         §8|");
+        MessageUtil.sendPlain(player, "§8|================================================|");
+        MessageUtil.sendPlain(player, "§8|                                                |");
+        MessageUtil.sendPlain(player, "§8|  §e" + padRight(prompt, 38) + "§8|");
+        MessageUtil.sendPlain(player, "§8|                                                |");
+        MessageUtil.sendPlain(player, "§8|================================================|");
+        MessageUtil.sendPlain(player, "");
 
         sendClickableOption(player, "  [ §a5 min §r]§7 - Quick auctions", "300",
                 isId ? "Durasi 5 menit" : "5 minutes duration", "/ac setup step4 300");
@@ -228,7 +228,7 @@ public class SetupWizard {
                 isId ? "Durasi 15 menit (default)" : "15 minutes (default)", "/ac setup step4 900");
         sendClickableOption(player, "  [ §b1 hour §r]§7 - Long auctions", "3600",
                 isId ? "Durasi 1 jam" : "1 hour duration", "/ac setup step4 3600");
-        MessageUtil.sendRaw(player, "");
+        MessageUtil.sendPlain(player, "");
     }
 
     // ========== STEP 5: GUI ==========
@@ -242,16 +242,16 @@ public class SetupWizard {
         String prompt = isId ? "Waktu timeout input bid:" : "Bid input timeout:";
         String desc = isId ? "Waktu untuk memasukkan harga bid via chat" : "Time to enter bid price via chat";
 
-        MessageUtil.sendRaw(player, "");
-        MessageUtil.sendRaw(player, "§8|════════════════════════════════════════════════|");
-        MessageUtil.sendRaw(player, "§8|           §6§l" + title + "         §8|");
-        MessageUtil.sendRaw(player, "§8|════════════════════════════════════════════════|");
-        MessageUtil.sendRaw(player, "§8|                                                |");
-        MessageUtil.sendRaw(player, "§8|  §e" + padRight(prompt, 38) + "§8|");
-        MessageUtil.sendRaw(player, "§8|  §7" + padRight(desc, 38) + "§8|");
-        MessageUtil.sendRaw(player, "§8|                                                |");
-        MessageUtil.sendRaw(player, "§8|════════════════════════════════════════════════|");
-        MessageUtil.sendRaw(player, "");
+        MessageUtil.sendPlain(player, "");
+        MessageUtil.sendPlain(player, "§8|================================================|");
+        MessageUtil.sendPlain(player, "§8|           §6§l" + title + "         §8|");
+        MessageUtil.sendPlain(player, "§8|================================================|");
+        MessageUtil.sendPlain(player, "§8|                                                |");
+        MessageUtil.sendPlain(player, "§8|  §e" + padRight(prompt, 38) + "§8|");
+        MessageUtil.sendPlain(player, "§8|  §7" + padRight(desc, 38) + "§8|");
+        MessageUtil.sendPlain(player, "§8|                                                |");
+        MessageUtil.sendPlain(player, "§8|================================================|");
+        MessageUtil.sendPlain(player, "");
 
         sendClickableOption(player, "  [ §a15 sec §r]§7 - Fast", "15",
                 isId ? "15 detik" : "15 seconds", "/ac setup step5 15");
@@ -259,7 +259,7 @@ public class SetupWizard {
                 isId ? "30 detik (default)" : "30 seconds (default)", "/ac setup step5 30");
         sendClickableOption(player, "  [ §b60 sec §r]§7 - Relaxed", "60",
                 isId ? "60 detik" : "60 seconds", "/ac setup step5 60");
-        MessageUtil.sendRaw(player, "");
+        MessageUtil.sendPlain(player, "");
     }
 
     // ========== STEP 6: DISCORD ==========
@@ -272,22 +272,22 @@ public class SetupWizard {
         String title = isId ? "SETUP WIZARD (Step 6/7)" : "SETUP WIZARD (Step 6/7)";
         String prompt = isId ? "Notifikasi Discord (opsional):" : "Discord notifications (optional):";
 
-        MessageUtil.sendRaw(player, "");
-        MessageUtil.sendRaw(player, "§8|════════════════════════════════════════════════|");
-        MessageUtil.sendRaw(player, "§8|           §6§l" + title + "         §8|");
-        MessageUtil.sendRaw(player, "§8|════════════════════════════════════════════════|");
-        MessageUtil.sendRaw(player, "§8|                                                |");
-        MessageUtil.sendRaw(player, "§8|  §e" + padRight(prompt, 38) + "§8|");
-        MessageUtil.sendRaw(player, "§8|                                                |");
-        MessageUtil.sendRaw(player, "§8|════════════════════════════════════════════════|");
-        MessageUtil.sendRaw(player, "");
+        MessageUtil.sendPlain(player, "");
+        MessageUtil.sendPlain(player, "§8|================================================|");
+        MessageUtil.sendPlain(player, "§8|           §6§l" + title + "         §8|");
+        MessageUtil.sendPlain(player, "§8|================================================|");
+        MessageUtil.sendPlain(player, "§8|                                                |");
+        MessageUtil.sendPlain(player, "§8|  §e" + padRight(prompt, 38) + "§8|");
+        MessageUtil.sendPlain(player, "§8|                                                |");
+        MessageUtil.sendPlain(player, "§8|================================================|");
+        MessageUtil.sendPlain(player, "");
 
         sendClickableOption(player, "  [ §cSkip §r]§7 - No Discord", "skip",
                 isId ? "Lewati" : "Skip this step", "/ac setup step6 skip");
         sendClickableOption(player, "  [ §aEnable §r]§7 - Enter webhook URL", "enable",
                 isId ? "Masukkan URL webhook" : "Enter webhook URL", "/ac setup step6 enable");
-        MessageUtil.sendRaw(player, "");
-        MessageUtil.sendRaw(player,
+        MessageUtil.sendPlain(player, "");
+        MessageUtil.sendPlain(player,
                 "§7§o" + (isId ? "Webhook URL didapat dari channel Discord" : "Get webhook URL from Discord channel"));
     }
 
@@ -301,15 +301,15 @@ public class SetupWizard {
         String title = isId ? "SETUP WIZARD (Step 7/7)" : "SETUP WIZARD (Step 7/7)";
         String prompt = isId ? "Pengaturan backup otomatis:" : "Automatic backup settings:";
 
-        MessageUtil.sendRaw(player, "");
-        MessageUtil.sendRaw(player, "§8|════════════════════════════════════════════════|");
-        MessageUtil.sendRaw(player, "§8|           §6§l" + title + "         §8|");
-        MessageUtil.sendRaw(player, "§8|════════════════════════════════════════════════|");
-        MessageUtil.sendRaw(player, "§8|                                                |");
-        MessageUtil.sendRaw(player, "§8|  §e" + padRight(prompt, 38) + "§8|");
-        MessageUtil.sendRaw(player, "§8|                                                |");
-        MessageUtil.sendRaw(player, "§8|════════════════════════════════════════════════|");
-        MessageUtil.sendRaw(player, "");
+        MessageUtil.sendPlain(player, "");
+        MessageUtil.sendPlain(player, "§8|================================================|");
+        MessageUtil.sendPlain(player, "§8|           §6§l" + title + "         §8|");
+        MessageUtil.sendPlain(player, "§8|================================================|");
+        MessageUtil.sendPlain(player, "§8|                                                |");
+        MessageUtil.sendPlain(player, "§8|  §e" + padRight(prompt, 38) + "§8|");
+        MessageUtil.sendPlain(player, "§8|                                                |");
+        MessageUtil.sendPlain(player, "§8|================================================|");
+        MessageUtil.sendPlain(player, "");
 
         sendClickableOption(player, "  [ §cDisable §r]§7 - No backup", "disable",
                 isId ? "Matikan backup" : "Disable backup", "/ac setup step7 disable");
@@ -319,7 +319,7 @@ public class SetupWizard {
                 isId ? "Backup tiap 6 jam" : "Every 6 hours", "/ac setup step7 360");
         sendClickableOption(player, "  [ §b24 hours §r]§7 - Daily", "1440",
                 isId ? "Backup tiap 24 jam" : "Every 24 hours", "/ac setup step7 1440");
-        MessageUtil.sendRaw(player, "");
+        MessageUtil.sendPlain(player, "");
     }
 
     // ========== COMPLETE ==========
@@ -351,18 +351,18 @@ public class SetupWizard {
         plugin.reloadConfig();
 
         boolean isId = state.locale.equals("id");
-        MessageUtil.sendRaw(player, "");
-        MessageUtil.sendRaw(player, "§8|════════════════════════════════════════════════|");
-        MessageUtil.sendRaw(player, "§8|                                                |");
-        MessageUtil.sendRaw(player, "§8|      §a§l✓ SETUP COMPLETED SUCCESSFULLY!        §8|");
-        MessageUtil.sendRaw(player, "§8|                                                §8|");
-        MessageUtil.sendRaw(player,
+        MessageUtil.sendPlain(player, "");
+        MessageUtil.sendPlain(player, "§8|================================================|");
+        MessageUtil.sendPlain(player, "§8|                                                |");
+        MessageUtil.sendPlain(player, "§8|      §a§l✓ SETUP COMPLETED SUCCESSFULLY!        §8|");
+        MessageUtil.sendPlain(player, "§8|                                                §8|");
+        MessageUtil.sendPlain(player,
                 "§8|  §7" + padRight(isId ? "Semua pengaturan telah disimpan!" : "All settings saved!", 38) + "§8|");
-        MessageUtil.sendRaw(player,
+        MessageUtil.sendPlain(player,
                 "§8|  §7" + padRight(isId ? "Plugin akan di-reload..." : "Reloading plugin...", 38) + "§8|");
-        MessageUtil.sendRaw(player, "§8|                                                §8|");
-        MessageUtil.sendRaw(player, "§8|════════════════════════════════════════════════|");
-        MessageUtil.sendRaw(player, "");
+        MessageUtil.sendPlain(player, "§8|                                                §8|");
+        MessageUtil.sendPlain(player, "§8|================================================|");
+        MessageUtil.sendPlain(player, "");
 
         // Restart the plugin by reloading
         Bukkit.getScheduler().runTask(plugin, () -> {
@@ -374,7 +374,7 @@ public class SetupWizard {
         plugin.getConfig().set("system.first-run", false);
         plugin.saveConfig();
         activeSetups.remove(player.getUniqueId());
-        MessageUtil.sendRaw(player,
+        MessageUtil.sendPlain(player,
                 "§7Setup skipped. Using default configuration. Run §f/ac setup §7anytime to configure.");
     }
 
@@ -382,7 +382,7 @@ public class SetupWizard {
     public void handleStep(Player player, int step, String value) {
         SetupState state = activeSetups.get(player.getUniqueId());
         if (state == null) {
-            MessageUtil.sendRaw(player, "§cSetup session expired. Run §f/ac setup §cto restart.");
+            MessageUtil.sendPlain(player, "§cSetup session expired. Run §f/ac setup §cto restart.");
             return;
         }
 
@@ -397,7 +397,7 @@ public class SetupWizard {
             }
             case 3 -> {
                 if (value.equals("custom")) {
-                    MessageUtil.sendRaw(player, "§eEnter tax percentage (0-100):");
+                    MessageUtil.sendPlain(player, "§eEnter tax percentage (0-100):");
                     // Would need chat listener for custom input
                 } else {
                     state.taxPercent = Integer.parseInt(value);
@@ -416,7 +416,7 @@ public class SetupWizard {
                 if (value.equals("skip")) {
                     showStep7_Backup(player);
                 } else {
-                    MessageUtil.sendRaw(player, "§ePlease enter your Discord webhook URL in chat:");
+                    MessageUtil.sendPlain(player, "§ePlease enter your Discord webhook URL in chat:");
                     // Would need chat listener
                 }
             }
