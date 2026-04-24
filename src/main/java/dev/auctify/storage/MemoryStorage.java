@@ -2,6 +2,8 @@ package dev.auctify.storage;
 
 import dev.auctify.auction.AuctionHistory;
 import dev.auctify.auction.AuctionListing;
+import dev.auctify.auction.BidRecord;
+import dev.auctify.auction.BuyOrder;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.*;
@@ -32,6 +34,18 @@ public class MemoryStorage implements StorageManager {
 
     /** Blacklisted players. */
     private final Set<UUID> blacklist = ConcurrentHashMap.newKeySet();
+
+    /** Bid history: listingId -> list of BidRecord. */
+    private final Map<String, List<BidRecord>> bidHistory = new ConcurrentHashMap<>();
+
+    /**
+     * Pending notifications: playerUUID -> list of [type, item, winner, amount,
+     * net].
+     */
+    private final Map<UUID, List<String[]>> pendingNotifications = new ConcurrentHashMap<>();
+
+    /** Buy orders: orderId -> BuyOrder. */
+    private final Map<String, BuyOrder> buyOrders = new ConcurrentHashMap<>();
 
     /** {@inheritDoc} */
     @Override
@@ -191,7 +205,76 @@ public class MemoryStorage implements StorageManager {
         return items != null ? items : Collections.emptyList();
     }
 
+    // ─── Bid History Implementation ─────────────────
+
+    @Override
+    public void recordBid(String listingId, UUID bidderUUID, String bidderName, double amount) {
+        bidHistory.computeIfAbsent(listingId, k -> Collections.synchronizedList(new ArrayList<>()))
+                .add(new BidRecord(bidderUUID, bidderName, amount, System.currentTimeMillis()));
+    }
+
+    @Override
+    public List<BidRecord> getBidHistory(String listingId) {
+        List<BidRecord> bids = bidHistory.get(listingId);
+        if (bids == null)
+            return Collections.emptyList();
+        // Return a copy sorted by timestamp descending
+        return bids.stream()
+                .sorted((a, b) -> Long.compare(b.timestamp(), a.timestamp()))
+                .collect(Collectors.toList());
+    }
+
+    // ─── Pending Notification Implementation ────────
+
+    @Override
+    public void addPendingNotification(UUID playerUUID, String type, String itemName, String winnerName, String amount,
+            String netAmount) {
+        pendingNotifications.computeIfAbsent(playerUUID, k -> Collections.synchronizedList(new ArrayList<>()))
+                .add(new String[] { type, itemName, winnerName, amount, netAmount });
+    }
+
+    @Override
+    public List<String[]> getAndClearPendingNotifications(UUID playerUUID) {
+        List<String[]> notifications = pendingNotifications.remove(playerUUID);
+        return notifications != null ? notifications : Collections.emptyList();
+    }
+
+    @Override
+    public double[] getPriceStats(String itemType) {
+        // Not implemented for memory storage
+        return null;
+    }
+
     /** {@inheritDoc} */
+    // ─── Buy Order Implementation ───────────────────
+
+    @Override
+    public void saveBuyOrder(BuyOrder order) {
+        buyOrders.put(order.getId(), order);
+    }
+
+    @Override
+    public void deleteBuyOrder(String orderId) {
+        buyOrders.remove(orderId);
+    }
+
+    @Override
+    public List<BuyOrder> getAllBuyOrders() {
+        return new ArrayList<>(buyOrders.values().stream()
+                .filter(BuyOrder::isActive)
+                .filter(o -> !o.isExpired())
+                .toList());
+    }
+
+    @Override
+    public List<BuyOrder> getBuyOrdersByPlayer(UUID playerUUID) {
+        return buyOrders.values().stream()
+                .filter(o -> o.getBuyerUUID().equals(playerUUID))
+                .filter(BuyOrder::isActive)
+                .filter(o -> !o.isExpired())
+                .collect(Collectors.toList());
+    }
+
     @Override
     public void shutdown() {
         // No cleanup needed — data is transient
@@ -199,5 +282,7 @@ public class MemoryStorage implements StorageManager {
         history.clear();
         pendingDeliveries.clear();
         pendingRefunds.clear();
+        bidHistory.clear();
+        buyOrders.clear();
     }
 }

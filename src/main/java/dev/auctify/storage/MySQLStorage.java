@@ -511,6 +511,124 @@ public class MySQLStorage implements StorageManager {
         return res;
     }
 
+    // ─── Bid History Implementation ─────────────────
+
+    @Override
+    public void recordBid(String listingId, UUID bidderUUID, String bidderName, double amount) {
+        String sql = "INSERT INTO auctify_bid_history (listing_id, bidder_uuid, bidder_name, amount, bid_time) VALUES (?, ?, ?, ?, ?)";
+        try (Connection c = dataSource.getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setString(1, listingId);
+            ps.setString(2, bidderUUID.toString());
+            ps.setString(3, bidderName);
+            ps.setDouble(4, amount);
+            ps.setLong(5, System.currentTimeMillis());
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            logger.log(Level.SEVERE, "Failed to record bid", e);
+        }
+    }
+
+    @Override
+    public java.util.List<dev.auctify.auction.BidRecord> getBidHistory(String listingId) {
+        java.util.List<dev.auctify.auction.BidRecord> bids = new java.util.ArrayList<>();
+        String sql = "SELECT bidder_uuid, bidder_name, amount, bid_time FROM auctify_bid_history WHERE listing_id = ? ORDER BY bid_time DESC";
+        try (Connection c = dataSource.getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setString(1, listingId);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                bids.add(new dev.auctify.auction.BidRecord(
+                        UUID.fromString(rs.getString("bidder_uuid")),
+                        rs.getString("bidder_name"),
+                        rs.getDouble("amount"),
+                        rs.getLong("bid_time")));
+            }
+        } catch (SQLException e) {
+            logger.log(Level.SEVERE, "Failed to get bid history", e);
+        }
+        return bids;
+    }
+
+    // ─── Pending Notification Implementation ────────
+
+    @Override
+    public void addPendingNotification(UUID playerUUID, String type, String itemName, String winnerName, String amount,
+            String netAmount) {
+        String sql = "INSERT INTO auctify_pending_notifications (player_uuid, type, item_name, winner_name, amount, net_amount, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        try (Connection c = dataSource.getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setString(1, playerUUID.toString());
+            ps.setString(2, type);
+            ps.setString(3, itemName);
+            ps.setString(4, winnerName);
+            ps.setString(5, amount);
+            ps.setString(6, netAmount);
+            ps.setLong(7, System.currentTimeMillis());
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            logger.log(Level.SEVERE, "Failed to add pending notification", e);
+        }
+    }
+
+    @Override
+    public java.util.List<String[]> getAndClearPendingNotifications(UUID playerUUID) {
+        java.util.List<String[]> notifications = new java.util.ArrayList<>();
+        String selectSql = "SELECT type, item_name, winner_name, amount, net_amount FROM auctify_pending_notifications WHERE player_uuid = ?";
+        String deleteSql = "DELETE FROM auctify_pending_notifications WHERE player_uuid = ?";
+        try (Connection c = dataSource.getConnection()) {
+            // Select
+            try (PreparedStatement ps = c.prepareStatement(selectSql)) {
+                ps.setString(1, playerUUID.toString());
+                ResultSet rs = ps.executeQuery();
+                while (rs.next()) {
+                    notifications.add(new String[] {
+                            rs.getString("type"),
+                            rs.getString("item_name"),
+                            rs.getString("winner_name"),
+                            rs.getString("amount"),
+                            rs.getString("net_amount")
+                    });
+                }
+            }
+            // Delete
+            try (PreparedStatement ps = c.prepareStatement(deleteSql)) {
+                ps.setString(1, playerUUID.toString());
+                ps.executeUpdate();
+            }
+        } catch (SQLException e) {
+            logger.log(Level.SEVERE, "Failed to get/clear pending notifications", e);
+        }
+        return notifications;
+    }
+
+    @Override
+    public double[] getPriceStats(String itemType) {
+        // TODO: Query history table for item type stats
+        return null;
+    }
+
+    // ─── Buy Order Implementation ───────────────────
+
+    @Override
+    public void saveBuyOrder(dev.auctify.auction.BuyOrder order) {
+        // TODO: Implement buy order storage
+    }
+
+    @Override
+    public void deleteBuyOrder(String orderId) {
+        // TODO: Implement buy order deletion
+    }
+
+    @Override
+    public java.util.List<dev.auctify.auction.BuyOrder> getAllBuyOrders() {
+        // TODO: Implement buy order retrieval
+        return java.util.Collections.emptyList();
+    }
+
+    @Override
+    public java.util.List<dev.auctify.auction.BuyOrder> getBuyOrdersByPlayer(UUID playerUUID) {
+        // TODO: Implement buy order retrieval by player
+        return java.util.Collections.emptyList();
+    }
+
     /** {@inheritDoc} */
     @Override
     public void shutdown() {

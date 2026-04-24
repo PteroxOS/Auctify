@@ -103,6 +103,20 @@ public class PlayerQuitListener implements Listener {
                                 "[Auctify] Delivered pending refund of " + plugin.getEconomyManager().format(r.amount())
                                         + " to " + player.getName() + " — reason: " + r.reason()));
                     }
+
+                    // Deliver pending notifications (auction sold while offline)
+                    List<String[]> notifications = plugin.getStorageManager()
+                            .getAndClearPendingNotifications(player.getUniqueId());
+                    for (String[] notif : notifications) {
+                        if ("AUCTION_SOLD".equals(notif[0])) {
+                            // notif: [type, itemName, winnerName, amount, netAmount]
+                            MessageUtil.send(player, "auction-sold-offline",
+                                    Map.of("item", notif[1],
+                                            "winner", notif[2],
+                                            "amount", notif[3],
+                                            "net", notif[4]));
+                        }
+                    }
                 });
             }
         });

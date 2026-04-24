@@ -9,12 +9,16 @@ Complete technical reference for commands, permissions, configuration, and secur
 | `/ac`                                     | Opens the main Auction House GUI | `auctify.use`   |
 | `/ac sell <start> [buyout] [duration]`    | List held item for auction       | `auctify.sell`  |
 | `/ac bid <id> <amount>`                   | Place bid on a listing           | `auctify.bid`   |
+| `/ac bidhistory <id>`                     | View bid history for a listing   | `auctify.bid`   |
 | `/ac search <query>`                      | Search items by name/seller      | `auctify.use`   |
 | `/ac history`                             | View your transaction history    | `auctify.use`   |
 | `/ac claim`                               | Collect pending items/refunds    | `auctify.use`   |
 | `/ac cancel <id>`                         | Cancel your listing              | `auctify.sell`  |
+| `/ac extend <id> <minutes>`               | Extend auction expiry            | `auctify.sell`  |
+| `/ac bulkcancel`                          | Cancel all your auctions         | `auctify.sell`  |
 | `/ac admin`                               | Open admin moderation panel      | `auctify.admin` |
 | `/ac admin blacklist <add\|remove\|list>` | Manage blacklist                 | `auctify.admin` |
+| `/ac setup`                               | Run interactive setup wizard     | `auctify.admin` |
 | `/ac reload`                              | Reload config and locales        | `auctify.admin` |
 
 _Aliases: `/ah`, `/au`, `/auction`, `/auctify`_
@@ -120,6 +124,20 @@ The claim system uses **atomic operations** — no duplication possible even if 
 | `auctify.admin`              | Full admin access                  | op      |
 | `auctify.bypass.maxlistings` | Ignore listing limit               | op      |
 | `auctify.bypass.tax`         | Exempt from sales tax              | false   |
+
+### Listing Limit Tiers (v1.0.1+)
+
+Control how many active listings players can have:
+
+| Permission                   | Max Listings | Usage Example               |
+| :--------------------------- | :----------- | :-------------------------- |
+| _(none)_                     | 3            | Default for regular players |
+| `auctify.listings.5`         | 5            | For VIP/VIP+ ranks          |
+| `auctify.listings.10`        | 10           | For MVP/MVP+ ranks          |
+| `auctify.listings.unlimited` | Unlimited    | For staff/OPs               |
+| Operators (OP)               | Unlimited    | Automatic unlimited access  |
+
+**Note:** The old `auctify.bypass.maxlistings` permission is still supported but deprecated in favor of the tier system.
 
 ---
 

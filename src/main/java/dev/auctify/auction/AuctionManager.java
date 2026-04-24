@@ -122,16 +122,14 @@ public class AuctionManager {
             return null;
         }
 
-        // Max listings check (bypass with permission)
-        if (!seller.hasPermission("auctify.bypass.maxlistings")) {
-            int maxListings = config.getInt("general.max-listings-per-player", 5);
-            long currentCount = activeListings.values().stream()
-                    .filter(l -> l.getSellerUUID().equals(seller.getUniqueId()) && l.isActive())
-                    .count();
-            if (currentCount >= maxListings) {
-                MessageUtil.send(seller, "max-listings-reached", Map.of("max", String.valueOf(maxListings)));
-                return null;
-            }
+        // Max listings check based on permissions (operators bypass all limits)
+        int maxListings = getMaxListingsForPlayer(seller);
+        long currentCount = activeListings.values().stream()
+                .filter(l -> l.getSellerUUID().equals(seller.getUniqueId()) && l.isActive())
+                .count();
+        if (currentCount >= maxListings) {
+            MessageUtil.send(seller, "max-listings-reached", Map.of("max", String.valueOf(maxListings)));
+            return null;
         }
 
         // Validate price range and guard against NaN/Infinity exploits
@@ -253,6 +251,10 @@ public class AuctionManager {
             MessageUtil.send(bidder, "bid-own-listing", null);
             return false;
         }
+        if (!listing.canBid(bidder.getUniqueId())) {
+            MessageUtil.send(bidder, "auction-private", null);
+            return false;
+        }
         if (bidder.getUniqueId().equals(listing.getTopBidderUUID())) {
             MessageUtil.send(bidder, "already-top-bidder", null);
             return false;
@@ -322,6 +324,19 @@ public class AuctionManager {
 
             storage.saveListing(listing);
         } // end synchronized
+
+        // Record bid in history
+        storage.recordBid(listingId, bidder.getUniqueId(), bidder.getName(), amount);
+
+        // Sniping protection: extend auction if bid placed near end
+        long timeRemaining = listing.getEndTime() - System.currentTimeMillis();
+        int snipingThreshold = config.getInt("general.sniping-protection-seconds", 30) * 1000;
+        int snipingExtension = config.getInt("general.sniping-extension-seconds", 30) * 1000;
+        if (snipingThreshold > 0 && snipingExtension > 0 && timeRemaining < snipingThreshold) {
+            listing.setEndTime(listing.getEndTime() + snipingExtension);
+            MessageUtil.broadcastRaw("§7[Auction] §e" + listingId + " §7extended by §a" + (snipingExtension / 1000)
+                    + "s §7(sniping protection)");
+        }
 
         MessageUtil.send(bidder, "bid-success",
                 Map.of("item", ItemUtil.getDisplayName(listing.getItem())));
@@ -563,6 +578,11 @@ public class AuctionManager {
                                 "amount", economy.format(finalPrice),
                                 "tax", String.format("%.1f", taxPercent),
                                 "net", economy.format(netAmount)));
+            } else {
+                // Save pending notification for offline seller
+                storage.addPendingNotification(listing.getSellerUUID(), "AUCTION_SOLD",
+                        ItemUtil.getDisplayName(listing.getItem()), winnerName,
+                        economy.format(finalPrice), economy.format(netAmount));
             }
 
             // Broadcast if enabled
@@ -666,8 +686,14 @@ public class AuctionManager {
         String lower = query.toLowerCase();
         return activeListings.values().stream()
                 .filter(l -> l.isActive() && !l.isExpired())
-                .filter(l -> ItemUtil.getDisplayName(l.getItem()).toLowerCase().contains(lower)
-                        || l.getSellerName().toLowerCase().contains(lower))
+                .filter(l -> {
+                    String itemName = ItemUtil.getDisplayName(l.getItem()).toLowerCase();
+                    String sellerName = l.getSellerName().toLowerCase();
+                    String material = l.getItem().getType().name().toLowerCase().replace("_", " ");
+                    return itemName.contains(lower)
+                            || sellerName.contains(lower)
+                            || material.contains(lower);
+                })
                 .collect(Collectors.toList());
     }
 
@@ -727,5 +753,90 @@ public class AuctionManager {
         int saved = saveAllListings();
         logger.info("Saved " + saved + " active listings for next startup.");
         activeListings.clear();
+    }
+
+    /**
+     * Gets the maximum number of listings allowed for a player based on
+     * permissions.
+     * Permission tiers: auctify.listings.unlimited (ops), .10, .5, default 3
+     */
+    public int getMaxListingsForPlayer(Player player) {
+        if (player.isOp() || player.hasPermission("auctify.listings.unlimited")) {
+            return Integer.MAX_VALUE; // Unlimited
+        }
+        if (player.hasPermission("auctify.listings.10")) {
+            return 10;
+        }
+        if (player.hasPermission("auctify.listings.5")) {
+            return 5;
+        }
+        // Default: 3 listings
+        return 3;
+    }
+
+    /**
+     * Extends the expiry time of an auction if it has no bids.
+     * Seller can extend to keep the auction alive longer.
+     *
+     * @param player    the seller
+     * @param listingId the auction ID
+     * @param minutes   how many minutes to extend
+     * @return true if extended successfully
+     */
+    public boolean extendAuction(Player player, String listingId, int minutes) {
+        AuctionListing listing = activeListings.get(listingId);
+        if (listing == null || !listing.isActive() || listing.isExpired()) {
+            MessageUtil.send(player, "listing-not-found", Map.of("listing_id", listingId));
+            return false;
+        }
+        if (!listing.getSellerUUID().equals(player.getUniqueId())) {
+            MessageUtil.send(player, "not-your-listing", null);
+            return false;
+        }
+        if (listing.hasBids()) {
+            MessageUtil.send(player, "cannot-extend-has-bids", null);
+            return false;
+        }
+
+        // Get max extension limit from config
+        int maxExtension = plugin.getConfig().getInt("general.max-auction-extension-minutes", 60);
+        if (minutes > maxExtension) {
+            MessageUtil.send(player, "extension-too-long", Map.of("max", String.valueOf(maxExtension)));
+            return false;
+        }
+
+        // Extend the auction
+        long newEndTime = listing.getEndTime() + (minutes * 60 * 1000L);
+        listing.setEndTime(newEndTime);
+        storage.saveListing(listing);
+
+        MessageUtil.send(player, "auction-extended",
+                Map.of("id", listingId,
+                        "minutes", String.valueOf(minutes)));
+        return true;
+    }
+
+    /**
+     * Cancels all active listings owned by a player.
+     * Items are returned to the player's inventory.
+     *
+     * @param player the player whose auctions to cancel
+     * @return number of auctions cancelled
+     */
+    public int bulkCancelAuctions(Player player) {
+        UUID playerUUID = player.getUniqueId();
+        List<AuctionListing> toCancel = activeListings.values().stream()
+                .filter(l -> l.isActive() && !l.isExpired())
+                .filter(l -> l.getSellerUUID().equals(playerUUID))
+                .filter(l -> !l.hasBids()) // Can't cancel if has bids
+                .collect(Collectors.toList());
+
+        int count = 0;
+        for (AuctionListing listing : toCancel) {
+            if (cancelListing(player, listing.getId())) {
+                count++;
+            }
+        }
+        return count;
     }
 }

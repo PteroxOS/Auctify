@@ -21,7 +21,8 @@ public class TabCompleter implements org.bukkit.command.TabCompleter {
     /** All available subcommand names. */
     private static final List<String> SUBCOMMANDS = Arrays.asList(
             "sell", "bid", "open", "cancel", "search", "history", "about",
-            "claim", "admin", "setup", "reload", "help");
+            "claim", "admin", "setup", "reload", "help",
+            "bidhistory", "extend", "bulkcancel");
 
     /** @param plugin the main plugin instance */
     public TabCompleter(Auctify plugin) {
@@ -57,7 +58,7 @@ public class TabCompleter implements org.bukkit.command.TabCompleter {
                     }
                     yield List.of();
                 }
-                case "cancel" -> {
+                case "cancel", "extend", "bidhistory" -> {
                     // Only suggest listing IDs the player owns (or all if admin)
                     if (sender instanceof Player player) {
                         boolean isAdmin = player.hasPermission("auctify.admin");
@@ -81,6 +82,7 @@ public class TabCompleter implements org.bukkit.command.TabCompleter {
             return switch (sub) {
                 case "sell" -> List.of("[buyout]");
                 case "bid" -> List.of("<amount>");
+                case "extend" -> List.of("<minutes>");
                 default -> List.of();
             };
         }

@@ -19,8 +19,10 @@ import java.util.UUID;
  * and timing. Fields are immutable where possible, with synchronized mutators
  * for bid application to prevent concurrent bid corruption.
  *
- * <p>The stored {@link ItemStack} is always a defensive copy — the original
- * item is never mutated by this class.</p>
+ * <p>
+ * The stored {@link ItemStack} is always a defensive copy — the original
+ * item is never mutated by this class.
+ * </p>
  */
 public class AuctionListing {
 
@@ -33,13 +35,18 @@ public class AuctionListing {
     /** Display name of the seller at listing creation time. */
     private final String sellerName;
 
-    /** Defensive copy of the auctioned item. Never returned directly — always cloned. */
+    /**
+     * Defensive copy of the auctioned item. Never returned directly — always
+     * cloned.
+     */
     private final ItemStack item;
 
     /** The starting price set by the seller. */
     private final double startPrice;
 
-    /** The buyout (instant-win) price, or 0 if buyout is disabled for this listing. */
+    /**
+     * The buyout (instant-win) price, or 0 if buyout is disabled for this listing.
+     */
     private final double buyoutPrice;
 
     /** The current highest bid amount. Starts equal to startPrice. */
@@ -57,7 +64,9 @@ public class AuctionListing {
     /** Epoch milliseconds when this listing was created. */
     private final long createdAt;
 
-    /** Epoch milliseconds when this listing expires. Recalculated on server start. */
+    /**
+     * Epoch milliseconds when this listing expires. Recalculated on server start.
+     */
     private volatile long endTime;
 
     /** Whether this listing is still active (not yet resolved). */
@@ -70,25 +79,30 @@ public class AuctionListing {
     private final boolean binOnly;
 
     /**
+     * Whitelisted player UUIDs for private auctions. If empty, auction is public.
+     */
+    private volatile List<UUID> whitelist = null;
+
+    /**
      * Constructs a new AuctionListing with all required fields.
      * The item is stored as a defensive copy to prevent external mutation.
      *
-     * @param id           unique 8-character ID
-     * @param sellerUUID   UUID of the seller
-     * @param sellerName   display name of the seller
-     * @param item         the item being auctioned (a defensive copy is stored)
-     * @param startPrice   the starting bid price
-     * @param buyoutPrice  the buyout price, or 0 for no buyout
-     * @param createdAt    epoch millis of creation
-     * @param endTime      epoch millis when the auction expires
+     * @param id          unique 8-character ID
+     * @param sellerUUID  UUID of the seller
+     * @param sellerName  display name of the seller
+     * @param item        the item being auctioned (a defensive copy is stored)
+     * @param startPrice  the starting bid price
+     * @param buyoutPrice the buyout price, or 0 for no buyout
+     * @param createdAt   epoch millis of creation
+     * @param endTime     epoch millis when the auction expires
      */
     public AuctionListing(String id, UUID sellerUUID, String sellerName, ItemStack item,
-                          double startPrice, double buyoutPrice, long createdAt, long endTime) {
+            double startPrice, double buyoutPrice, long createdAt, long endTime) {
         this(id, sellerUUID, sellerName, item, startPrice, buyoutPrice, createdAt, endTime, false);
     }
 
     public AuctionListing(String id, UUID sellerUUID, String sellerName, ItemStack item,
-                          double startPrice, double buyoutPrice, long createdAt, long endTime, boolean binOnly) {
+            double startPrice, double buyoutPrice, long createdAt, long endTime, boolean binOnly) {
         this.id = id;
         this.sellerUUID = sellerUUID;
         this.sellerName = sellerName;
@@ -109,30 +123,30 @@ public class AuctionListing {
     /**
      * Full constructor for rebuilding listings from storage (includes bid state).
      *
-     * @param id             unique 8-character ID
-     * @param sellerUUID     UUID of the seller
-     * @param sellerName     display name of the seller
-     * @param item           the item being auctioned
-     * @param startPrice     the starting bid price
-     * @param buyoutPrice    the buyout price, or 0 for no buyout
-     * @param currentBid     the current highest bid
-     * @param topBidderUUID  UUID of the top bidder, or null
-     * @param topBidderName  name of the top bidder, or null
-     * @param createdAt      epoch millis of creation
-     * @param endTime        epoch millis of expiry
+     * @param id            unique 8-character ID
+     * @param sellerUUID    UUID of the seller
+     * @param sellerName    display name of the seller
+     * @param item          the item being auctioned
+     * @param startPrice    the starting bid price
+     * @param buyoutPrice   the buyout price, or 0 for no buyout
+     * @param currentBid    the current highest bid
+     * @param topBidderUUID UUID of the top bidder, or null
+     * @param topBidderName name of the top bidder, or null
+     * @param createdAt     epoch millis of creation
+     * @param endTime       epoch millis of expiry
      */
     public AuctionListing(String id, UUID sellerUUID, String sellerName, ItemStack item,
-                          double startPrice, double buyoutPrice, double currentBid,
-                          UUID topBidderUUID, String topBidderName,
-                          long createdAt, long endTime) {
+            double startPrice, double buyoutPrice, double currentBid,
+            UUID topBidderUUID, String topBidderName,
+            long createdAt, long endTime) {
         this(id, sellerUUID, sellerName, item, startPrice, buyoutPrice, currentBid,
-             topBidderUUID, topBidderName, createdAt, endTime, false);
+                topBidderUUID, topBidderName, createdAt, endTime, false);
     }
 
     public AuctionListing(String id, UUID sellerUUID, String sellerName, ItemStack item,
-                          double startPrice, double buyoutPrice, double currentBid,
-                          UUID topBidderUUID, String topBidderName,
-                          long createdAt, long endTime, boolean binOnly) {
+            double startPrice, double buyoutPrice, double currentBid,
+            UUID topBidderUUID, String topBidderName,
+            long createdAt, long endTime, boolean binOnly) {
         this.id = id;
         this.sellerUUID = sellerUUID;
         this.sellerName = sellerName;
@@ -152,16 +166,18 @@ public class AuctionListing {
 
     /**
      * Applies a new bid to this listing. Thread-safe via synchronization.
-     * Validates that the bid exceeds the current bid by at least the minimum increment.
+     * Validates that the bid exceeds the current bid by at least the minimum
+     * increment.
      *
-     * @param bidder      the UUID of the bidding player
-     * @param bidderName  the display name of the bidder
-     * @param amount      the bid amount
+     * @param bidder       the UUID of the bidding player
+     * @param bidderName   the display name of the bidder
+     * @param amount       the bid amount
      * @param minIncrement the minimum bid increment from config
      * @throws IllegalArgumentException if the bid amount is too low
      */
     public synchronized void applyBid(UUID bidder, String bidderName, double amount, double minIncrement) {
-        // Validate that the new bid exceeds the current bid by at least the min increment
+        // Validate that the new bid exceeds the current bid by at least the min
+        // increment
         double minimumRequired = currentBid + minIncrement;
 
         // For the first bid, only require the bid to be >= start price
@@ -248,7 +264,8 @@ public class AuctionListing {
         // Format the time remaining using the config time format
         String timeLeft = TimeUtil.formatSeconds(getTimeRemainingSeconds(), config);
 
-        // Replace placeholders in each lore line from the template, convert to Components
+        // Replace placeholders in each lore line from the template, convert to
+        // Components
         for (String line : loreTemplate) {
             String processed = line
                     .replace("{seller}", sellerName)
@@ -266,7 +283,8 @@ public class AuctionListing {
     }
 
     /**
-     * Returns a defensive copy of the stored item. Never exposes the internal reference.
+     * Returns a defensive copy of the stored item. Never exposes the internal
+     * reference.
      *
      * @return a clone of the auctioned ItemStack
      */
@@ -334,7 +352,9 @@ public class AuctionListing {
     }
 
     /**
-     * Sets the end time. Used on server startup to recalculate from remaining seconds.
+     * Sets the end time. Used on server startup to recalculate from remaining
+     * seconds.
+     * 
      * @param endTime the new absolute end time in epoch millis
      */
     public void setEndTime(long endTime) {
@@ -369,6 +389,7 @@ public class AuctionListing {
     /**
      * Sets the tax exempt status. Should be called at listing creation time
      * to persist the seller's permission state.
+     * 
      * @param taxExempt true if the seller has tax bypass permission
      */
     public void setTaxExempt(boolean taxExempt) {
@@ -380,9 +401,11 @@ public class AuctionListing {
      * Used when an {@link dev.auctify.auction.AuctifyBidEvent} is cancelled
      * after {@code applyBid()} has already mutated listing state.
      *
-     * @param previousBidder the UUID of the previous top bidder (null if no prior bids)
+     * @param previousBidder the UUID of the previous top bidder (null if no prior
+     *                       bids)
      * @param previousAmount the previous bid amount
-     * @param hadBid         whether there was a prior bid before the rolled-back one
+     * @param hadBid         whether there was a prior bid before the rolled-back
+     *                       one
      */
     public synchronized void rollbackBid(UUID previousBidder, double previousAmount, boolean hadBid) {
         if (hadBid) {
@@ -405,5 +428,42 @@ public class AuctionListing {
         if (!bidHistory.isEmpty()) {
             bidHistory.remove(bidHistory.size() - 1);
         }
+    }
+
+    // ─── Whitelist Management ────────────────────────
+
+    /**
+     * Sets the whitelist for this auction. If null or empty, auction is public.
+     * 
+     * @param whitelist list of allowed bidder UUIDs
+     */
+    public void setWhitelist(List<UUID> whitelist) {
+        this.whitelist = whitelist != null && !whitelist.isEmpty() ? new ArrayList<>(whitelist) : null;
+    }
+
+    /**
+     * Gets the whitelist for this auction. Returns null if public.
+     */
+    public List<UUID> getWhitelist() {
+        return whitelist != null ? new ArrayList<>(whitelist) : null;
+    }
+
+    /**
+     * Checks if this auction is private (has a whitelist).
+     */
+    public boolean isPrivate() {
+        return whitelist != null && !whitelist.isEmpty();
+    }
+
+    /**
+     * Checks if a player is allowed to bid on this auction.
+     * 
+     * @param playerUUID the player's UUID
+     * @return true if auction is public or player is whitelisted
+     */
+    public boolean canBid(UUID playerUUID) {
+        if (!isPrivate())
+            return true;
+        return whitelist.contains(playerUUID);
     }
 }

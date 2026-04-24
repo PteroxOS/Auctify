@@ -151,3 +151,20 @@ gui-sort-price-asc: "§7Harga (Termurah)"
 gui-sort-price-desc: "§7Harga (Termahal)"
 gui-sort-bids: "§7Bid Terbanyak"
 bin-only-label: "§c[HANYA BIN]"
+
+# ─── FITUR BARU v1.0.1 ─────────────────────
+# --- Bid History ---
+bid-history-header: "§6=== Riwayat Bid untuk §e{id} §6==="
+bid-history-entry: "§7{bidder} §7bid §a{amount} §7pada §f{time}"
+bid-history-empty: "§7Belum ada bid untuk lelang ini."
+# --- Notifikasi Lelang ---
+auction-sold-offline: "§aLelang §f{item} §aterjual saat kamu offline! Pemenang: §e{winner} §aharga §f{amount} §a(Bersih: §f{net}§a)"
+# --- Perpanjangan ---
+cannot-extend-has-bids: "§cTidak bisa perpanjang lelang yang sudah punya bid."
+extension-too-long: "§cPerpanjangan terlalu lama. Maks: §f{max} §cmenit."
+auction-extended: "§aLelang §f{id} §adiperpanjang §f{minutes} §amenit."
+# --- Lelang Private ---
+auction-private: "§cLelang ini privat. Kamu tidak ada di whitelist."
+# --- Bulk Cancel ---
+bulk-cancel-success: "§aMembatalkan §f{count} §alelang."
+bulk-cancel-none: "§7Tidak ada lelang yang bisa dibatalkan (hanya yang belum punya bid)."

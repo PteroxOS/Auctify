@@ -205,12 +205,33 @@ discord:
   # Fired when a new item is listed
   on-new-listing:
     enabled: true
-    title: "🏷️ New Auction Listing!"
+    title: " New Auction Listing!"
     color: 3447003 # Hex color converted to integer (e.g. 3447003 is Blue)
   # Fired when an item is sold
   on-sale:
     enabled: true
-    title: "💰 Item Sold!"
+    title: " Item Sold!"
     color: 3066993 # Green
+
+# ─────────────────────────────────────────────
+#  NEW FEATURES v1.0.1
+# ─────────────────────────────────────────────
+
+# --- Auction Extension Settings ---
+# Maximum minutes a seller can extend their auction (if no bids)
+max-auction-extension-minutes: 60
+
+# --- Sniping Protection Settings ---
+# Auto-extend auction when bid placed in last X seconds (0 = disabled)
+sniping-protection-seconds: 30
+# How many seconds to extend when sniping detected
+sniping-extension-seconds: 30
+
+# --- Permission-based Listing Limits ---
+# Note: Override with permissions:
+#   auctify.listings.5      = 5 listings
+#   auctify.listings.10     = 10 listings
+#   auctify.listings.unlimited = unlimited
+# Operators always have unlimited listings
 
 # End of Configuration

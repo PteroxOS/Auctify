@@ -21,6 +21,13 @@ Auctify has undergone a complete security audit and refactor with the following 
 
 - **🧙 Interactive Setup Wizard**: 7-step chat-based configuration for first-time setup (`/ac setup`)
 - **💾 Automatic Backups**: SQLite database auto-backup with retention policy (v1.0.1)
+- **📝 Bid History**: Track all bids on every auction with `/ac bidhistory <id>`
+- **⏱️ Auction Extension**: Sellers can extend auction time if no bids placed (`/ac extend`)
+- **🛡️ Sniping Protection**: Auto-extend auctions by 30s when bid placed in last 30 seconds
+- **🔒 Private Auctions**: Whitelist specific players who can bid on your auction
+- **📦 Bulk Cancel**: Cancel all your active auctions at once with `/ac bulkcancel`
+- **🔔 Offline Notifications**: Get notified of sold auctions when you rejoin the server
+- **📊 Permission-based Limits**: Default 3 listings, configurable per-rank (5/10/unlimited)
 - **Real-Time Bidding**: Interactive chat-based bidding system with config-driven timeout (default 30s)
 - **Dynamic GUI**: Modern chest interface with auto-refresh support for live countdowns
 - **Buyout System**: Set instant-buy prices alongside bidding, or list as BIN-only
@@ -78,6 +85,7 @@ Auctify has undergone a complete security audit and refactor with the following 
 # Buyer Commands
 /ac open                    # Open auction house GUI
 /ac bid <id> <amount>       # Place bid via command
+/ac bidhistory <id>         # View bid history for a listing (v1.0.1)
 /ac search <query>          # Search listings
 /ac claim                   # Collect pending items/refunds
 /ac history                 # View your auction history
@@ -85,6 +93,8 @@ Auctify has undergone a complete security audit and refactor with the following 
 # Seller Commands
 /ac sell <start> [buyout] [duration]   # List item in hand
 /ac cancel <id>             # Cancel your listing
+/ac extend <id> <minutes>   # Extend auction time (v1.0.1)
+/ac bulkcancel              # Cancel all your auctions (v1.0.1)
 
 # Admin Commands
 /ac setup                   # Run interactive setup wizard (v1.0.1)

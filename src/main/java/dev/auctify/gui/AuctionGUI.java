@@ -58,8 +58,10 @@ public class AuctionGUI {
     public void open(Player player, int page, String category, String sortMode) {
         var config = plugin.getConfig();
         int rows = config.getInt("gui.rows", 6);
-        if (rows < 3) rows = 3;
-        if (rows > 6) rows = 6;
+        if (rows < 3)
+            rows = 3;
+        if (rows > 6)
+            rows = 6;
 
         String title = config.getString("gui.title", "§8✦ §6Auctify §8— §7Auction House §8✦");
         AuctifyHolder holder = new AuctifyHolder("MAIN");
@@ -80,8 +82,10 @@ public class AuctionGUI {
                 .collect(Collectors.toList());
 
         int totalPages = Math.max(1, (int) Math.ceil((double) listings.size() / itemsPerPage));
-        if (page >= totalPages) page = totalPages - 1;
-        if (page < 0) page = 0;
+        if (page >= totalPages)
+            page = totalPages - 1;
+        if (page < 0)
+            page = 0;
 
         // Fill listing slots
         int startIndex = page * itemsPerPage;
@@ -92,11 +96,13 @@ public class AuctionGUI {
 
         // Fill empty slots with filler
         Material filler = Material.matchMaterial(config.getString("gui.filler-material", "GRAY_STAINED_GLASS_PANE"));
-        if (filler == null) filler = Material.GRAY_STAINED_GLASS_PANE;
+        if (filler == null)
+            filler = Material.GRAY_STAINED_GLASS_PANE;
         ItemStack fillerItem = createFillerItem(filler);
 
         for (int i = endIndex - startIndex; i < (rows - 1) * 9; i++) {
-            if (inv.getItem(i) == null) inv.setItem(i, fillerItem);
+            if (inv.getItem(i) == null)
+                inv.setItem(i, fillerItem);
         }
 
         // Bottom navigation row — fill with filler first
@@ -140,12 +146,16 @@ public class AuctionGUI {
                 MessageUtil.get("gui-category-current", Map.of("category", catDisplayName)),
                 "",
                 MessageUtil.get("gui-category-click"),
-                category.equals("ALL") ? "§a▶ " + MessageUtil.get("gui-category-all") : "§7- " + MessageUtil.get("gui-category-all"),
-                category.equals("WEAPONS_TOOLS") ? "§a▶ " + MessageUtil.get("gui-category-weapons") : "§7- " + MessageUtil.get("gui-category-weapons"),
-                category.equals("ARMOR") ? "§a▶ " + MessageUtil.get("gui-category-armor") : "§7- " + MessageUtil.get("gui-category-armor"),
-                category.equals("BLOCKS") ? "§a▶ " + MessageUtil.get("gui-category-blocks") : "§7- " + MessageUtil.get("gui-category-blocks"),
-                category.equals("MISC") ? "§a▶ " + MessageUtil.get("gui-category-misc") : "§7- " + MessageUtil.get("gui-category-misc")
-        ));
+                category.equals("ALL") ? "§a▶ " + MessageUtil.get("gui-category-all")
+                        : "§7- " + MessageUtil.get("gui-category-all"),
+                category.equals("WEAPONS_TOOLS") ? "§a▶ " + MessageUtil.get("gui-category-weapons")
+                        : "§7- " + MessageUtil.get("gui-category-weapons"),
+                category.equals("ARMOR") ? "§a▶ " + MessageUtil.get("gui-category-armor")
+                        : "§7- " + MessageUtil.get("gui-category-armor"),
+                category.equals("BLOCKS") ? "§a▶ " + MessageUtil.get("gui-category-blocks")
+                        : "§7- " + MessageUtil.get("gui-category-blocks"),
+                category.equals("MISC") ? "§a▶ " + MessageUtil.get("gui-category-misc")
+                        : "§7- " + MessageUtil.get("gui-category-misc")));
 
         // Refresh Button (Slot 48)
         inv.setItem(48, createNavItem(Material.SUNFLOWER,
@@ -158,11 +168,12 @@ public class AuctionGUI {
         long activeCount = plugin.getAuctionManager().getActiveListings().stream()
                 .filter(l -> l.getSellerUUID().equals(player.getUniqueId()) && l.isActive())
                 .count();
-        int maxListings = config.getInt("general.max-listings-per-player", 5);
+        int maxListings = plugin.getAuctionManager().getMaxListingsForPlayer(player);
         inv.setItem(50, createNavItem(Material.PLAYER_HEAD,
                 MessageUtil.get("gui-profile-title", Map.of("player", player.getName())),
                 MessageUtil.get("gui-profile-balance", Map.of("balance", plugin.getEconomyManager().format(balance))),
-                MessageUtil.get("gui-profile-listings", Map.of("active", String.valueOf(activeCount), "max", String.valueOf(maxListings)))));
+                MessageUtil.get("gui-profile-listings",
+                        Map.of("active", String.valueOf(activeCount), "max", String.valueOf(maxListings)))));
 
         // History Button (Slot 51)
         inv.setItem(51, createNavItem(Material.CLOCK,
@@ -178,7 +189,8 @@ public class AuctionGUI {
 
         // Page Info
         inv.setItem(infoSlot, createNavItem(Material.BOOK,
-                MessageUtil.get("gui-page-info", Map.of("current", String.valueOf(page + 1), "total", String.valueOf(totalPages))),
+                MessageUtil.get("gui-page-info",
+                        Map.of("current", String.valueOf(page + 1), "total", String.valueOf(totalPages))),
                 MessageUtil.get("gui-page-listings", Map.of("count", String.valueOf(listings.size())))));
 
         if (page < totalPages - 1) {
@@ -211,16 +223,21 @@ public class AuctionGUI {
      */
     public void refresh(Player player, int page, String category) {
         Inventory inv = player.getOpenInventory().getTopInventory();
-        if (inv == null) return;
-        if (!(inv.getHolder() instanceof AuctifyHolder)) return;
+        if (inv == null)
+            return;
+        if (!(inv.getHolder() instanceof AuctifyHolder))
+            return;
 
         var config = plugin.getConfig();
         int rows = config.getInt("gui.rows", 6);
-        if (rows < 3) rows = 3;
-        if (rows > 6) rows = 6;
+        if (rows < 3)
+            rows = 3;
+        if (rows > 6)
+            rows = 6;
 
         int itemsPerPage = config.getInt("gui.items-per-page", -1);
-        if (itemsPerPage <= 0) itemsPerPage = (rows - 1) * 9;
+        if (itemsPerPage <= 0)
+            itemsPerPage = (rows - 1) * 9;
 
         List<AuctionListing> listings = plugin.getAuctionManager().getActiveListings().stream()
                 .filter(l -> !l.isExpired())
@@ -231,7 +248,8 @@ public class AuctionGUI {
         int totalPages = Math.max(1, (int) Math.ceil((double) listings.size() / itemsPerPage));
 
         Material filler = Material.matchMaterial(config.getString("gui.filler-material", "GRAY_STAINED_GLASS_PANE"));
-        if (filler == null) filler = Material.GRAY_STAINED_GLASS_PANE;
+        if (filler == null)
+            filler = Material.GRAY_STAINED_GLASS_PANE;
         ItemStack fillerItem = createFillerItem(filler);
 
         int startIndex = page * itemsPerPage;
@@ -262,11 +280,12 @@ public class AuctionGUI {
         long activeCount = plugin.getAuctionManager().getActiveListings().stream()
                 .filter(l -> l.getSellerUUID().equals(player.getUniqueId()) && l.isActive())
                 .count();
-        int maxListings = config.getInt("general.max-listings-per-player", 5);
+        int maxListings = plugin.getAuctionManager().getMaxListingsForPlayer(player);
         inv.setItem(50, createNavItem(Material.PLAYER_HEAD,
                 MessageUtil.get("gui-profile-title", Map.of("player", player.getName())),
                 MessageUtil.get("gui-profile-balance", Map.of("balance", plugin.getEconomyManager().format(balance))),
-                MessageUtil.get("gui-profile-listings", Map.of("active", String.valueOf(activeCount), "max", String.valueOf(maxListings)))));
+                MessageUtil.get("gui-profile-listings",
+                        Map.of("active", String.valueOf(activeCount), "max", String.valueOf(maxListings)))));
 
         // History
         inv.setItem(51, createNavItem(Material.CLOCK,
@@ -276,7 +295,8 @@ public class AuctionGUI {
 
         int infoSlot = config.getInt("gui.navigation.info-slot", 49);
         inv.setItem(infoSlot, createNavItem(Material.BOOK,
-                MessageUtil.get("gui-page-info", Map.of("current", String.valueOf(page + 1), "total", String.valueOf(totalPages))),
+                MessageUtil.get("gui-page-info",
+                        Map.of("current", String.valueOf(page + 1), "total", String.valueOf(totalPages))),
                 MessageUtil.get("gui-page-listings", Map.of("count", String.valueOf(listings.size())))));
     }
 
@@ -317,7 +337,8 @@ public class AuctionGUI {
     }
 
     private boolean matchesCategory(Material mat, String category) {
-        if ("ALL".equals(category)) return true;
+        if ("ALL".equals(category))
+            return true;
         String name = mat.name();
         switch (category) {
             case "WEAPONS_TOOLS":

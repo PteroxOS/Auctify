@@ -150,3 +150,20 @@ gui-sort-price-asc: "§7Price (Lowest First)"
 gui-sort-price-desc: "§7Price (Highest First)"
 gui-sort-bids: "§7Most Bids"
 bin-only-label: "§c[BIN ONLY]"
+
+# ─── NEW FEATURES v1.0.1 ─────────────────────
+# --- Bid History ---
+bid-history-header: "§6=== Bid History for §e{id} §6==="
+bid-history-entry: "§7{bidder} §7bid §a{amount} §7at §f{time}"
+bid-history-empty: "§7No bids for this auction yet."
+# --- Auction Notifications ---
+auction-sold-offline: "§aYour auction §f{item} §awas sold while you were offline! Winner: §e{winner} §afor §f{amount} §a(Net: §f{net}§a)"
+# --- Extension ---
+cannot-extend-has-bids: "§cCannot extend an auction that already has bids."
+extension-too-long: "§cExtension too long. Max: §f{max} §cminutes."
+auction-extended: "§aAuction §f{id} §aextended by §f{minutes} §aminutes."
+# --- Private Auction ---
+auction-private: "§cThis is a private auction. You are not on the whitelist."
+# --- Bulk Cancel ---
+bulk-cancel-success: "§aCancelled §f{count} §aauctions."
+bulk-cancel-none: "§7No eligible auctions to cancel (only auctions without bids can be cancelled)."

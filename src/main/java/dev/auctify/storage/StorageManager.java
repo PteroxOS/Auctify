@@ -225,4 +225,60 @@ public interface StorageManager {
     default boolean backup() {
         return true; // Default no-op for in-memory or unsupported backends
     }
+
+    // ─── Bid History System ───────────────────────────
+
+    /**
+     * Records a bid placed on an auction listing.
+     */
+    void recordBid(String listingId, UUID bidderUUID, String bidderName, double amount);
+
+    /**
+     * Retrieves the bid history for a specific auction listing.
+     */
+    java.util.List<dev.auctify.auction.BidRecord> getBidHistory(String listingId);
+
+    // ─── Price Statistics ──────────────────────────
+
+    /**
+     * Gets price statistics for an item type from auction history.
+     * Returns [avgPrice, minPrice, maxPrice, count] or null if no data.
+     */
+    double[] getPriceStats(String itemType);
+
+    // ─── Pending Notification System ────────────────
+
+    /**
+     * Adds a pending notification for a player who was offline when their auction
+     * ended.
+     */
+    void addPendingNotification(UUID playerUUID, String type, String itemName, String winnerName, String amount,
+            String netAmount);
+
+    /**
+     * Gets and clears pending notifications for a player.
+     */
+    java.util.List<String[]> getAndClearPendingNotifications(UUID playerUUID);
+
+    // ─── Buy Order System ───────────────────────────
+
+    /**
+     * Saves a buy order to storage.
+     */
+    void saveBuyOrder(dev.auctify.auction.BuyOrder order);
+
+    /**
+     * Deletes a buy order from storage.
+     */
+    void deleteBuyOrder(String orderId);
+
+    /**
+     * Gets all active buy orders.
+     */
+    java.util.List<dev.auctify.auction.BuyOrder> getAllBuyOrders();
+
+    /**
+     * Gets buy orders for a specific player.
+     */
+    java.util.List<dev.auctify.auction.BuyOrder> getBuyOrdersByPlayer(UUID playerUUID);
 }

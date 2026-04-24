@@ -42,6 +42,10 @@ public class AuctifyCommand implements CommandExecutor {
         subCommands.put("about", new AboutSubCommand(plugin));
         subCommands.put("claim", new ClaimSubCommand(plugin));
         subCommands.put("admin", new AdminSubCommand(plugin));
+        // New v1.0.1 features
+        subCommands.put("bidhistory", new BidHistorySubCommand(plugin));
+        subCommands.put("extend", new ExtendSubCommand(plugin));
+        subCommands.put("bulkcancel", new BulkCancelSubCommand(plugin));
         // Setup wizard is handled directly in onCommand
     }
 
@@ -130,6 +134,9 @@ public class AuctifyCommand implements CommandExecutor {
         MessageUtil.sendRaw(sender, " §e/ac cancel §6<id> §8» §7Cancel your listing");
         MessageUtil.sendRaw(sender, " §e/ac search §6<query> §8» §7Search listings");
         MessageUtil.sendRaw(sender, " §e/ac history §8» §7View your auction history");
+        MessageUtil.sendRaw(sender, " §e/ac bidhistory §6<id> §8» §7View bid history §b(NEW)");
+        MessageUtil.sendRaw(sender, " §e/ac extend §6<id> <minutes> §8» §7Extend auction §b(NEW)");
+        MessageUtil.sendRaw(sender, " §e/ac bulkcancel §8» §7Cancel all your auctions §b(NEW)");
         MessageUtil.sendRaw(sender, " §e/ac claim §8» §7Collect pending items");
         MessageUtil.sendRaw(sender, " §e/ac about §8» §7Plugin information");
         MessageUtil.sendRaw(sender, " §e/ac admin §8» §7Admin moderation panel §c(Admin)");
