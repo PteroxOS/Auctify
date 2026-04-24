@@ -205,8 +205,18 @@ public class AuctionManager {
         // Broadcast if enabled
         String itemName = ItemUtil.getDisplayName(item);
         if (config.getBoolean("general.broadcast-listings", true)) {
-            MessageUtil.broadcastRaw("§e" + seller.getName() + " §7listed §f" + itemName
-                    + " §7starting at §a" + economy.format(startPrice) + "§7!");
+            if (buyoutPrice > 0) {
+                MessageUtil.broadcast("listing-broadcast-buyout", Map.of(
+                        "seller", seller.getName(),
+                        "item", itemName,
+                        "start", economy.format(startPrice),
+                        "buyout", economy.format(buyoutPrice)));
+            } else {
+                MessageUtil.broadcast("listing-broadcast", Map.of(
+                        "seller", seller.getName(),
+                        "item", itemName,
+                        "start", economy.format(startPrice)));
+            }
         }
 
         // Discord webhook
@@ -333,16 +343,18 @@ public class AuctionManager {
         int snipingExtension = config.getInt("general.sniping-extension-seconds", 30) * 1000;
         if (snipingThreshold > 0 && snipingExtension > 0 && timeRemaining < snipingThreshold) {
             listing.setEndTime(listing.getEndTime() + snipingExtension);
-            MessageUtil.broadcastRaw("§7[Auction] §e" + listingId + " §7extended by §a" + (snipingExtension / 1000)
-                    + "s §7(sniping protection)");
+            MessageUtil.broadcast("auction-sniping-extended", Map.of(
+                    "id", listingId,
+                    "seconds", String.valueOf(snipingExtension / 1000)));
         }
 
         MessageUtil.send(bidder, "bid-success",
                 Map.of("item", ItemUtil.getDisplayName(listing.getItem())));
         if (config.getBoolean("general.broadcast-bids", true)) {
-            MessageUtil.broadcastRaw("§e" + bidder.getName() + " §7bid §a"
-                    + economy.format(amount) + " §7on §f"
-                    + ItemUtil.getDisplayName(listing.getItem()) + "§7!");
+            MessageUtil.broadcast("bid-broadcast", Map.of(
+                    "bidder", bidder.getName(),
+                    "amount", economy.format(amount),
+                    "item", ItemUtil.getDisplayName(listing.getItem())));
         }
         return true;
     }

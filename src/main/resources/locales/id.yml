@@ -8,8 +8,12 @@
 no-permission: "§cKamu tidak punya izin untuk melakukan itu."
 player-only: "§cPerintah ini hanya bisa dijalankan oleh pemain."
 listing-created: "§aLelang berhasil dibuat! §7ID: §f{listing_id}"
+listing-broadcast: "§e{seller} §7memasukkan §f{item} §7dengan harga awal §a{start}§7!"
+listing-broadcast-buyout: "§e{seller} §7memasukkan §f{item} §7dengan harga awal §a{start} §7dan buyout §c{buyout}§7!"
 buyout-min-price: "§cHarga buyout minimal §f{min}§c."
 buyout-not-set: "§cLelang ini tidak punya harga buyout."
+buyout-not-available: "Tidak tersedia"
+no-bids-yet: "Belum ada bid"
 inventory-full-items-dropped: "§7Inventory kamu penuh. Beberapa item dijatuhkan di kakimu."
 unknown-item: "Item Tidak Dikenal"
 listing-cancelled: "§aLelang dibatalkan. Itemmu telah dikembalikan."
@@ -37,6 +41,8 @@ chat-invalid-number: "§cJumlah tidak valid. Masukkan angka atau ketik §fbatal�
 chat-bid-timeout: "§cSesi bid kamu untuk §f{item} §ctelah habis. Gunakan /ac open untuk mencoba lagi."
 already-top-bidder: "§cKamu sudah menjadi penawar tertinggi untuk item ini."
 insufficient-funds: "§cSaldo tidak cukup. Kamu butuh §f{amount}§c."
+bid-broadcast: "§e{bidder} §7menawar §a{amount} §7pada §f{item}§7!"
+auction-sniping-extended: "§aLelang §f{id} §adiperpanjang §f{seconds} §adetik (sniping protection)!"
 
 # ─── GUI UTAMA ──────────────────────────────
 gui-previous-page: "§a◀ Halaman Sebelumnya"

@@ -2,6 +2,7 @@ package dev.auctify.auction;
 
 import dev.auctify.util.ColorUtil;
 import dev.auctify.util.ItemUtil;
+import dev.auctify.util.MessageUtil;
 import dev.auctify.util.TimeUtil;
 import net.kyori.adventure.text.Component;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -245,7 +246,9 @@ public class AuctionListing {
 
         // Read lore template from config at call-time
         List<String> loreTemplate = config.getStringList("display.lore");
-        String noBidderPlaceholder = config.getString("display.no-bidder-placeholder", "§7No bids yet");
+        String noBidderDefault = "§7" + MessageUtil.getMessage("no-bids-yet");
+        String noBidderPlaceholder = config.getString("display.no-bidder-placeholder",
+                noBidderDefault.isEmpty() ? "§7No bids yet" : noBidderDefault);
 
         // Build the display lore as Adventure Components
         List<Component> lore = new ArrayList<>();
@@ -265,7 +268,8 @@ public class AuctionListing {
         String timeLeft = TimeUtil.formatSeconds(getTimeRemainingSeconds(), config);
 
         // Format buyout price display
-        String buyoutDisplay = (buyoutPrice > 0) ? String.format("%.2f", buyoutPrice) : "§7Not available";
+        String buyoutDisplay = (buyoutPrice > 0) ? String.format("%.2f", buyoutPrice)
+                : "§7" + MessageUtil.getMessage("buyout-not-available");
 
         // Replace placeholders in each lore line from the template, convert to
         // Components
