@@ -76,6 +76,32 @@ public class DiscordWebhookUtil {
     }
 
     /**
+     * Sends an embed for an expired listing (ended without bids).
+     */
+    public void sendExpiredEmbed(String seller, String item, String startPrice) {
+        FileConfiguration config = plugin.getConfig();
+        if (!config.getBoolean("discord.enabled", false))
+            return;
+        if (!config.getBoolean("discord.on-expire.enabled", true))
+            return;
+
+        String webhookUrl = getWebhookUrl(config);
+        if (webhookUrl == null)
+            return;
+
+        String title = config.getString("discord.on-expire.title", "⏰ Auction Expired");
+        int color = config.getInt("discord.on-expire.color", 10070709); // Gray
+
+        String jsonPayload = buildJson(title, color,
+                field("Seller", seller, true),
+                field("Item", item, true),
+                field("Start Price", startPrice, true),
+                field("Status", "No bids received", false));
+
+        sendAsync(webhookUrl, jsonPayload);
+    }
+
+    /**
      * Validates and returns the webhook URL, or null if invalid/placeholder.
      */
     private String getWebhookUrl(FileConfiguration config) {

@@ -73,32 +73,20 @@ public class Auctify extends JavaPlugin {
     /** Admin moderation GUI builder. */
     private AdminGUI adminGUI;
 
+    /** World manager for per-world auction house. */
+    private dev.auctify.util.WorldManager worldManager;
+
     /** The expiry task for cancellation on disable. */
     private AuctionExpiryTask expiryTask;
 
     /** The auto-save task. */
     private org.bukkit.scheduler.BukkitTask autoSaveTask;
 
-    // === FEATURE TODOs ===
-
-    // CORE FEATURES
+    // TODO: Add per-world or per-region auction house support
+    // TODO: Add item blacklist (prevent listing certain materials)
     // TODO: Add GUI pagination animation (smooth item transition)
-    // TODO: Add Discord webhook notification on auction end (not just new
-    // listing/sale)
+    // TODO: Add Discord webhook notification on auction end
     // TODO: Add PlaceholderAPI support for leaderboard placeholders
-    // (%auctify_top_seller%, etc.)
-
-    // CONFIGURABLE FEATURES (config.yml + setup wizard)
-    // TODO: Add per-world auction house support - configurable in config.yml, part
-    // of setup wizard
-    // - Enable/disable per world
-    // - Separate auction house per world or global
-    // - World blacklist (disable in specific worlds)
-
-    // ADMIN FEATURES
-    // TODO: Add item blacklist (prevent listing certain materials) - admin only
-    // - Config: blacklisted-materials: [BARRIER, BEDROCK, COMMAND_BLOCK]
-    // - Permission: auctify.admin.blacklist.bypass
 
     /**
      * Called when the plugin is enabled. Initializes everything in dependency
@@ -161,6 +149,7 @@ public class Auctify extends JavaPlugin {
         shulkerPreviewGUI = new ShulkerPreviewGUI(this);
         rateGUI = new RateGUI(this);
         adminGUI = new AdminGUI(this);
+        worldManager = new dev.auctify.util.WorldManager(this);
 
         discordWebhookUtil = new dev.auctify.util.DiscordWebhookUtil(this);
 
@@ -205,7 +194,7 @@ public class Auctify extends JavaPlugin {
 
         // Register PlaceholderAPI expansion if available
         if (getServer().getPluginManager().getPlugin("PlaceholderAPI") != null) {
-            new dev.auctify.hook.AuctifyPlaceholderExpansion(this).register();
+            new dev.auctify.hook.PlaceholderAPIHook(this).register();
             getLogger().info("§e⚡ §7PlaceholderAPI expansion registered.");
         }
 
@@ -437,5 +426,10 @@ public class Auctify extends JavaPlugin {
     /** @return the admin GUI builder */
     public AdminGUI getAdminGUI() {
         return adminGUI;
+    }
+
+    /** @return the world manager for per-world auction house */
+    public dev.auctify.util.WorldManager getWorldManager() {
+        return worldManager;
     }
 }

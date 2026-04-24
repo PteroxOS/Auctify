@@ -122,6 +122,15 @@ public class AuctionManager {
             return null;
         }
 
+        // Item blacklist check (admin configurable)
+        String materialName = item.getType().name();
+        var blacklistedMaterials = config.getStringList("blacklist.materials");
+        String bypassPerm = config.getString("blacklist.bypass-permission", "auctify.admin.blacklist.bypass");
+        if (blacklistedMaterials.contains(materialName) && !seller.hasPermission(bypassPerm)) {
+            MessageUtil.send(seller, "blacklisted-material", Map.of("material", materialName));
+            return null;
+        }
+
         // Max listings check based on permissions (operators bypass all limits)
         int maxListings = getMaxListingsForPlayer(seller);
         long currentCount = activeListings.values().stream()
@@ -551,6 +560,12 @@ public class AuctionManager {
                     listing.getId(), listing.getSellerUUID(), listing.getSellerName(),
                     null, null, ItemUtil.serializeToBase64(listing.getItem()),
                     listing.getStartPrice(), 0, 0, System.currentTimeMillis(), "EXPIRED"));
+
+            // Discord webhook notification for expired auction
+            plugin.getDiscordWebhookUtil().sendExpiredEmbed(
+                    listing.getSellerName(),
+                    ItemUtil.getDisplayName(listing.getItem()),
+                    economy.format(listing.getStartPrice()));
         } else {
             // Has a winner — deliver item and pay seller
             UUID winnerUUID = listing.getTopBidderUUID();

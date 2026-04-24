@@ -73,6 +73,14 @@ public class AuctifyCommand implements CommandExecutor {
             return true;
         }
 
+        // World restriction check for players
+        if (sender instanceof Player player) {
+            if (!plugin.getWorldManager().canUseAuctionHouse(player)) {
+                MessageUtil.send(player, "world-blacklisted", null);
+                return true;
+            }
+        }
+
         // "setup" subcommand → launch setup wizard
         if (args[0].equalsIgnoreCase("setup")) {
             if (!(sender instanceof Player player)) {

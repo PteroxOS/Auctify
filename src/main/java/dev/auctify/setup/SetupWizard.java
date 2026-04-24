@@ -64,7 +64,7 @@ public class SetupWizard {
                 if (state != null) {
                     state.discordWebhook = url;
                     MessageUtil.sendPlain(player, "§a✓ Webhook test successful!");
-                    showStep7_Backup(player);
+                    showStep9_Backup(player);
                 }
             } else {
                 MessageUtil.sendPlain(player, "§c✗ Webhook test failed!");
@@ -92,7 +92,7 @@ public class SetupWizard {
         waitingForWebhookInput.remove(player.getUniqueId());
         SetupState state = activeSetups.get(player.getUniqueId());
         if (state != null) {
-            showStep7_Backup(player);
+            showStep9_Backup(player);
         }
     }
 
@@ -365,14 +365,77 @@ public class SetupWizard {
         MessageUtil.sendPlain(player, "");
     }
 
-    // ========== STEP 6: DISCORD ==========
-    private void showStep6_Discord(Player player) {
+    // ========== STEP 6: PER-WORLD ==========
+    private void showStep6_PerWorld(Player player) {
         SetupState state = activeSetups.get(player.getUniqueId());
         if (state == null)
             return;
 
         boolean isId = state.locale.equals("id");
-        String title = isId ? "SETUP WIZARD (Step 6/7)" : "SETUP WIZARD (Step 6/7)";
+        String title = isId ? "SETUP WIZARD (Step 6/9)" : "SETUP WIZARD (Step 6/9)";
+        String prompt = isId ? "Mode auction house per-world:" : "Per-world auction house mode:";
+
+        MessageUtil.sendPlain(player, "");
+        MessageUtil.sendPlain(player, "§8|================================================");
+        MessageUtil.sendPlain(player, "§8|           §6§l" + title);
+        MessageUtil.sendPlain(player, "§8|================================================");
+        MessageUtil.sendPlain(player, "§8|                                                ");
+        MessageUtil.sendPlain(player, "§8|  §e" + padRight(prompt, 38));
+        MessageUtil.sendPlain(player, "§8|                                                ");
+        MessageUtil.sendPlain(player, "§8|================================================");
+        MessageUtil.sendPlain(player, "");
+
+        sendClickableOption(player, "  [ §aGlobal §r]§7 - All worlds share auction", "global",
+                isId ? "Semua world pakai auction yang sama" : "All worlds use same auction house",
+                "/ac setup step6 global");
+        sendClickableOption(player, "  [ §bPer-World §r]§7 - Separate per world", "per-world",
+                isId ? "Tiap world punya auction sendiri" : "Each world has separate auction house",
+                "/ac setup step6 per-world");
+        sendClickableOption(player, "  [ §cBlacklist §r]§7 - Disable in specific worlds", "blacklist",
+                isId ? "Nonaktifkan di world tertentu" : "Disable auction in certain worlds",
+                "/ac setup step6 blacklist");
+        MessageUtil.sendPlain(player, "");
+    }
+
+    // ========== STEP 7: ADVANCED FEATURES ==========
+    private void showStep7_Advanced(Player player) {
+        SetupState state = activeSetups.get(player.getUniqueId());
+        if (state == null)
+            return;
+
+        boolean isId = state.locale.equals("id");
+        String title = isId ? "SETUP WIZARD (Step 7/9)" : "SETUP WIZARD (Step 7/9)";
+        String prompt = isId ? "Fitur advanced (bisa diubah nanti):" : "Advanced features (can change later):";
+
+        MessageUtil.sendPlain(player, "");
+        MessageUtil.sendPlain(player, "§8|================================================");
+        MessageUtil.sendPlain(player, "§8|           §6§l" + title);
+        MessageUtil.sendPlain(player, "§8|================================================");
+        MessageUtil.sendPlain(player, "§8|                                                ");
+        MessageUtil.sendPlain(player, "§8|  §e" + padRight(prompt, 38));
+        MessageUtil.sendPlain(player, "§8|                                                ");
+        MessageUtil.sendPlain(player, "§8|================================================");
+        MessageUtil.sendPlain(player, "");
+
+        sendClickableOption(player, "  [ §aStandard §r]§7 - No extra features", "standard",
+                isId ? "Tanpa auto-relist & listing fee" : "No auto-relist or listing fee", "/ac setup step7 standard");
+        sendClickableOption(player, "  [ §eAuto-Relist §r]§7 - Relist expired items", "relist",
+                isId ? "Relist otomatis item yang expired" : "Auto-relist expired items with discount",
+                "/ac setup step7 relist");
+        sendClickableOption(player, "  [ §c+Listing Fee §r]§7 - Charge fee to list", "fee",
+                isId ? "Kenakan biaya untuk buat listing" : "Charge percentage fee when listing",
+                "/ac setup step7 fee");
+        MessageUtil.sendPlain(player, "");
+    }
+
+    // ========== STEP 8: DISCORD ==========
+    private void showStep8_Discord(Player player) {
+        SetupState state = activeSetups.get(player.getUniqueId());
+        if (state == null)
+            return;
+
+        boolean isId = state.locale.equals("id");
+        String title = isId ? "SETUP WIZARD (Step 8/9)" : "SETUP WIZARD (Step 8/9)";
         String prompt = isId ? "Notifikasi Discord (opsional):" : "Discord notifications (optional):";
 
         MessageUtil.sendPlain(player, "");
@@ -386,22 +449,22 @@ public class SetupWizard {
         MessageUtil.sendPlain(player, "");
 
         sendClickableOption(player, "  [ §cSkip §r]§7 - No Discord", "skip",
-                isId ? "Lewati" : "Skip this step", "/ac setup step6 skip");
+                isId ? "Lewati" : "Skip this step", "/ac setup step8 skip");
         sendClickableOption(player, "  [ §aEnable §r]§7 - Enter webhook URL", "enable",
-                isId ? "Masukkan URL webhook" : "Enter webhook URL", "/ac setup step6 enable");
+                isId ? "Masukkan URL webhook" : "Enter webhook URL", "/ac setup step8 enable");
         MessageUtil.sendPlain(player, "");
         MessageUtil.sendPlain(player,
                 "§7§o" + (isId ? "Webhook URL didapat dari channel Discord" : "Get webhook URL from Discord channel"));
     }
 
-    // ========== STEP 7: BACKUP ==========
-    private void showStep7_Backup(Player player) {
+    // ========== STEP 9: BACKUP ==========
+    private void showStep9_Backup(Player player) {
         SetupState state = activeSetups.get(player.getUniqueId());
         if (state == null)
             return;
 
         boolean isId = state.locale.equals("id");
-        String title = isId ? "SETUP WIZARD (Step 7/7)" : "SETUP WIZARD (Step 7/7)";
+        String title = isId ? "SETUP WIZARD (Step 9/9)" : "SETUP WIZARD (Step 9/9)";
         String prompt = isId ? "Pengaturan backup otomatis:" : "Automatic backup settings:";
 
         MessageUtil.sendPlain(player, "");
@@ -415,13 +478,13 @@ public class SetupWizard {
         MessageUtil.sendPlain(player, "");
 
         sendClickableOption(player, "  [ §cDisable §r]§7 - No backup", "disable",
-                isId ? "Matikan backup" : "Disable backup", "/ac setup step7 disable");
+                isId ? "Matikan backup" : "Disable backup", "/ac setup step9 disable");
         sendClickableOption(player, "  [ §a1 hour §r]§7 - Frequent", "60",
-                isId ? "Backup tiap 1 jam" : "Every 1 hour", "/ac setup step7 60");
+                isId ? "Backup tiap 1 jam" : "Every 1 hour", "/ac setup step9 60");
         sendClickableOption(player, "  [ §e6 hours §r]§7 - Balanced", "360",
-                isId ? "Backup tiap 6 jam" : "Every 6 hours", "/ac setup step7 360");
+                isId ? "Backup tiap 6 jam" : "Every 6 hours", "/ac setup step9 360");
         sendClickableOption(player, "  [ §b24 hours §r]§7 - Daily", "1440",
-                isId ? "Backup tiap 24 jam" : "Every 24 hours", "/ac setup step7 1440");
+                isId ? "Backup tiap 24 jam" : "Every 24 hours", "/ac setup step9 1440");
         MessageUtil.sendPlain(player, "");
     }
 
@@ -434,10 +497,16 @@ public class SetupWizard {
         // Apply all settings
         plugin.getConfig().set("general.language", state.locale);
         plugin.getConfig().set("storage.type", state.storage);
-        plugin.getConfig().set("economy.tax-percent", state.taxPercent);
-        plugin.getConfig().set("economy.tax-destination", state.taxPercent > 0 ? "void" : "void");
+        plugin.getConfig().set("tax.percent", state.taxPercent);
+        plugin.getConfig().set("tax.destination", "void");
         plugin.getConfig().set("general.default-duration", state.duration);
         plugin.getConfig().set("gui.bid-input-timeout", state.bidTimeout);
+
+        // New v1.0.2 settings
+        plugin.getConfig().set("worlds.mode", state.worldMode);
+        plugin.getConfig().set("auto-relist.enabled", state.autoRelist);
+        plugin.getConfig().set("listing-fee.enabled", state.listingFeePercent > 0);
+        plugin.getConfig().set("listing-fee.percent", state.listingFeePercent);
 
         if (!state.discordWebhook.isEmpty()) {
             plugin.getConfig().set("discord.webhook-url", state.discordWebhook);
@@ -520,11 +589,32 @@ public class SetupWizard {
             }
             case 5 -> {
                 state.bidTimeout = Integer.parseInt(value);
-                showStep6_Discord(player);
+                showStep6_PerWorld(player);
             }
             case 6 -> {
+                state.worldMode = value;
+                showStep7_Advanced(player);
+            }
+            case 7 -> {
+                switch (value) {
+                    case "standard" -> {
+                        state.autoRelist = false;
+                        state.listingFeePercent = 0;
+                    }
+                    case "relist" -> {
+                        state.autoRelist = true;
+                        state.listingFeePercent = 0;
+                    }
+                    case "fee" -> {
+                        state.autoRelist = false;
+                        state.listingFeePercent = 5; // Default 5%
+                    }
+                }
+                showStep8_Discord(player);
+            }
+            case 8 -> {
                 if (value.equals("skip")) {
-                    showStep7_Backup(player);
+                    showStep9_Backup(player);
                 } else {
                     waitingForWebhookInput.add(player.getUniqueId());
                     MessageUtil.sendPlain(player, "§ePlease enter your Discord webhook URL in chat:");
@@ -533,7 +623,7 @@ public class SetupWizard {
                     MessageUtil.sendPlain(player, "§7Type §fskip §7to skip this step.");
                 }
             }
-            case 7 -> {
+            case 9 -> {
                 if (value.equals("disable")) {
                     state.backupEnabled = false;
                 } else {
@@ -567,6 +657,9 @@ public class SetupWizard {
         int taxPercent = 5;
         int duration = 900;
         int bidTimeout = 30;
+        String worldMode = "global"; // global, per-world, blacklist
+        boolean autoRelist = false;
+        int listingFeePercent = 0;
         String discordWebhook = "";
         boolean backupEnabled = true;
         int backupInterval = 60;

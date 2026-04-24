@@ -55,6 +55,38 @@ general:
   broadcast-wins: true
 
 # ─────────────────────────────────────────────
+#  PER-WORLD SETTINGS
+# ─────────────────────────────────────────────
+
+# Per-World Auction House Support
+worlds:
+  # Mode: "global" = all worlds share same auction house
+  #       "per-world" = each world has separate auction house
+  #       "blacklist" = use global but disable in specific worlds
+  mode: "global"
+  
+  # For "per-world" mode: list worlds that share a global auction
+  # Leave empty for completely separate per-world auctions
+  global-worlds: []
+  
+  # For "blacklist" mode: worlds where auction house is disabled
+  # Players in these worlds cannot use /ac commands
+  blacklisted-worlds: []
+
+# ─────────────────────────────────────────────
+#  ITEM BLACKLIST SETTINGS (Admin Only)
+# ─────────────────────────────────────────────
+
+# Prevent certain item types from being listed
+blacklist:
+  # List of materials that cannot be sold (use Material enum names)
+  # Examples: BARRIER, BEDROCK, COMMAND_BLOCK, STRUCTURE_BLOCK
+  materials: []
+  
+  # Permission to bypass blacklist (for admins)
+  bypass-permission: "auctify.admin.blacklist.bypass"
+
+# ─────────────────────────────────────────────
 #  BIDDING SETTINGS
 # ─────────────────────────────────────────────
 bidding:
@@ -249,6 +281,12 @@ discord:
     enabled: true
     title: "Item Sold!"
     color: 3066993 # Green
+  
+  # Fired when an auction ends without bids
+  on-expire:
+    enabled: true
+    title: "Auction Expired"
+    color: 10070709 # Gray
   
   # Crash Notifications (separate webhook for error alerts)
   crash-webhook:

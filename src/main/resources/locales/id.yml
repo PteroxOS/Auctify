@@ -45,7 +45,9 @@ already-top-bidder: "§cKamu sudah menjadi penawar tertinggi untuk item ini."
 insufficient-funds: "§cSaldo tidak cukup. Kamu butuh §f{amount}§c."
 bid-broadcast: "§e{bidder} §7menawar §a{amount} §7pada §f{item}§7!"
 auction-sniping-extended: "§aLelang §f{id} §adiperpanjang §f{seconds} §adetik (sniping protection)!"
-auto-relist-success: "§aAuto-relist: §f{old_id} §adi-relist sebagai §f{new_id} §adengan diskon §c{discount}%"
+auto-relist-success: "§aAuto-relist: §f{old_id} §arelisted sebagai §f{new_id} §adengan diskon §c{discount}%"
+world-blacklisted: "§cAuction house dinonaktifkan di world ini."
+blacklisted-material: "§cItem ini di-blacklist dan tidak bisa dijual."
 
 # ─── GUI UTAMA ──────────────────────────────
 gui-previous-page: "§a◀ Halaman Sebelumnya"

@@ -45,6 +45,8 @@ insufficient-funds: "§cInsufficient funds. You need §f{amount}§c."
 bid-broadcast: "§e{bidder} §7bid §a{amount} §7on §f{item}§7!"
 auction-sniping-extended: "§aAuction §f{id} §aextended by §f{seconds} §aseconds (sniping protection)!"
 auto-relist-success: "§aAuto-relist: §f{old_id} §arelisted as §f{new_id} §awith §c{discount}% §adiscount"
+world-blacklisted: "§cAuction house is disabled in this world."
+blacklisted-material: "§cThis item type is blacklisted and cannot be listed."
 
 # ─── MAIN GUI ───────────────────────────────
 gui-previous-page: "§a◀ Previous Page"
