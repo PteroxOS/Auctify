@@ -20,8 +20,8 @@ public class TabCompleter implements org.bukkit.command.TabCompleter {
 
     /** All available subcommand names. */
     private static final List<String> SUBCOMMANDS = Arrays.asList(
-            "sell", "bid", "open", "cancel", "search", "history", "about", "reload", "help"
-    );
+            "sell", "bid", "open", "cancel", "search", "history", "about",
+            "claim", "admin", "setup", "reload", "help");
 
     /** @param plugin the main plugin instance */
     public TabCompleter(Auctify plugin) {
@@ -45,10 +45,12 @@ public class TabCompleter implements org.bukkit.command.TabCompleter {
             return switch (sub) {
                 case "sell" -> List.of("<price>");
                 case "bid" -> {
-                    // Only suggest listing IDs the player can actually bid on (not their own, not expired)
+                    // Only suggest listing IDs the player can actually bid on (not their own, not
+                    // expired)
                     if (sender instanceof Player player) {
                         yield plugin.getAuctionManager().getActiveListings().stream()
-                                .filter(l -> !l.getSellerUUID().equals(player.getUniqueId()) && l.isActive() && !l.isExpired())
+                                .filter(l -> !l.getSellerUUID().equals(player.getUniqueId()) && l.isActive()
+                                        && !l.isExpired())
                                 .map(AuctionListing::getId)
                                 .filter(id -> id.startsWith(args[1]))
                                 .collect(Collectors.toList());
@@ -60,7 +62,8 @@ public class TabCompleter implements org.bukkit.command.TabCompleter {
                     if (sender instanceof Player player) {
                         boolean isAdmin = player.hasPermission("auctify.admin");
                         yield plugin.getAuctionManager().getActiveListings().stream()
-                                .filter(l -> l.isActive() && (isAdmin || l.getSellerUUID().equals(player.getUniqueId())))
+                                .filter(l -> l.isActive()
+                                        && (isAdmin || l.getSellerUUID().equals(player.getUniqueId())))
                                 .map(AuctionListing::getId)
                                 .filter(id -> id.startsWith(args[1]))
                                 .collect(Collectors.toList());
@@ -68,6 +71,7 @@ public class TabCompleter implements org.bukkit.command.TabCompleter {
                     yield List.of();
                 }
                 case "search" -> List.of("<query>");
+                case "admin" -> List.of("blacklist", "cancel", "backup");
                 default -> List.of();
             };
         }
