@@ -1,30 +1,26 @@
 # Auctify Project Structure
 
-Auctify uses a **layered, security-first architecture** with strict separation of concerns, comprehensive thread safety, and audit-ready logging.
+Auctify uses a layered architecture with strict separation of concerns, comprehensive thread safety, and audit-ready logging.
 
-## Package Overview (`dev.auctify`)
+## Package Overview
 
-| Package        | Responsibility                                                                          |
-| :------------- | :-------------------------------------------------------------------------------------- |
-| `Auctify.java` | Plugin lifecycle, manager initialization (dependency order), command/event registration |
-| `auction`      | Core auction logic, thread-safe bid operations, event firing, expiry resolution         |
-| `commands`     | SubCommand pattern with permission gates and input validation                           |
-| `economy`      | Vault abstraction with TransactionResult pattern and failure recovery                   |
-| `gui`          | Inventory GUIs with `AuctifyHolder` state management, click protection                  |
-| `hook`         | PlaceholderAPI expansion with dynamic placeholders                                      |
-| `listeners`    | Event handling: GUI clicks, chat input, join/quit cleanup                               |
-| `notification` | **v1.1.0** — Notification system with per-player preferences                            |
-| `setup`        | **v1.0.1+** — Interactive chat-based setup wizard for first-time configuration          |
-| `storage`      | SQLite/MySQL with HikariCP, atomic transactions, schema migration, backups              |
-| `util`         | Color, config, time formatting, Discord webhooks, dependency download                   |
-
----
+| Package        | Responsibility                                                                  |
+| :------------- | :------------------------------------------------------------------------------ |
+| `Auctify.java` | Plugin lifecycle, manager initialization, command/event registration            |
+| `auction`      | Core auction logic, thread-safe bid operations, event firing, expiry resolution |
+| `commands`     | SubCommand pattern with permission gates and input validation                   |
+| `economy`      | Vault abstraction with TransactionResult pattern and failure recovery           |
+| `gui`          | Inventory GUIs with state management, click protection                          |
+| `hook`         | PlaceholderAPI expansion with dynamic placeholders                              |
+| `listeners`    | Event handling: GUI clicks, chat input, join/quit cleanup                       |
+| `notification` | Notification system with per-player preferences                                 |
+| `setup`        | Interactive chat-based setup wizard for first-time configuration                |
+| `storage`      | H2/SQLite/MySQL with HikariCP, atomic transactions, schema migration, backups   |
+| `util`         | Color, config, time formatting, Discord webhooks, dependency download           |
 
 ## Core Architecture
 
-## Data Models
-
-### Core Records
+### Data Models
 
 | Class             | Purpose                                                 | Thread Safety                           |
 | :---------------- | :------------------------------------------------------ | :-------------------------------------- |
@@ -33,22 +29,20 @@ Auctify uses a **layered, security-first architecture** with strict separation o
 | `AuctionHistory`  | Completed auction archive                               | Record (immutable)                      |
 | `PendingRefund`   | Failed economy deposit queue entry                      | Record (immutable)                      |
 | `AuctifyBidEvent` | Cancellable event for bid interception                  | Bukkit event system                     |
-| `PriceHistory`    | Price trend data for items (v1.1.0)                     | Record (immutable)                      |
-| `AutoBid`         | Auto-bid configuration (v1.1.0)                         | Record (immutable)                      |
+| `PriceHistory`    | Price trend data for items                              | Record (immutable)                      |
+| `AutoBid`         | Auto-bid configuration                                  | Record (immutable)                      |
 
 ### State Management
 
-**`AuctionManager`** — Central coordinator:
+**AuctionManager** - Central coordinator:
 
-- `ConcurrentHashMap<String, AuctionListing>` — Active listings
-- `synchronized(listing)` blocks — Per-listing operation locks
-- `ConcurrentHashMap.newKeySet()` — Claim in-progress tracking
-
----
+- `ConcurrentHashMap<String, AuctionListing>` - Active listings
+- `synchronized(listing)` blocks - Per-listing operation locks
+- `ConcurrentHashMap.newKeySet()` - Claim in-progress tracking
 
 ## Storage Layer
 
-### Interface: `StorageManager`
+### Interface: StorageManager
 
 ```java
 void saveListing(AuctionListing listing)
@@ -63,6 +57,7 @@ List<PendingRefund> claimAndClearRefunds(UUID player)   // Atomic
 | :-------------- | :-------------------------------- | :--------------------------- |
 | `MemoryStorage` | Development/testing               | N/A (in-memory)              |
 | `SQLiteStorage` | Single server, small-medium scale | HikariCP (pool size 1)       |
+| `H2Storage`     | Single server, high performance   | HikariCP (pool size 1)       |
 | `MySQLStorage`  | Production, multi-server networks | HikariCP (configurable pool) |
 
 ### Schema Migration
@@ -70,54 +65,49 @@ List<PendingRefund> claimAndClearRefunds(UUID player)   // Atomic
 Automatic migration on startup:
 
 - `tax_exempt` column added to `auctify_listings` if missing
+- `bin_only` column added to `auctify_listings` if missing
 - `auctify_pending_refunds` table created if missing
-- `auctify_price_history` table created if missing (v1.1.0)
-- `auctify_auto_bid` table created if missing (v1.1.0)
+- `auctify_price_history` table created if missing
+- `auctify_auto_bid` table created if missing
 - Graceful handling of "column already exists" errors
-
----
 
 ## Security Architecture
 
 ### Synchronization Strategy
 
 ```
-┌─────────────────────────────────────┐
-│  Player A bids on Listing #123      │
-│  → synchronized(listing#123)        │
-│    → Check active/expired           │
-│    → Check minimum bid              │
-│    → Withdraw from Player A         │
-│    → Refund previous bidder         │
-│    → Apply bid                      │
-│    → Save to storage                │
-│  ← End synchronized                 │
-└─────────────────────────────────────┘
-         ↓
-┌─────────────────────────────────────┐
-│  Player B buyouts Listing #123      │
-│  → BLOCKED until A's bid completes  │
-│  → Then: synchronized(listing#123)  │
-│    → Check listing still active     │
-│    → Deactivate (setActive=false)   │
-│    → Remove from activeListings     │
-│    → Resolve auction                │
-└─────────────────────────────────────┘
+Player A bids on Listing #123
+  → synchronized(listing#123)
+    → Check active/expired
+    → Check minimum bid
+    → Withdraw from Player A
+    → Refund previous bidder
+    → Apply bid
+    → Save to storage
+  ← End synchronized
+
+Player B buyouts Listing #123
+  → BLOCKED until A's bid completes
+  → Then: synchronized(listing#123)
+    → Check listing still active
+    → Deactivate (setActive=false)
+    → Remove from activeListings
+    → Resolve auction
 ```
 
 ### Economy Safety Flow
 
 ```
 Auction Resolution
-    ↓
-Deliver item to winner ✓
-    ↓
+  ↓
+Deliver item to winner
+  ↓
 Calculate tax and net amount
-    ↓
-Attempt deposit to seller ─┬─→ Success ✓
+  ↓
+Attempt deposit to seller ─┬─→ Success
                            └─→ Failure → Save PendingRefund → Log SEVERE
-    ↓
-Attempt tax to server-account ─┬─→ Success ✓
+  ↓
+Attempt tax to server-account ─┬─→ Success
                                └─→ Failure → Log WARNING (voided)
 ```
 
@@ -141,14 +131,12 @@ DELETE FROM pending_deliveries WHERE player=?;
 conn.commit();
 ```
 
----
-
 ## Security Checklist
 
 | Vulnerability                | Mitigation                                      | Location                                    |
 | :--------------------------- | :---------------------------------------------- | :------------------------------------------ |
 | Race condition on bid/buyout | Per-listing `synchronized` blocks               | `AuctionManager.placeBid()`, `buyout()`     |
-| Item duplication on claim    | Atomic `claimAndClearDeliveries()`              | `SQLiteStorage`, `MySQLStorage`             |
+| Item duplication on claim    | Atomic `claimAndClearDeliveries()`              | All storage backends                        |
 | Double refund delivery       | Atomic `claimAndClearRefunds()`                 | All storage backends                        |
 | Economy deposit failure      | `PendingRefund` queue with auto-delivery        | `safeDeposit()`, `PlayerQuitListener`       |
 | Tax bypass at resolution     | `taxExempt` snapshotted at listing creation     | `AuctionListing.setTaxExempt()`             |
@@ -158,8 +146,6 @@ conn.commit();
 | Event cancellation state     | Fire event BEFORE state mutation                | `AuctionManager.placeBid()`                 |
 | Auto-bid overflow            | Max bid validation and budget tracking          | `AutoBidSubCommand`, `AuctionManager`       |
 | Notification spam            | Per-player preference system                    | `NotificationManager`                       |
-
----
 
 ## Thread Safety Summary
 
@@ -175,26 +161,22 @@ conn.commit();
 | Auto-bid configurations  | `ConcurrentHashMap` for per-listing   |
 | Notification preferences | `ConcurrentHashMap` for player data   |
 
----
-
 ## Build & Deployment
 
 ```bash
-# Build shaded jar with HikariCP
+# Build shaded jar with HikariCP and H2
 mvn clean package
 
-# Output: target/Auctify-1.0.0.jar
-# Dependencies shaded: com.zaxxer.HikariCP
+# Output: target/Auctify-1.1.5.jar
+# Dependencies shaded: com.zaxxer.HikariCP, com.h2database
 ```
 
 ### Runtime Requirements
 
-- **Java 17+**
-- **Paper/Spigot 1.18+**
-- **Vault + Economy Provider**
-
----
+- Java 17+
+- Paper/Spigot 1.18+
+- Vault + Economy Provider
 
 ## License
 
-MIT License — See [LICENSE](LICENSE)
+MIT License - See [LICENSE](LICENSE)
