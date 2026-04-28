@@ -519,6 +519,15 @@ tax-bracket-info: "§7Bracket pajak: §e{percentage}% §7untuk lelang di atas §
 tax-deducted: "§7Pajak dideduct: §c{tax} §7(§e{percentage}%§7)"
 
 # ═══════════════════════════════════════════════════════════════════════════════
+# EXTREME AUDIT v3 SECURITY FIXES
+# ═══════════════════════════════════════════════════════════════════════════════
+autobid-bin-not-allowed: "§cKamu tidak bisa set auto-bid pada listing BIN-only. Gunakan buyout saja."
+rate-self-not-allowed: "§cKamu tidak bisa rate diri sendiri."
+rate-no-transaction: "§cKamu hanya bisa rate seller yang pernah kamu beli darinya."
+rate-already-rated: "§cKamu sudah pernah rate seller ini."
+watchlist-full: "§cWatchlist kamu penuh! Maksimal §f{max} §clisting. Hapus beberapa dulu."
+
+# ═══════════════════════════════════════════════════════════════════════════════
 # ADMIN COMMANDS
 # ═══════════════════════════════════════════════════════════════════════════════
 usage-blacklist: "§cPenggunaan: /ac admin blacklist <add|remove|list> [item|player]"
