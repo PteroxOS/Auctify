@@ -1,18 +1,18 @@
 #
 #  █████╗ ██╗   ██╗ ██████╗████████╗██╗███████╗██╗   ██╗
 # ██╔══██╗██║   ██║██╔════╝╚══██╔══╝██║██╔════╝╚██╗ ██╔╝
-# ███████║██║   ██║██║        ██║   ██║█████╗   ╚████╔╝ 
-# ██╔══██║██║   ██║██║        ██║   ██║██╔══╝    ╚██╔╝  
-# ██║  ██║╚██████╔╝╚██████╗   ██║   ██║██║        ██║   
-# ╚═╝  ╚═╝ ╚═════╝  ╚═════╝   ╚═╝   ╚═╝╚═╝        ╚═╝   
-                                                      
+# ███████║██║   ██║██║        ██║   ██║█████╗   ╚████╔╝
+# ██╔══██║██║   ██║██║        ██║   ██║██╔══╝    ╚██╔╝
+# ██║  ██║╚██████╔╝╚██████╗   ██║   ██║██║        ██║
+# ╚═╝  ╚═╝ ╚═════╝  ╚═════╝   ╚═╝   ╚═╝╚═╝        ╚═╝
+
 #
 # ╔═══════════════════════════════════════════════════════════════════════════════╗
 # ║                    AUCTIFY CONFIGURATION                                      ║
 # ║                   Advanced Auction House                                      ║
 # ║                                                                               ║
 # ║  Author    : PteroxOS                                                         ║
-# ║  Version   : 1.1.5                                                            ║
+# ║  Version   : 1.8.0                                                            ║  # Extreme Audit v3 fixes
 # ║  GitHub    : https://github.com/PteroxOS/Auctify                              ║
 # ║  Wiki      : https://github.com/PteroxOS/Auctify/wiki/Auctify-Documentation   ║
 # ║                                                                               ║
@@ -63,6 +63,10 @@ general:
   # Players with 'auctify.bypass.maxlistings' ignore this
   max-listings-per-player: 5
 
+  # FIX-9: Maximum number of listings a player can watch simultaneously
+  # Prevents watchlist spam and database bloat
+  max-watchlist-per-player: 50
+
   # Should Auctify broadcast bid updates to all online players?
   # Set to false on large servers to reduce chat spam
   broadcast-bids: true
@@ -72,6 +76,11 @@ general:
 
   # Should Auctify broadcast when an auction is won?
   broadcast-wins: true
+
+  # Cooldown pencarian dalam milidetik (default: 1500ms = 1.5 detik)
+  # Naikkan untuk server besar, turunkan untuk server kecil
+  # FIX Mi-2: Configurable search cooldown untuk mencegah DoS
+  search-cooldown-ms: 1500
 
 # ─────────────────────────────────────────────
 #  PER-WORLD SETTINGS
@@ -83,11 +92,11 @@ worlds:
   #       "per-world" = each world has separate auction house
   #       "blacklist" = use global but disable in specific worlds
   mode: "global"
-  
+
   # For "per-world" mode: list worlds that share a global auction
   # Leave empty for completely separate per-world auctions
   global-worlds: []
-  
+
   # For "blacklist" mode: worlds where auction house is disabled
   # Players in these worlds cannot use /ac commands
   blacklisted-worlds: []
@@ -101,7 +110,7 @@ blacklist:
   # List of materials that cannot be sold (use Material enum names)
   # Examples: BARRIER, BEDROCK, COMMAND_BLOCK, STRUCTURE_BLOCK
   materials: []
-  
+
   # Permission to bypass blacklist (for admins)
   bypass-permission: "auctify.admin.blacklist.bypass"
 
@@ -148,13 +157,47 @@ gui:
   # Leave as -1 to auto-calculate (rows * 9 minus the bottom navigation row)
   items-per-page: -1
 
+  # GUI Theme/Skin
+  theme: "default"
+
+  # Custom Themes
+  themes:
+    default:
+      title: "§8✦ §6Auctify §8— §7Auction House §8✦"
+      filler-material: GRAY_STAINED_GLASS_PANE
+      border-material: GRAY_STAINED_GLASS_PANE
+      highlight-material: LIME_STAINED_GLASS_PANE
+      danger-material: RED_STAINED_GLASS_PANE
+      info-material: BLUE_STAINED_GLASS_PANE
+    dark:
+      title: "§8✦ §5Auctify §8— §7Auction House §8✦"
+      filler-material: BLACK_STAINED_GLASS_PANE
+      border-material: DARK_GRAY_STAINED_GLASS_PANE
+      highlight-material: PURPLE_STAINED_GLASS_PANE
+      danger-material: RED_STAINED_GLASS_PANE
+      info-material: CYAN_STAINED_GLASS_PANE
+    light:
+      title: "§f✦ §eAuctify §f— §7Auction House §f✦"
+      filler-material: WHITE_STAINED_GLASS_PANE
+      border-material: LIGHT_GRAY_STAINED_GLASS_PANE
+      highlight-material: LIME_STAINED_GLASS_PANE
+      danger-material: ORANGE_STAINED_GLASS_PANE
+      info-material: LIGHT_BLUE_STAINED_GLASS_PANE
+    ocean:
+      title: "§b✦ §3Auctify §b— §7Auction House §b✦"
+      filler-material: LIGHT_BLUE_STAINED_GLASS_PANE
+      border-material: BLUE_STAINED_GLASS_PANE
+      highlight-material: LIME_STAINED_GLASS_PANE
+      danger-material: RED_STAINED_GLASS_PANE
+      info-material: CYAN_STAINED_GLASS_PANE
+
   # Navigation row items (bottom row of GUI)
   navigation:
     previous-page-slot: 45
     search-button-slot: 48
     info-slot: 49
     next-page-slot: 53
-  
+
   # GUI button slots (row 5 - second to last row)
   buttons:
     category-cycle-slot: 47
@@ -166,7 +209,7 @@ gui:
 
   # Bid input timeout in seconds (how long a player has to type their bid in chat)
   # After this time, the input session is automatically cancelled
-  bid-input-timeout: 30  # 🔧 CONFIGURABLE
+  bid-input-timeout: 30 # 🔧 CONFIGURABLE
 
 # ─────────────────────────────────────────────
 #  LISTING DISPLAY SETTINGS
@@ -211,6 +254,11 @@ sounds:
   # Sounds enhance UX: bid success, auction won, outbid alerts, etc.
 
 # ─────────────────────────────────────────────
+#  PLUGIN CONFIGURATION
+# ─────────────────────────────────────────────
+version: 1.6.0
+
+# ─────────────────────────────────────────────
 #  NOTIFICATIONS
 # ─────────────────────────────────────────────
 notifications:
@@ -233,6 +281,10 @@ autobid:
   max-per-player: 10
   # Minimum bid increment for auto-bids
   min-increment: 1.0
+  # FIX-1: Maximum auto-bid cascade depth (prevent infinite loop)
+  # When two players have auto-bids on the same listing, this limits
+  # how many times they can automatically outbid each other
+  max-cascade-depth: 5
 
 # ─────────────────────────────────────────────
 #  PRICE HISTORY
@@ -264,13 +316,40 @@ alerts:
 #  BUY ORDERS (Want-to-Buy / WTB System)
 # ─────────────────────────────────────────────
 buyorders:
-  # Enable the buy order system?
+  # Enable buy order system (WTB - Want to Buy)
   enabled: true
-  # Default duration for buy orders (in seconds)
-  # Default: 7 days (604800 seconds)
-  duration: 604800
   # Maximum buy orders per player
   max-per-player: 5
+  # Default duration for buy orders (in seconds, default 7 days)
+  duration: 604800
+  # Auto-match new listings with existing buy orders
+  auto-match: true
+
+# ─────────────────────────────────────────────
+#  TAX BRACKETS
+# ─────────────────────────────────────────────
+tax-brackets:
+  # Enable tax brackets based on listing value
+  enabled: true
+  # Tax brackets (format: threshold: percentage)
+  # Example: Listings over 10000 pay 2% tax, over 50000 pay 3%, etc.
+  brackets:
+    1000: 0.5 # 0.5% tax for listings over 1000
+    5000: 1.0 # 1.0% tax for listings over 5000
+    10000: 1.5 # 1.5% tax for listings over 10000
+    50000: 2.0 # 2.0% tax for listings over 50000
+    100000: 2.5 # 2.5% tax for listings over 100000
+  # Players with this permission are exempt from tax
+  exempt-permission: "auctify.tax.exempt"
+
+# ─────────────────────────────────────────────
+#  DIRECT TRADE
+# ─────────────────────────────────────────────
+trade:
+  # Enable direct player-to-player trading
+  enabled: true
+  # Trade request timeout in seconds
+  timeout: 60
 
 # ─────────────────────────────────────────────
 #  BULK SELLING
@@ -280,6 +359,15 @@ bulksell:
   enabled: true
   # Maximum number of stacks to list at once
   max-stacks: 9
+
+# ─────────────────────────────────────────────
+#  BULK BUYING
+# ─────────────────────────────────────────────
+bulkbuy:
+  # Enable bulk buying feature?
+  enabled: true
+  # Maximum number of items in bulk buy list
+  max-items: 10
 
 # ─────────────────────────────────────────────
 #  STORAGE SETTINGS
@@ -311,7 +399,7 @@ storage:
   # H2 is a fast, file-based SQL database with excellent performance
   h2:
     file: "auctify.h2.db"
-    mode: "embedded"  # Options: embedded, server
+    mode: "embedded" # Options: embedded, server
 
     # Automatic backup settings (prevents data loss)
     backup:
@@ -397,25 +485,25 @@ discord:
   # Main webhook for auction events
   enabled: false
   webhook-url: "https://discord.com/api/webhooks/..."
-  
+
   # Fired when a new item is listed
   on-new-listing:
     enabled: true
     title: "New Auction Listing!"
     color: 3447003 # Blue
-    
+
   # Fired when an item is sold
   on-sale:
     enabled: true
     title: "Item Sold!"
     color: 3066993 # Green
-  
+
   # Fired when an auction ends without bids
   on-expire:
     enabled: true
     title: "Auction Expired"
     color: 10070709 # Gray
-  
+
   # Crash Notifications (separate webhook for error alerts)
   crash-webhook:
     enabled: false

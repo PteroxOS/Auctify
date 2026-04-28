@@ -1,6 +1,7 @@
 package dev.auctify.setup;
 
 import dev.auctify.Auctify;
+import dev.auctify.util.DebugLog;
 import dev.auctify.util.MessageUtil;
 import io.papermc.paper.event.player.AsyncChatEvent;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
@@ -19,11 +20,10 @@ import org.bukkit.event.Listener;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Interactive chat-based setup wizard for first-time installation. Guides admin
@@ -32,8 +32,10 @@ import java.util.UUID;
 public class SetupWizard implements Listener {
 
     private final Auctify plugin;
-    private final Map<UUID, SetupState> activeSetups = new HashMap<>();
-    private final Set<UUID> waitingForWebhookInput = new HashSet<>();
+    // FIX C-1: ConcurrentHashMap karena diakses dari async chat thread dan main
+    // thread
+    private final Map<UUID, SetupState> activeSetups = new ConcurrentHashMap<>();
+    private final Set<UUID> waitingForWebhookInput = ConcurrentHashMap.newKeySet();
 
     public SetupWizard(Auctify plugin) {
         this.plugin = plugin;
@@ -49,11 +51,21 @@ public class SetupWizard implements Listener {
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = false)
     public void onAsyncChat(AsyncChatEvent event) {
         Player player = event.getPlayer();
+        // #region agent log
+        DebugLog.log("run1", "H1", "SetupWizard.java:onAsyncChat", "async chat received", Map.of(
+                "thread", Thread.currentThread().getName(),
+                "player", player.getName()));
+        // #endregion
 
         // Check if player is waiting for webhook input
         if (waitingForWebhookInput.contains(player.getUniqueId())) {
             // Always cancel the event to prevent URL from being broadcast
             event.setCancelled(true);
+            // #region agent log
+            DebugLog.log("run1", "H1", "SetupWizard.java:onAsyncChat", "webhook wait set hit", Map.of(
+                    "thread", Thread.currentThread().getName(),
+                    "setSize", waitingForWebhookInput.size()));
+            // #endregion
 
             // Process the webhook URL privately
             String message = PlainTextComponentSerializer.plainText().serialize(event.message()).trim();
@@ -79,6 +91,11 @@ public class SetupWizard implements Listener {
      * Called when player sends chat message while in setup webhook input mode.
      */
     public void onPlayerChat(Player player, String message) {
+        // #region agent log
+        DebugLog.log("run1", "H1", "SetupWizard.java:onPlayerChat", "webhook chat on main", Map.of(
+                "thread", Thread.currentThread().getName(),
+                "isWaiting", waitingForWebhookInput.contains(player.getUniqueId())));
+        // #endregion
         if (!waitingForWebhookInput.contains(player.getUniqueId()))
             return;
 

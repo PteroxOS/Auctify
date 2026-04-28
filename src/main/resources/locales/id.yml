@@ -90,8 +90,13 @@ gui-category-current: "§7Saat ini: §f{category}"
 gui-category-click: "§7Klik untuk ganti kategori:"
 gui-category-all: "SEMUA"
 gui-category-weapons: "SENJATA & ALAT"
+gui-category-tools: "ALAT"
 gui-category-armor: "ARMOR"
 gui-category-blocks: "BLOK"
+gui-category-food: "MAKANAN"
+gui-category-potions: "RAMUAN"
+gui-category-redstone: "REDSTONE"
+gui-category-decorations: "DEKORASI"
 gui-category-misc: "LAIN-LAIN"
 gui-refresh-title: "§aSegarkan"
 gui-refresh-lore-1: "§7Klik untuk menyegarkan"
@@ -199,9 +204,6 @@ gui-rate-skip-lore: "§7Klik untuk menutup."
 # ═══════════════════════════════════════════════════════════════════════════════
 # ADMIN GUI
 # ═══════════════════════════════════════════════════════════════════════════════
-# ═══════════════════════════════════════════════════════════════════════════════
-# ADMIN GUI
-# ═══════════════════════════════════════════════════════════════════════════════
 gui-admin-title: "§8✦ §4Moderasi Admin §8✦"
 gui-admin-cancel-listing: "§cPaksa Batal Lelang"
 gui-admin-cancel-lore: "§7Klik untuk membatalkan lelang ini."
@@ -221,7 +223,11 @@ gui-sort-time-asc: "§7Waktu (Cepat Selesai)"
 gui-sort-time-desc: "§7Waktu (Paling Lama)"
 gui-sort-price-asc: "§7Harga (Termurah)"
 gui-sort-price-desc: "§7Harga (Termahal)"
+gui-sort-price-per-unit-asc: "§7Harga Per Unit (Termurah)"
+gui-sort-price-per-unit-desc: "§7Harga Per Unit (Termahal)"
 gui-sort-bids: "§7Bid Terbanyak"
+gui-sort-newest: "§7Terbaru"
+gui-sort-ending-soon: "§7Akan Segera Berakhir"
 bin-only-label: "§c[HANYA BIN]"
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -411,6 +417,106 @@ pricehistory-viewing: "§eMelihat riwayat harga untuk §f{item_type}"
 # ═══════════════════════════════════════════════════════════════════════════════
 stats-usage: "§cPenggunaan: /ac stats [player]"
 stats-viewing: "§eMelihat statistik untuk §f{player}"
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# BULK BUYING
+# ═══════════════════════════════════════════════════════════════════════════════
+bulkbuy-usage: "§cPenggunaan: /ac bulkbuy <add|remove|list|clear|buy> [listing_id]"
+bulkbuy-add-usage: "§cPenggunaan: /ac bulkbuy add <listing_id>"
+bulkbuy-remove-usage: "§cPenggunaan: /ac bulkbuy remove <listing_id>"
+bulkbuy-added: "§aMenambahkan §f{item} §a(ID: §f{id}§a) ke daftar bulk buy."
+bulkbuy-removed: "§eMenghapus lelang §f{id} §edari daftar bulk buy."
+bulkbuy-already-added: "§cLelang ini sudah ada di daftar bulk buy."
+bulkbuy-not-in-list: "§cLelang ini tidak ada di daftar bulk buy."
+bulkbuy-own-listing: "§cKamu tidak bisa membeli lelang sendiri."
+bulkbuy-empty: "§7Daftar bulk buy kamu kosong."
+bulkbuy-list-header: "§6§lDaftar Bulk Buy §8(§f{count}§8)"
+bulkbuy-list-entry: "§8• §f{id} §8| §7{item} §8— §a{price}"
+bulkbuy-total: "§7Total biaya: §6{total} §7untuk §f{items} §7item"
+bulkbuy-cleared: "§aDaftar bulk buy dikosongkan."
+bulkbuy-no-valid: "§cTidak ada lelang valid di daftar bulk buy."
+bulkbuy-inventory-full: "§cInventory tidak cukup. Butuh §f{needed} §cslot, punya §f{available}§c."
+bulkbuy-success: "§aBerhasil membeli §f{count} §aitem seharga §6{total}§a!"
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# GUI THEMES
+# ═══════════════════════════════════════════════════════════════════════════════
+theme-usage: "§cPenggunaan: /ac theme <list|set> [theme_name]"
+theme-set-usage: "§cPenggunaan: /ac theme set <theme_name>"
+theme-list-header: "§6§lTema GUI Tersedia"
+theme-current: "§7Tema saat ini: §f{theme}"
+theme-list-entry: "{indicator}§f{theme}"
+theme-not-found: "§cTema tidak ditemukan: §f{theme}"
+theme-set-success: "§aTema diubah ke §f{theme}§a!"
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# LISTING TEMPLATES
+# ═══════════════════════════════════════════════════════════════════════════════
+template-usage: "§cPenggunaan: /ac template <create|list|delete|use> [args]"
+template-create-usage: "§cPenggunaan: /ac template create <nama> <harga_awal> [buyout] [durasi]"
+template-created: "§aTemplate §f{name} §adibuat! Start: §f{start}§a, Buyout: §f{buyout}§a, Durasi: §f{duration}s"
+template-list-header: "§6§lTemplate Kamu §8(§f{count}§8)"
+template-list-entry: "§8• §f{name} §8- Start: §a{start}§8, Buyout: §a{buyout}§8, Durasi: §a{duration}s"
+template-empty: "§7Kamu tidak punya template tersimpan."
+template-delete-usage: "§cPenggunaan: /ac template delete <nama>"
+template-deleted: "§aTemplate §f{name} §adihapus."
+template-not-found: "§cTemplate tidak ditemukan: §f{name}"
+template-use-usage: "§cPenggunaan: /ac template use <nama>"
+template-applied: "§aTemplate §f{name} §aditerapkan! Membuat lelang..."
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# PLAYER RATINGS / REPUTATION
+# ═══════════════════════════════════════════════════════════════════════════════
+rating-usage: "§cPenggunaan: /ac rating [player]"
+rating-header: "§6§lRating untuk §f{player}"
+rating-average: "§7Rating Rata-rata: {stars} §7({avg})"
+rating-count: "§7Total Rating: §f{count}"
+rating-reputation: "§7Reputasi: {title}"
+rating-already-rated: "§cKamu sudah memberi rating untuk player ini."
+rating-saved: "§aRating kamu telah disimpan!"
+listing-auto-matched: "§aLelangmu terjual otomatis via buy order!"
+bidhistory-stats: "§7Stats - Avg: §f{avg} §7| Max: §f{max} §7| Min: §f{min}"
+bidhistory-player-header: "§6§lRiwayat Bid Kamu §8(§f{player}§8)"
+bidhistory-player-total: "§7Total bid: §f{count}"
+bidhistory-player-stats: "§7Total pengeluaran: §f{total} §7| Avg bid: §f{avg}"
+bidhistory-player-empty: "§7Kamu belum pernah bid."
+bidhistory-player-entry: "§8• §f#{number} §8- §a{amount} §8({time})"
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# DIRECT TRADE
+# ═══════════════════════════════════════════════════════════════════════════════
+trade-usage: "§cPenggunaan: /ac trade <send|accept|cancel> [args]"
+trade-send-usage: "§cPenggunaan: /ac trade send <player> [uangmu] [uangmereka]"
+trade-disabled: "§cDirect trading dinonaktifkan."
+trade-self: "§cKamu tidak bisa trade dengan diri sendiri."
+trade-pending: "§cKamu sudah punya permintaan trade yang pending."
+target-busy: "§cPlayer itu sudah punya permintaan trade yang pending."
+trade-sent: "§aPermintaan trade dikirim ke §f{target}§a!"
+trade-received: "§6Permintaan trade dari §f{sender}§6! Gunakan §e/ac trade accept §6untuk menerima."
+trade-details: "§7Trade dengan §f{target}§7: Itemmu: §f{your-item}§7, Item mereka: §f{their-item}§7, Uangmu: §f{your-money}§7, Uang mereka: §f{their-money}"
+trade-not-found: "§cPermintaan trade tidak ditemukan atau kadaluarsa."
+trade-not-recipient: "§cKamu bukan penerima permintaan trade ini."
+trade-no-request: "§cKamu tidak punya permintaan trade yang pending."
+trade-completed: "§aTrade selesai dengan §f{player}§a!"
+trade-cancelled-timeout: "§cPermintaan trade kadaluarsa."
+trade-cancelled-expired: "§cPermintaan trade kadaluarsa."
+trade-cancelled-manual: "§cPermintaan trade dibatalkan."
+trade-cancelled-sender-offline: "§cTrade dibatalkan: sender offline."
+trade-cancelled-sender-no-item: "§cTrade dibatalkan: sender tidak punya item."
+trade-cancelled-sender-no-money: "§cTrade dibatalkan: sender tidak punya cukup uang."
+trade-cancelled-target-no-item: "§cTrade dibatalkan: kamu tidak punya item."
+trade-cancelled-target-no-money: "§cTrade dibatalkan: kamu tidak punya cukup uang."
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# BUY ORDER MATCHING
+# ═══════════════════════════════════════════════════════════════════════════════
+buyorder-match-found: "§aBuy order ditemukan! §f{buyer} §aingin membeli §f{amount}x {item} §adi harga §a{price} §a(ID: §f{order_id}§a)"
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# TAX BRACKETS
+# ═══════════════════════════════════════════════════════════════════════════════
+tax-bracket-info: "§7Bracket pajak: §e{percentage}% §7untuk lelang di atas §f{value}"
+tax-deducted: "§7Pajak dideduct: §c{tax} §7(§e{percentage}%§7)"
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # ADMIN COMMANDS

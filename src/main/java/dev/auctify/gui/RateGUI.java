@@ -30,6 +30,25 @@ public class RateGUI {
 
     /** Opens the rating GUI for a player to rate a seller. */
     public void open(Player player, UUID sellerUUID, String sellerName) {
+        // FIX-8a: Cegah player rate diri sendiri
+        if (player.getUniqueId().equals(sellerUUID)) {
+            MessageUtil.send(player, "rate-self-not-allowed", null);
+            return;
+        }
+
+        // FIX-8b: Cek apakah player pernah bertransaksi dengan seller (won auction from
+        // seller)
+        if (!plugin.getStorageManager().hasTransactionWith(player.getUniqueId(), sellerUUID)) {
+            MessageUtil.send(player, "rate-no-transaction", null);
+            return;
+        }
+
+        // FIX-8c: Cek apakah player sudah pernah rate seller ini
+        if (plugin.getStorageManager().hasRated(sellerUUID, player.getUniqueId())) {
+            MessageUtil.send(player, "rate-already-rated", null);
+            return;
+        }
+
         AuctifyHolder holder = new AuctifyHolder("RATE");
         holder.setTargetPlayerUUID(sellerUUID.toString());
         Inventory inv = Bukkit.createInventory(holder, 27,

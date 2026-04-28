@@ -4,6 +4,7 @@ import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import dev.auctify.auction.AuctionHistory;
 import dev.auctify.auction.AuctionListing;
+import dev.auctify.util.DebugLog;
 import dev.auctify.util.ItemUtil;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -75,9 +76,17 @@ public class MySQLStorage implements StorageManager {
                             st.execute(t);
                         }
                 }
+                // #region agent log
+                DebugLog.log("run1", "H2", "MySQLStorage.java:executeSchema", "schema file executed", Map.of(
+                        "schemaLength", schema.length()));
+                // #endregion
             }
         } catch (IOException | SQLException e) {
             logger.log(Level.SEVERE, "MySQL schema exec failed", e);
+            // #region agent log
+            DebugLog.log("run1", "H2", "MySQLStorage.java:executeSchema", "schema execution failed", Map.of(
+                    "error", e.getClass().getSimpleName()));
+            // #endregion
         }
     }
 
@@ -86,27 +95,55 @@ public class MySQLStorage implements StorageManager {
             // Add tax_exempt column if missing (schema migration)
             try {
                 st.execute("ALTER TABLE auctify_listings ADD COLUMN tax_exempt TINYINT NOT NULL DEFAULT 0");
-            } catch (SQLException ignored) {
-                // Column already exists or other expected error
+            } catch (SQLException e) {
+                // FIX M-1: MySQL error code 1060 = Duplicate column name, aman di-ignore
+                if (e.getErrorCode() != 1060 && !e.getMessage().toLowerCase().contains("duplicate")) {
+                    logger.log(Level.SEVERE,
+                            "[Auctify] MySQL schema migration failed adding tax_exempt: " + e.getMessage());
+                }
             }
             try {
                 st.execute("ALTER TABLE auctify_listings ADD COLUMN bin_only TINYINT NOT NULL DEFAULT 0");
-            } catch (SQLException ignored) {
+            } catch (SQLException e) {
+                // FIX M-1: MySQL error code 1060 = Duplicate column name, aman di-ignore
+                if (e.getErrorCode() != 1060 && !e.getMessage().toLowerCase().contains("duplicate")) {
+                    logger.log(Level.SEVERE,
+                            "[Auctify] MySQL schema migration failed adding bin_only: " + e.getMessage());
+                }
             }
             // Create price_history table if not exists
             try {
                 st.execute(
                         "CREATE TABLE IF NOT EXISTS auctify_price_history (id INT AUTO_INCREMENT PRIMARY KEY, listing_id VARCHAR(36) NOT NULL, item_material VARCHAR(64) NOT NULL, item_name VARCHAR(255) NOT NULL, final_price DOUBLE NOT NULL, seller_name VARCHAR(36) NOT NULL, winner_name VARCHAR(36) NOT NULL, timestamp BIGINT NOT NULL, INDEX idx_item_material (item_material), INDEX idx_timestamp (timestamp))");
-            } catch (SQLException ignored) {
+            } catch (SQLException e) {
+                // FIX M-1: Log error if bukan table already exists
+                if (!e.getMessage().toLowerCase().contains("already exists")) {
+                    logger.log(Level.SEVERE,
+                            "[Auctify] MySQL schema migration failed creating price_history: " + e.getMessage());
+                }
             }
             // Create auto_bid table if not exists
             try {
                 st.execute(
                         "CREATE TABLE IF NOT EXISTS auctify_auto_bid (id INT AUTO_INCREMENT PRIMARY KEY, player_uuid VARCHAR(36) NOT NULL, player_name VARCHAR(36) NOT NULL, listing_id VARCHAR(36) NOT NULL, max_bid_amount DOUBLE NOT NULL, created_at BIGINT NOT NULL, UNIQUE KEY unique_player_listing (player_uuid, listing_id), INDEX idx_listing (listing_id), INDEX idx_player (player_uuid))");
-            } catch (SQLException ignored) {
+            } catch (SQLException e) {
+                // FIX M-1: Log error if bukan table already exists
+                if (!e.getMessage().toLowerCase().contains("already exists")) {
+                    logger.log(Level.SEVERE,
+                            "[Auctify] MySQL schema migration failed creating auto_bid: " + e.getMessage());
+                }
             }
+            // #region agent log
+            DebugLog.log("run1", "H2", "MySQLStorage.java:migrateSchema", "migration step completed", Map.of(
+                    "thread", Thread.currentThread().getName()));
+            // #endregion
         } catch (SQLException e) {
             logger.log(Level.SEVERE, "MySQL schema migration failed", e);
+            // #region agent log
+            DebugLog.log("run1", "H2", "MySQLStorage.java:migrateSchema", "migration failed", Map.of(
+                    "error", e.getClass().getSimpleName(),
+                    "message", e.getMessage()));
+            // #endregion
         }
     }
 
@@ -340,6 +377,26 @@ public class MySQLStorage implements StorageManager {
         return false;
     }
 
+    @Override
+    public boolean hasTransactionWith(UUID raterUUID, UUID sellerUUID) {
+        // FIX-8: Check if rater has ever won an auction from seller (reason = 'SOLD'
+        // and winner = rater and seller = seller)
+        String sql = "SELECT COUNT(*) as cnt FROM auctify_history " +
+                "WHERE winner_uuid = ? AND seller_uuid = ? AND reason = 'SOLD'";
+        try (Connection c = dataSource.getConnection();
+                PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setString(1, raterUUID.toString());
+            ps.setString(2, sellerUUID.toString());
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next())
+                    return rs.getInt("cnt") > 0;
+            }
+        } catch (SQLException e) {
+            logger.log(Level.SEVERE, "Check has transaction with failed", e);
+        }
+        return false;
+    }
+
     // ─── Blacklist System ────────────────────────────
 
     @Override
@@ -550,6 +607,26 @@ public class MySQLStorage implements StorageManager {
         return bids;
     }
 
+    @Override
+    public java.util.List<dev.auctify.auction.BidRecord> getPlayerBidHistory(UUID playerUUID) {
+        java.util.List<dev.auctify.auction.BidRecord> bids = new java.util.ArrayList<>();
+        String sql = "SELECT bidder_uuid, bidder_name, amount, bid_time FROM auctify_bid_history WHERE bidder_uuid = ? ORDER BY bid_time DESC";
+        try (Connection c = dataSource.getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setString(1, playerUUID.toString());
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                bids.add(new dev.auctify.auction.BidRecord(
+                        UUID.fromString(rs.getString("bidder_uuid")),
+                        rs.getString("bidder_name"),
+                        rs.getDouble("amount"),
+                        rs.getLong("bid_time")));
+            }
+        } catch (SQLException e) {
+            logger.log(Level.SEVERE, "Failed to get player bid history", e);
+        }
+        return bids;
+    }
+
     // ─── Pending Notification Implementation ────────
 
     @Override
@@ -603,8 +680,26 @@ public class MySQLStorage implements StorageManager {
 
     @Override
     public double[] getPriceStats(String itemType) {
-        // TODO: Query history table for item type stats
-        return null;
+        // FIX M-4: Query auctify_price_history table dengan item_material column (bukan
+        // LIKE pada Base64)
+        String sql = "SELECT MIN(final_price) as min_price, MAX(final_price) as max_price, " +
+                "AVG(final_price) as avg_price, COUNT(*) as count " +
+                "FROM auctify_price_history WHERE item_material = ?";
+        try (Connection c = dataSource.getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setString(1, itemType);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return new double[] {
+                        rs.getDouble("min_price"),
+                        rs.getDouble("max_price"),
+                        rs.getDouble("avg_price"),
+                        rs.getInt("count")
+                };
+            }
+        } catch (SQLException e) {
+            logger.log(Level.WARNING, "[Auctify] Failed to get price stats for " + itemType + ": " + e.getMessage());
+        }
+        return new double[] { 0, 0, 0, 0 };
     }
 
     // ─── Buy Order Implementation ───────────────────

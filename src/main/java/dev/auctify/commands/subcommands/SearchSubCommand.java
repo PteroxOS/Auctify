@@ -22,11 +22,14 @@ public class SearchSubCommand implements SubCommand {
 
     /** Per-player cooldowns to prevent search spam / DoS. */
     private final Map<UUID, Long> cooldowns = new ConcurrentHashMap<>();
-    private static final long COOLDOWN_MS = 1500;
+    // FIX Mi-2: Baca cooldown dari config, default 1500ms
+    private final long cooldownMs;
 
     /** Constructor. */
     public SearchSubCommand(Auctify plugin) {
         this.plugin = plugin;
+        // FIX Mi-2: Initialize cooldown dari config dengan default 1500ms
+        this.cooldownMs = plugin.getConfig().getLong("general.search-cooldown-ms", 1500L);
     }
 
     @Override
@@ -42,7 +45,7 @@ public class SearchSubCommand implements SubCommand {
         UUID uuid = player.getUniqueId();
         long now = System.currentTimeMillis();
         Long last = cooldowns.get(uuid);
-        if (last != null && now - last < COOLDOWN_MS) {
+        if (last != null && now - last < cooldownMs) {
             MessageUtil.send(player, "search-cooldown", null);
             return;
         }

@@ -1,4 +1,4 @@
-# Auctify Usage Guide
+# Auctify Usage Guide v1.8.0
 
 Complete reference for commands, permissions, configuration, and security features.
 
@@ -27,8 +27,14 @@ Complete reference for commands, permissions, configuration, and security featur
 | `/ac notifications <action>`               | Manage notification preferences   | `auctify.notifications` |
 | `/ac filter <type> <value>`                | Set advanced search filters       | `auctify.filter`        |
 | `/ac buyorder <action>`                    | Manage buy orders                 | `auctify.buyorder`      |
-| `/ac ping`                                 | View plugin status                | `auctify.ping`          |
+| `/ac bulkbuy <action>`                     | Manage bulk buy list              | `auctify.bulkbuy`       |
+| `/ac theme <action>`                       | Manage GUI themes                 | `auctify.theme`         |
+| `/ac template <action>`                    | Manage listing templates          | `auctify.template`      |
+| `/ac rating [player]`                      | View player ratings/reputation    | `auctify.rating`        |
+| `/ac trade <action>`                       | Direct player-to-player trade     | `auctify.trade`         |
+| `/ac stats [dashboard]`                    | View stats or dashboard           | `auctify.ping`          |
 | `/ac about`                                | View plugin information           | `auctify.about`         |
+| `/ac ping`                                 | View plugin status                | `auctify.ping`          |
 
 ### Admin Commands
 
@@ -129,6 +135,12 @@ Track auctions without bidding.
 | `auctify.search`        | Search listings            | true    |
 | `auctify.filter`        | Use advanced filters       | true    |
 | `auctify.bulksell`      | Bulk sell items            | true    |
+| `auctify.bulkbuy`       | Bulk buy items             | true    |
+| `auctify.theme`         | Manage GUI themes          | true    |
+| `auctify.template`      | Manage listing templates   | true    |
+| `auctify.rating`        | View player ratings        | true    |
+| `auctify.trade`         | Direct player trading      | true    |
+| `auctify.tax.exempt`    | Exempt from tax brackets   | false   |
 | `auctify.pricehistory`  | View price history         | true    |
 | `auctify.autobid`       | Manage auto-bids           | true    |
 | `auctify.notifications` | Manage notifications       | true    |
@@ -209,6 +221,17 @@ storage:
 4. Start server
 
 ## Security Features
+
+### Extreme Audit v3 Hardening (v1.8.0)
+
+The following security improvements were added in the Extreme Audit v3:
+
+- **Auto-Bid Cascade Limit** - Prevents infinite bid loops between competing auto-bidders (max 5 levels)
+- **Transaction Verification for Ratings** - Players can only rate sellers they've actually purchased from
+- **Watchlist Size Limit** - Prevents database bloat with configurable per-player limit (default 50)
+- **Thread-Safe Date Formatting** - All date operations now use ThreadLocal to prevent corruption under load
+- **Permission Hardening** - Admin commands now validate permissions before any operation
+- **TOCTOU Race Condition Fixes** - Bulk operations now properly handle concurrent state changes
 
 ### Economy Transaction Safety
 
@@ -388,8 +411,12 @@ Set maximum bid amounts and let the system automatically bid for you.
 ```yaml
 autobid:
   enabled: true
-  max-auto-bids-per-player: 5
-  min-bid-increment: 0.1
+  max-per-player: 10
+  min-increment: 1.0
+  # FIX-1: Maximum auto-bid cascade depth (prevent infinite loop)
+  # When two players have auto-bids on the same listing, this limits
+  # how many times they can automatically outbid each other
+  max-cascade-depth: 5
 ```
 
 ### Notifications
@@ -426,3 +453,290 @@ notifications:
     item-sold: true
     expiration: true
 ```
+
+### Bulk Buy
+
+Buy multiple items at once from the auction house.
+
+**Usage:**
+
+```bash
+/ac bulkbuy add <listing_id>     # Add item to bulk buy list
+/ac bulkbuy remove <listing_id>  # Remove item from list
+/ac bulkbuy list                 # View bulk buy list with total cost
+/ac bulkbuy clear               # Clear all items from list
+/ac bulkbuy buy                 # Purchase all items in list
+```
+
+**Configuration:**
+
+```yaml
+bulkbuy:
+  enabled: true
+  max-items: 10
+```
+
+**Features:**
+
+- Add multiple listings to a shopping cart
+- View total cost before purchasing
+- One-click purchase of all items
+- Automatic inventory space check
+- Balance verification before purchase
+
+### Category Filtering
+
+Filter auction listings by item type in the GUI.
+
+**Available Categories:**
+
+- ALL - Show all listings
+- WEAPONS - Swords, bows, tridents, arrows
+- TOOLS - Pickaxes, axes, shovels, hoes, shears
+- ARMOR - Helmets, chestplates, leggings, boots, shields
+- BLOCKS - All block types
+- FOOD - Edible items and food ingredients
+- POTIONS - Potions, splash potions, lingering potions
+- REDSTONE - Redstone components, pistons, comparators
+- DECORATIONS - Carpets, flowers, glass, stairs, fences
+- MISC - Miscellaneous items not in other categories
+
+**Usage:**
+
+Click the category button in the GUI to cycle through categories.
+
+### Sorting Options
+
+Sort listings by various criteria in the GUI.
+
+**Available Sort Modes:**
+
+- TIME_ASC - Ending soonest (default)
+- TIME_DESC - Ending latest
+- PRICE_ASC - Lowest total price first
+- PRICE_DESC - Highest total price first
+- PRICE_PER_UNIT_ASC - Lowest price per unit first
+- PRICE_PER_UNIT_DESC - Highest price per unit first
+- BIDS - Most bids first
+- NEWEST - Newest listings first
+- ENDING_SOON - Ending soonest
+
+**Usage:**
+
+Click the sort button (comparator) in the GUI to cycle through sort modes.
+
+### GUI Themes
+
+Customize the appearance of the auction house GUI with different themes.
+
+**Usage:**
+
+```bash
+/ac theme list                 # List available themes
+/ac theme set <theme_name>    # Set active theme
+```
+
+**Available Themes:**
+
+- default - Classic gray theme
+- dark - Dark purple theme
+- light - Light white theme
+- ocean - Blue water theme
+
+**Configuration:**
+
+```yaml
+gui:
+  theme: "default"
+  themes:
+    default:
+      title: "§8✦ §6Auctify §8— §7Auction House §8✦"
+      filler-material: GRAY_STAINED_GLASS_PANE
+      border-material: GRAY_STAINED_GLASS_PANE
+      highlight-material: LIME_STAINED_GLASS_PANE
+      danger-material: RED_STAINED_GLASS_PANE
+      info-material: BLUE_STAINED_GLASS_PANE
+```
+
+### Listing Templates
+
+Save common listing settings as templates for quick reuse.
+
+**Usage:**
+
+```bash
+/ac template create <name> <start_price> [buyout] [duration]  # Create template
+/ac template list                                               # List your templates
+/ac template delete <name>                                      # Delete template
+/ac template use <name>                                         # Apply template to held item
+```
+
+**Features:**
+
+- Save start price, buyout price, and duration
+- Quick apply templates when listing items
+- Per-player template storage
+- Template management (create, list, delete)
+
+**Example:**
+
+```bash
+/ac template create diamond 1000 1500 600
+/ac template use diamond
+```
+
+### Player Ratings / Reputation
+
+View seller ratings and reputation to make informed buying decisions.
+
+**Usage:**
+
+```bash
+/ac rating [player]    # View rating for a player (or yourself if no player specified)
+```
+
+**Reputation Titles:**
+
+- ⭐ Legendary Seller (4.8+)
+- ✓ Trusted Seller (4.5+)
+- ★ Good Seller (4.0+)
+- - Average Seller (3.5+)
+- - Below Average (3.0+)
+- ✗ Poor Seller (2.0+)
+- ✗✗ Avoid (<2.0)
+
+**Features:**
+
+- 1-5 star rating system
+- Average rating calculation
+- Reputation titles based on rating
+- Per-seller rating history
+
+### Direct Trade
+
+Trade directly with other players without using the auction house.
+
+**Usage:**
+
+```bash
+/ac trade send <player> [your_money] [their_money]    # Send trade request
+/ac trade accept                                         # Accept pending trade
+/ac trade cancel                                         # Cancel pending trade
+```
+
+**Features:**
+
+- Direct item-for-item trading
+- Money exchange support
+- Trade request system with timeout
+- Automatic verification of items and money
+- Sound notifications on trade completion
+
+**Configuration:**
+
+```yaml
+trade:
+  enabled: true
+  timeout: 60
+```
+
+### Buy Order Auto-Matching
+
+New listings are automatically matched with existing buy orders.
+
+**Features:**
+
+- Automatic matching when listing items
+- Fills highest price matching buy order
+- Checks buyer inventory space before matching
+- Notifies seller when listing is auto-matched
+
+**Configuration:**
+
+```yaml
+buyorders:
+  auto-match: true
+```
+
+### Bidding History Improvements
+
+Enhanced bid history with statistics and player history.
+
+**Usage:**
+
+```bash
+/ac bidhistory [listing_id]    # View bid history for a listing
+/ac bidhistory                  # View your own bid history
+```
+
+**Features:**
+
+- Listing bid history with statistics (avg, max, min)
+- Personal bid history tracking
+- Total spent calculation
+- Time-ago formatting for bids
+
+### Auction House Statistics Dashboard
+
+Global auction house statistics for admins.
+
+**Usage:**
+
+```bash
+/ac stats dashboard    # View global auction house dashboard (admin only)
+```
+
+**Features:**
+
+- Real-time active listings count
+- Market volume tracking
+- Top categories display
+- Market health indicators (trend, activity, demand)
+- Time-based statistics (24h, 7d, all time)
+- Activity graph visualization
+
+### Player Economy Analytics
+
+Detailed player economy statistics.
+
+**Usage:**
+
+```bash
+/ac stats              # View your own economy stats
+/ac stats <player>     # View another player's stats (admin only)
+```
+
+**Features:**
+
+- Win rate calculation
+- Average bid tracking
+- ROI (Return on Investment) calculation
+- Most sold/bought items
+- Favorite category tracking
+- Market position ranking (seller, buyer, overall)
+
+### Tax Brackets
+
+Progressive tax system based on listing value.
+
+**Configuration:**
+
+```yaml
+tax-brackets:
+  enabled: true
+  brackets:
+    1000: 0.5 # 0.5% tax for listings over 1000
+    5000: 1.0 # 1.0% tax for listings over 5000
+    10000: 1.5 # 1.5% tax for listings over 10000
+    50000: 2.0 # 2.0% tax for listings over 50000
+    100000: 2.5 # 2.5% tax for listings over 100000
+  exempt-permission: "auctify.tax.exempt"
+```
+
+**Features:**
+
+- Progressive tax brackets based on listing value
+- Tax exemption permission support
+- Automatic tax calculation on sale
+- Informative tax bracket notification on listing
+- Configurable tax destination (void or server account)

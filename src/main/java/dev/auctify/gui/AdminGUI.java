@@ -103,6 +103,24 @@ public class AdminGUI {
                 MessageUtil.get("gui-admin-blacklist-title"),
                 MessageUtil.get("gui-admin-blacklist-lore")));
 
+        // Player history viewer (slot 48)
+        inv.setItem(48, buildItem(Material.PLAYER_HEAD,
+                "§e§lPlayer History",
+                "§7View auction history for a player",
+                "§7Click to search player"));
+
+        // Audit log (slot 50)
+        inv.setItem(50, buildItem(Material.WRITABLE_BOOK,
+                "§e§lAudit Log",
+                "§7View economy transaction logs",
+                "§7Click to open audit log"));
+
+        // Bulk actions (slot 51)
+        inv.setItem(51, buildItem(Material.CHEST,
+                "§e§lBulk Actions",
+                "§7Perform bulk admin operations",
+                "§7Bulk cancel, extend, etc."));
+
         // Back to main GUI (slot 53)
         if (page < totalPages - 1) {
             inv.setItem(53, buildItem(Material.ARROW, MessageUtil.get("gui-next-page")));

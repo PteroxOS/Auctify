@@ -48,7 +48,10 @@ public final class MessageUtil {
             if (!f.exists()) {
                 try {
                     plugin.saveResource("locales/" + bundled + ".yml", false);
-                } catch (IllegalArgumentException ignored) {
+                } catch (IllegalArgumentException e) {
+                    // FIX M-2: Log error saat save bundled locale gagal
+                    plugin.getLogger().warning(
+                            "[Auctify] Failed to save bundled locale '" + bundled + ".yml': " + e.getMessage());
                 }
             }
         }
@@ -57,7 +60,14 @@ public final class MessageUtil {
         if (!langFile.exists()) {
             try {
                 langFile.createNewFile();
-            } catch (Exception ignored) {
+                // FIX M-2: Create empty file sebagai placeholder, admin harus isi sendiri atau
+                // fallback ke en
+                plugin.getLogger().warning("[Auctify] Created empty locale file '" + lang
+                        + ".yml'. Please fill it or use 'en' as fallback.");
+            } catch (Exception e) {
+                // FIX M-2: Log error saat create locale file gagal
+                plugin.getLogger()
+                        .severe("[Auctify] Failed to create locale file '" + lang + ".yml': " + e.getMessage());
             }
         }
         messagesConfig = YamlConfiguration.loadConfiguration(langFile);

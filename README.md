@@ -3,7 +3,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Java Version](https://img.shields.io/badge/Java-17%2B-orange.svg)](https://openjdk.org/projects/jdk/17/)
 [![Paper/Spigot](https://img.shields.io/badge/API-Paper%2FSpigot%201.18%2B-green.svg)](https://papermc.io/)
-[![Version](https://img.shields.io/badge/Version-1.1.5-blue.svg)](https://github.com/PteroxOS/Auctify/releases)
+[![Version](https://img.shields.io/badge/Version-1.8.0-blue.svg)](https://github.com/PteroxOS/Auctify/releases)
 [![Open Source](https://img.shields.io/badge/Open%20Source-Yes-success.svg)](https://github.com/PteroxOS/Auctify)
 [![Downloads](https://img.shields.io/github/downloads/PteroxOS/Auctify/total?style=for-the-badge)](https://github.com/PteroxOS/Auctify/releases)
 [![Latest Release](https://img.shields.io/github/v/release/PteroxOS/Auctify?style=for-the-badge)](https://github.com/PteroxOS/Auctify/releases)
@@ -22,6 +22,7 @@ Auctify is a professional auction house plugin for Minecraft (Paper/Spigot 1.18+
 - Info Leak Prevention - Tab completion only shows listings the player can actually interact with
 - Event State Integrity - Events fire before state mutation to ensure clean cancellation rollbacks
 - Automatic Backups - Database auto-backup with configurable retention
+- **Extreme Audit v3 Hardening** - 11 security fixes including auto-bid cascade limits, rating verification, thread-safe date formatting, and watchlist limits
 
 **Auction System**
 
@@ -132,7 +133,7 @@ See [GUIDE.md](GUIDE.md) for detailed usage instructions.
 
 **Quick Setup (Recommended)**
 
-1. Download the latest `Auctify-1.1.5.jar` from [releases](https://github.com/PteroxOS/Auctify/releases)
+1. Download the latest `Auctify-1.6.0.jar` from [releases](https://github.com/PteroxOS/Auctify/releases)
 2. Place the jar in your server's `plugins/` folder
 3. Start the server - Setup Wizard will prompt admins automatically
 4. Click through the wizard to configure language, storage, tax, etc.

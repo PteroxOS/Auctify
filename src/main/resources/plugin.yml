@@ -16,7 +16,7 @@ softdepend:
 commands:
   ac:
     description: Open or interact with the Auctify auction house.
-    usage: /ac <sell|bid|open|cancel|search|history|reload|help>
+    usage: /ac <sell|bid|open|cancel|search|history|reload|bulkbuy|theme|template|rating|trade|stats|buyorder|pricehistory|autobid|notifications|filter|watchlist|claim|extend|bulkcancel|bulksell|about|ping|help>
     aliases:
       - auction
       - auctify
@@ -47,4 +47,64 @@ permissions:
     default: op
   auctify.bypass.tax:
     description: Bypass the seller tax on completed auctions.
+    default: false
+  auctify.watchlist:
+    description: Permission to use watchlist feature.
+    default: true
+  auctify.claim:
+    description: Permission to collect pending items and refunds.
+    default: true
+  auctify.cancel:
+    description: Permission to cancel listings.
+    default: true
+  auctify.bulksell:
+    description: Permission to bulk sell items.
+    default: true
+  auctify.bulkbuy:
+    description: Permission to bulk buy items.
+    default: true
+  auctify.filter:
+    description: Permission to use advanced search filters.
+    default: true
+  auctify.theme:
+    description: Permission to manage GUI themes.
+    default: true
+  auctify.template:
+    description: Permission to manage listing templates.
+    default: true
+  auctify.rating:
+    description: Permission to view player ratings.
+    default: true
+  auctify.trade:
+    description: Permission to use direct trade feature.
+    default: true
+  auctify.pricehistory:
+    description: Permission to view price history.
+    default: true
+  auctify.autobid:
+    description: Permission to manage auto-bids.
+    default: true
+  auctify.notifications:
+    description: Permission to manage notification preferences.
+    default: true
+  auctify.buyorder:
+    description: Permission to manage buy orders.
+    default: true
+  auctify.ping:
+    description: Permission to view plugin status.
+    default: true
+  auctify.about:
+    description: Permission to view plugin information.
+    default: true
+  auctify.admin.history:
+    description: Permission to view other players' history.
+    default: op
+  auctify.admin.stats:
+    description: Permission to view server statistics.
+    default: op
+  auctify.bypass.fee:
+    description: Bypass listing fee.
+    default: op
+  auctify.tax.exempt:
+    description: Exempt from tax brackets.
     default: false

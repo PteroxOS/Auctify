@@ -3,6 +3,7 @@ package dev.auctify.commands.subcommands;
 import dev.auctify.Auctify;
 import dev.auctify.auction.AuctionHistory;
 import dev.auctify.util.MessageUtil;
+import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
@@ -21,7 +22,9 @@ public class HistorySubCommand implements SubCommand {
     private final Auctify plugin;
 
     /** Date formatter for displaying resolved timestamps. */
-    private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("MM/dd HH:mm");
+    // FIX-5: SimpleDateFormat is not thread-safe — use ThreadLocal
+    private static final ThreadLocal<SimpleDateFormat> DATE_FORMAT = ThreadLocal
+            .withInitial(() -> new SimpleDateFormat("MM/dd HH:mm"));
 
     /** Constructor. */
     public HistorySubCommand(Auctify plugin) {
@@ -59,45 +62,55 @@ public class HistorySubCommand implements SubCommand {
             targetName = player.getName();
         }
 
-        List<AuctionHistory> history = plugin.getAuctionManager().getHistory(targetUUID, 10);
+        // FIX H-3: Jalankan query history di async thread untuk mencegah blocking main
+        // thread
+        final UUID finalTargetUUID = targetUUID;
+        final String finalTargetName = targetName;
+        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+            List<AuctionHistory> history = plugin.getAuctionManager().getHistory(finalTargetUUID, 10);
 
-        if (history.isEmpty()) {
-            if (targetUUID.equals(player.getUniqueId())) {
-                MessageUtil.send(player, "history-empty", null);
-            } else {
-                MessageUtil.send(player, "history-empty-other", Map.of("player", targetName));
-            }
-            return;
-        }
-
-        if (targetUUID.equals(player.getUniqueId())) {
-            MessageUtil.send(player, "history-header", Map.of("count", "10"));
-        } else {
-            MessageUtil.send(player, "history-header-other", Map.of("count", "10", "player", targetName));
-        }
-
-        for (AuctionHistory h : history) {
-            String date = DATE_FORMAT.format(new Date(h.resolvedAt()));
-
-            if ("SOLD".equals(h.reason())) {
-                if (h.taxAmount() > 0) {
-                    MessageUtil.send(player, "history-line-sold", Map.of(
-                            "date", date,
-                            "id", h.id(),
-                            "price", plugin.getEconomyManager().format(h.finalPrice()),
-                            "tax", plugin.getEconomyManager().format(h.taxAmount())));
-                } else {
-                    MessageUtil.send(player, "history-line-sold-no-tax", Map.of(
-                            "date", date,
-                            "id", h.id(),
-                            "price", plugin.getEconomyManager().format(h.finalPrice())));
+            // Kembali ke main thread untuk kirim message ke player
+            Bukkit.getScheduler().runTask(plugin, () -> {
+                if (history.isEmpty()) {
+                    if (finalTargetUUID.equals(player.getUniqueId())) {
+                        MessageUtil.send(player, "history-empty", null);
+                    } else {
+                        MessageUtil.send(player, "history-empty-other", Map.of("player", finalTargetName));
+                    }
+                    return;
                 }
-            } else if ("EXPIRED".equals(h.reason())) {
-                MessageUtil.send(player, "history-line-expired", Map.of("date", date, "id", h.id()));
-            } else if ("CANCELLED".equals(h.reason())) {
-                MessageUtil.send(player, "history-line-cancelled", Map.of("date", date, "id", h.id()));
-            }
-        }
+
+                if (finalTargetUUID.equals(player.getUniqueId())) {
+                    MessageUtil.send(player, "history-header", Map.of("count", "10"));
+                } else {
+                    MessageUtil.send(player, "history-header-other", Map.of("count", "10", "player", finalTargetName));
+                }
+
+                for (AuctionHistory h : history) {
+                    // FIX-5: Use ThreadLocal.get() to access SimpleDateFormat
+                    String date = DATE_FORMAT.get().format(new Date(h.resolvedAt()));
+
+                    if ("SOLD".equals(h.reason())) {
+                        if (h.taxAmount() > 0) {
+                            MessageUtil.send(player, "history-line-sold", Map.of(
+                                    "date", date,
+                                    "id", h.id(),
+                                    "price", plugin.getEconomyManager().format(h.finalPrice()),
+                                    "tax", plugin.getEconomyManager().format(h.taxAmount())));
+                        } else {
+                            MessageUtil.send(player, "history-line-sold-no-tax", Map.of(
+                                    "date", date,
+                                    "id", h.id(),
+                                    "price", plugin.getEconomyManager().format(h.finalPrice())));
+                        }
+                    } else if ("EXPIRED".equals(h.reason())) {
+                        MessageUtil.send(player, "history-line-expired", Map.of("date", date, "id", h.id()));
+                    } else if ("CANCELLED".equals(h.reason())) {
+                        MessageUtil.send(player, "history-line-cancelled", Map.of("date", date, "id", h.id()));
+                    }
+                }
+            });
+        });
     }
 
     @Override

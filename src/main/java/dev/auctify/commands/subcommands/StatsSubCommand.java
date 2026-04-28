@@ -27,15 +27,37 @@ public class StatsSubCommand implements SubCommand {
             return;
         }
 
-        if (args.length >= 2 && player.hasPermission("auctify.admin")) {
-            // Admin viewing other player's stats
-            String targetName = args[1];
-            Player target = Bukkit.getPlayer(targetName);
-            if (target == null) {
-                MessageUtil.send(player, "player-not-found", null);
+        if (args.length >= 2) {
+            String action = args[1].toLowerCase();
+
+            if (action.equals("dashboard") && player.hasPermission("auctify.admin")) {
+                // Open global dashboard
+                plugin.getStatsGUI().openDashboard(player);
                 return;
             }
-            plugin.getStatsGUI().open(player, target.getUniqueId(), target.getName());
+
+            // Admin viewing other player's stats
+            if (player.hasPermission("auctify.admin")) {
+                String targetName = args[1];
+                Player target = Bukkit.getPlayerExact(targetName);
+
+                // Fallback for Bedrock players or offline lookup
+                if (target == null) {
+                    var offlineTarget = Bukkit.getOfflinePlayer(targetName);
+                    if (offlineTarget != null && offlineTarget.isOnline()) {
+                        target = offlineTarget.getPlayer();
+                    }
+                }
+
+                if (target == null) {
+                    MessageUtil.send(player, "player-not-found", null);
+                    return;
+                }
+                plugin.getStatsGUI().open(player, target.getUniqueId(), target.getName());
+            } else {
+                // View own stats
+                plugin.getStatsGUI().openSelf(player);
+            }
         } else {
             // View own stats
             plugin.getStatsGUI().openSelf(player);

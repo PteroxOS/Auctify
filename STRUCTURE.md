@@ -1,6 +1,8 @@
-# Auctify Project Structure
+# Auctify Project Structure v1.8.0
 
 Auctify uses a layered architecture with strict separation of concerns, comprehensive thread safety, and audit-ready logging.
+
+> **Security Notice**: This version includes Extreme Audit v3 hardening with 11 security fixes including auto-bid cascade limits, rating transaction verification, and TOCTOU race condition fixes.
 
 ## Package Overview
 
@@ -31,6 +33,10 @@ Auctify uses a layered architecture with strict separation of concerns, comprehe
 | `AuctifyBidEvent` | Cancellable event for bid interception                  | Bukkit event system                     |
 | `PriceHistory`    | Price trend data for items                              | Record (immutable)                      |
 | `AutoBid`         | Auto-bid configuration                                  | Record (immutable)                      |
+| `BuyOrder`        | Buy order state (buyer, item, price, amount)            | Synchronized methods                    |
+| `ListingTemplate` | Saved listing configuration (price, buyout, duration)   | Record (immutable)                      |
+| `PlayerRating`    | Player rating and reputation data                       | Record (immutable)                      |
+| `TradeRequest`    | Direct trade request state                              | Record (immutable)                      |
 
 ### State Management
 
@@ -39,6 +45,12 @@ Auctify uses a layered architecture with strict separation of concerns, comprehe
 - `ConcurrentHashMap<String, AuctionListing>` - Active listings
 - `synchronized(listing)` blocks - Per-listing operation locks
 - `ConcurrentHashMap.newKeySet()` - Claim in-progress tracking
+- `ConcurrentHashMap<String, Integer>` - In-memory auto-relist counts (prevents config.yml pollution)
+
+**Thread Safety Patterns**:
+
+- `ThreadLocal<SimpleDateFormat>` - Date formatting (FIX-5: prevents thread-safety issues)
+- Auto-bid cascade depth limiting (FIX-1: max 5 levels prevents infinite loops)
 
 ## Storage Layer
 
@@ -69,6 +81,10 @@ Automatic migration on startup:
 - `auctify_pending_refunds` table created if missing
 - `auctify_price_history` table created if missing
 - `auctify_auto_bid` table created if missing
+- `auctify_templates` table created if missing (v1.6.0)
+- `auctify_ratings` table created if missing (v1.6.0)
+- `auctify_trade_requests` table created if missing (v1.6.0)
+- `auctify_tax_brackets` table created if missing (v1.6.0)
 - Graceful handling of "column already exists" errors
 
 ## Security Architecture
@@ -167,7 +183,7 @@ conn.commit();
 # Build shaded jar with HikariCP and H2
 mvn clean package
 
-# Output: target/Auctify-1.1.5.jar
+# Output: target/Auctify-1.6.0.jar
 # Dependencies shaded: com.zaxxer.HikariCP, com.h2database
 ```
 

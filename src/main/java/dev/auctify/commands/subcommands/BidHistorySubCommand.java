@@ -37,7 +37,8 @@ public class BidHistorySubCommand implements SubCommand {
         }
 
         if (args.length < 2) {
-            MessageUtil.send(player, "bidhistory-usage", null);
+            // Show player's own bid history
+            showPlayerBidHistory(player);
             return;
         }
 
@@ -51,6 +52,11 @@ public class BidHistorySubCommand implements SubCommand {
             return;
         }
 
+        showListingBidHistory(player, listing);
+    }
+
+    private void showListingBidHistory(Player player, AuctionListing listing) {
+        String listingId = listing.getId();
         List<BidRecord> bids = plugin.getStorageManager().getBidHistory(listingId);
 
         // Header
@@ -65,6 +71,17 @@ public class BidHistorySubCommand implements SubCommand {
             MessageUtil.send(player, "bidhistory-no-bids", null);
         } else {
             MessageUtil.send(player, "bidhistory-total", Map.of("count", String.valueOf(bids.size())));
+
+            // Calculate statistics
+            double avgBid = bids.stream().mapToDouble(BidRecord::amount).average().orElse(0);
+            double maxBid = bids.stream().mapToDouble(BidRecord::amount).max().orElse(0);
+            double minBid = bids.stream().mapToDouble(BidRecord::amount).min().orElse(0);
+
+            MessageUtil.send(player, "bidhistory-stats", Map.of(
+                    "avg", plugin.getEconomyManager().format(avgBid),
+                    "max", plugin.getEconomyManager().format(maxBid),
+                    "min", plugin.getEconomyManager().format(minBid)));
+            MessageUtil.send(player, "bidhistory-header", null);
 
             int count = 0;
             for (BidRecord bid : bids) {
@@ -94,6 +111,42 @@ public class BidHistorySubCommand implements SubCommand {
                     "price", plugin.getEconomyManager().format(listing.getStartPrice())));
         }
         MessageUtil.send(player, "bidhistory-footer", null);
+    }
+
+    private void showPlayerBidHistory(Player player) {
+        List<BidRecord> allBids = plugin.getStorageManager().getPlayerBidHistory(player.getUniqueId());
+
+        if (allBids.isEmpty()) {
+            MessageUtil.send(player, "bidhistory-player-empty", null);
+            return;
+        }
+
+        MessageUtil.send(player, "bidhistory-player-header", Map.of("player", player.getName()));
+        MessageUtil.send(player, "bidhistory-player-total", Map.of("count", String.valueOf(allBids.size())));
+
+        // Calculate statistics
+        double totalSpent = allBids.stream().mapToDouble(BidRecord::amount).sum();
+        double avgBid = allBids.stream().mapToDouble(BidRecord::amount).average().orElse(0);
+
+        MessageUtil.send(player, "bidhistory-player-stats", Map.of(
+                "total", plugin.getEconomyManager().format(totalSpent),
+                "avg", plugin.getEconomyManager().format(avgBid)));
+        MessageUtil.send(player, "bidhistory-header", null);
+
+        // Show recent bids (last 10)
+        int count = 0;
+        for (BidRecord bid : allBids) {
+            if (count++ >= 10) {
+                MessageUtil.send(player, "bidhistory-more", Map.of("count", String.valueOf(allBids.size() - 10)));
+                break;
+            }
+
+            String timeAgo = formatTimeAgo(bid.timestamp());
+            MessageUtil.send(player, "bidhistory-player-entry", Map.of(
+                    "number", String.valueOf(count),
+                    "amount", plugin.getEconomyManager().format(bid.amount()),
+                    "time", timeAgo));
+        }
     }
 
     private String formatTimeAgo(long timestamp) {

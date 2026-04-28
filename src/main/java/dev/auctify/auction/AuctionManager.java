@@ -8,6 +8,7 @@ import dev.auctify.storage.StorageManager;
 import dev.auctify.util.ItemUtil;
 import dev.auctify.util.MessageUtil;
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
@@ -35,6 +36,9 @@ public class AuctionManager {
 
     /** Per-player lock to prevent TOCTOU item duplication on /ac claim. */
     private final Set<UUID> claimingPlayers = ConcurrentHashMap.newKeySet();
+
+    // FIX-11: In-memory relist count tracker to prevent config.yml pollution
+    private final Map<String, Integer> relistCounts = new ConcurrentHashMap<>();
 
     /**
      * Constructs the AuctionManager and loads non-expired listings from storage.
@@ -144,6 +148,16 @@ public class AuctionManager {
             }
         }
 
+        // Tax bracket check (informative only - tax is deducted on sale)
+        if (plugin.getTaxManager().isEnabled()) {
+            double taxPercentage = plugin.getTaxManager().getTaxPercentage(buyoutPrice > 0 ? buyoutPrice : startPrice);
+            if (taxPercentage > 0 && !seller.hasPermission("auctify.tax.exempt")) {
+                MessageUtil.send(seller, "tax-bracket-info", Map.of(
+                        "percentage", String.format("%.1f", taxPercentage),
+                        "value", economy.format(buyoutPrice > 0 ? buyoutPrice : startPrice)));
+            }
+        }
+
         // Validate price range and guard against NaN/Infinity exploits
         double minPrice = config.getDouble("bidding.min-start-price", 1.0);
         double maxPrice = config.getDouble("bidding.max-start-price", 1000000.0);
@@ -211,6 +225,9 @@ public class AuctionManager {
         activeListings.put(id, listing);
         storage.saveListing(listing);
 
+        // Try to auto-match with buy orders
+        plugin.getBuyOrderManager().tryAutoMatch(listing);
+
         // Get item name for notifications
         String itemName = ItemUtil.getDisplayName(item);
 
@@ -248,7 +265,89 @@ public class AuctionManager {
             plugin.getNotificationManager().scheduleExpirationWarning(listing, warningMinutes);
         }
 
+        // Auto-match with buy orders if enabled
+        if (config.getBoolean("buyorders.auto-match", true)) {
+            autoMatchBuyOrders(listing);
+        }
+
         return id;
+    }
+
+    /**
+     * Automatically matches a new listing with existing buy orders.
+     * Fills buy orders that match the listing's item type and price.
+     */
+    private void autoMatchBuyOrders(AuctionListing listing) {
+        if (listing.getItem() == null)
+            return;
+
+        Material itemType = listing.getItem().getType();
+        var buyOrderManager = plugin.getBuyOrderManager();
+
+        // Get buy orders for this material, sorted by highest price first
+        var matchingOrders = buyOrderManager.getOrdersForMaterial(itemType);
+
+        // Filter orders that can afford this listing
+        matchingOrders = matchingOrders.stream()
+                .filter(order -> order.getPricePerUnit() >= listing.getCurrentBid())
+                .filter(order -> order.getAmount() <= listing.getItem().getAmount())
+                .collect(Collectors.toList());
+
+        if (matchingOrders.isEmpty())
+            return;
+
+        // Fill the highest price matching order
+        BuyOrder bestOrder = matchingOrders.get(0);
+        Player buyer = plugin.getServer().getPlayer(bestOrder.getBuyerUUID());
+
+        if (buyer != null && buyer.isOnline()) {
+            // Check if buyer has enough inventory space
+            int emptySlots = 0;
+            for (ItemStack invItem : buyer.getInventory().getStorageContents()) {
+                if (invItem == null || invItem.getType().isAir()) {
+                    emptySlots++;
+                }
+            }
+
+            if (emptySlots > 0) {
+                // Auto-fill the buy order
+                buyOrderManager.fillBuyOrder(buyer, bestOrder.getId());
+
+                // Cancel the listing since it was sold via buy order
+                cancelListingInternal(listing.getId(), true);
+
+                plugin.getLogger().info(
+                        "[AutoMatch] Listing " + listing.getId() + " auto-matched with buy order " + bestOrder.getId());
+            }
+        }
+    }
+
+    /** Internal method to cancel a listing without permission checks. */
+    private void cancelListingInternal(String listingId, boolean autoMatched) {
+        AuctionListing listing = activeListings.get(listingId);
+        if (listing == null)
+            return;
+
+        listing.setActive(false);
+        activeListings.remove(listingId);
+
+        // Return item to seller
+        Player seller = plugin.getServer().getPlayer(listing.getSellerUUID());
+        if (seller != null && seller.isOnline()) {
+            Map<Integer, ItemStack> overflow = seller.getInventory().addItem(listing.getItem());
+            if (!overflow.isEmpty()) {
+                for (ItemStack drop : overflow.values()) {
+                    seller.getWorld().dropItemNaturally(seller.getLocation(), drop);
+                }
+            }
+            if (autoMatched) {
+                MessageUtil.send(seller, "listing-auto-matched", Map.of("id", listingId));
+            }
+        } else {
+            storage.savePendingDelivery(listing.getSellerUUID(), listing.getItem());
+        }
+
+        storage.deleteListing(listingId);
     }
 
     /** Places a bid on an active listing. */
@@ -348,7 +447,8 @@ public class AuctionManager {
                 plugin.getNotificationManager().notifyOutbid(listing, previousBidder, amount);
 
                 // Check for auto-bid and trigger if configured
-                triggerAutoBid(listing, previousBidder);
+                // FIX-1: Pass depth=0 to start tracking cascade depth
+                triggerAutoBid(listing, previousBidder, 0);
             }
 
             storage.saveListing(listing);
@@ -420,25 +520,26 @@ public class AuctionManager {
 
         double price = listing.getBuyoutPrice();
 
-        // Withdraw buyout price
-        TransactionResult result = economy.withdraw(buyer.getUniqueId(), price);
-        if (!result.success()) {
-            MessageUtil.send(buyer, "insufficient-funds", Map.of("amount", economy.format(price)));
-            return false;
-        }
-
-        // CRITICAL-2: Deactivate inside synchronized block BEFORE resolving to prevent
-        // double-resolve if AuctionExpiryTask fires between applyBid and
-        // resolveAuction.
+        // H-2 HIGH FIX: Seluruh buyout flow termasuk economy operations di dalam
+        // synchronized
+        // block
+        // Sebelumnya withdraw dilakukan di luar lock yang menyebabkan race condition
+        // risk
         synchronized (listing) {
+            // Re-check all conditions inside lock (TOCTOU protection)
             if (!listing.isActive() || listing.isExpired()) {
-                // Listing became inactive while we were withdrawing money — refund buyer
-                economy.deposit(buyer.getUniqueId(), price);
                 MessageUtil.send(buyer, "listing-not-found", Map.of("listing_id", listingId));
                 return false;
             }
 
-            // Refund any existing top bidder
+            // H-2: Withdraw buyout price DI DALAM lock setelah validasi
+            TransactionResult result = economy.withdraw(buyer.getUniqueId(), price);
+            if (!result.success()) {
+                MessageUtil.send(buyer, "insufficient-funds", Map.of("amount", economy.format(price)));
+                return false;
+            }
+
+            // H-2: Refund any existing top bidder DI DALAM lock (sebelum deaktivasi)
             if (listing.hasBids() && listing.getTopBidderUUID() != null) {
                 safeDeposit(listing.getTopBidderUUID(), listing.getCurrentBid(),
                         "Outbid refund on buyout for listing " + listingId);
@@ -449,12 +550,15 @@ public class AuctionManager {
                 }
             }
 
+            // CRITICAL-2: Deactivate listing DI DALAM lock
             listing.setActive(false);
             activeListings.remove(listingId);
-        }
 
-        // resolveAuction is safe to call outside the lock now — listing is deactivated
-        listing.applyBid(buyer.getUniqueId(), buyer.getName(), price, 0);
+            // H-2: Apply bid DI DALAM lock untuk konsistensi
+            listing.applyBid(buyer.getUniqueId(), buyer.getName(), price, 0);
+        } // End synchronized block
+
+        // resolveAuction bisa dipanggil di luar lock karena listing sudah deactivated
         resolveAuction(listing);
 
         // Send buyout notification to seller
@@ -493,21 +597,24 @@ public class AuctionManager {
             return false;
         }
 
-        // Only seller or admin can cancel
-        boolean isSeller = listing.getSellerUUID().equals(player.getUniqueId());
-        boolean isAdmin = player.hasPermission("auctify.admin");
-        if (!isSeller && !isAdmin) {
-            MessageUtil.send(player, "no-permission", null);
-            return false;
-        }
-
-        // MEDIUM-3: Acquire per-listing lock before deactivating to prevent race with
-        // bid
+        // C-4 CRITICAL FIX: Permission check harus di dalam synchronized block untuk
+        // konsistensi atomic
+        // Sebelumnya check dilakukan di luar lock yang bisa menyebabkan race condition
         synchronized (listing) {
-            if (!listing.isActive()) { // re-check inside lock
+            // Re-check semua kondisi di dalam lock (TOCTOU protection)
+            if (!listing.isActive()) {
                 MessageUtil.send(player, "listing-not-found", Map.of("listing_id", listingId));
                 return false;
             }
+
+            // C-4: Permission check di dalam lock - re-check ownership dan admin status
+            boolean isSeller = listing.getSellerUUID().equals(player.getUniqueId());
+            boolean isAdmin = player.hasPermission("auctify.admin");
+            if (!isSeller && !isAdmin) {
+                MessageUtil.send(player, "no-permission", null);
+                return false;
+            }
+
             listing.setActive(false);
             activeListings.remove(listingId);
 
@@ -591,15 +698,26 @@ public class AuctionManager {
             // Deliver item to winner
             deliverItem(winnerUUID, listing.getItem());
 
-            // Calculate tax
-            double taxPercent = config.getDouble("tax.percent", 0);
+            // Calculate tax using tax brackets
             double taxAmount = 0;
+            double taxPercent = 0;
 
-            // MEDIUM-2: Use stored tax exempt status from listing creation time
+            // Use tax brackets if enabled, otherwise use fixed percent
+            if (plugin.getTaxManager().isEnabled()) {
+                taxAmount = plugin.getTaxManager().calculateTax(finalPrice);
+                taxPercent = plugin.getTaxManager().getTaxPercentage(finalPrice);
+            } else {
+                taxPercent = config.getDouble("tax.percent", 0);
+                if (taxPercent > 0) {
+                    taxAmount = finalPrice * (taxPercent / 100.0);
+                }
+            }
+
+            // Check tax exemption
             boolean bypassTax = listing.isTaxExempt();
-
-            if (!bypassTax && taxPercent > 0) {
-                taxAmount = finalPrice * (taxPercent / 100.0);
+            if (bypassTax) {
+                taxAmount = 0;
+                taxPercent = 0;
             }
 
             double netAmount = finalPrice - taxAmount;
@@ -671,11 +789,12 @@ public class AuctionManager {
                     System.currentTimeMillis());
             storage.savePriceHistory(priceHistory);
 
-            // Broadcast if enabled
+            // L-1 LOW FIX: Broadcast using locale key instead of hardcoded color codes
             if (config.getBoolean("general.broadcast-wins", true)) {
-                MessageUtil.broadcastRaw("§e" + winnerName + " §7won §f"
-                        + ItemUtil.getDisplayName(listing.getItem()) + " §7for §a"
-                        + economy.format(finalPrice) + "§7!");
+                MessageUtil.broadcast("auction-won-broadcast",
+                        Map.of("winner", winnerName,
+                                "item", ItemUtil.getDisplayName(listing.getItem()),
+                                "amount", economy.format(finalPrice)));
             }
 
             // Discord webhook
@@ -876,15 +995,83 @@ public class AuctionManager {
      */
     public int bulkCancelAuctions(Player player) {
         UUID playerUUID = player.getUniqueId();
-        List<AuctionListing> toCancel = activeListings.values().stream()
+
+        // FIX-7: TOCTOU fix — hanya filter basic, jangan cek hasBids() di luar lock
+        // State bisa berubah antara filter dan cancel, jadi serahkan ke cancelListing()
+        // yang punya synchronized block dan re-check di dalamnya
+        List<String> listingIds = activeListings.values().stream()
                 .filter(l -> l.isActive() && !l.isExpired())
                 .filter(l -> l.getSellerUUID().equals(playerUUID))
-                .filter(l -> !l.hasBids()) // Can't cancel if has bids
+                // FIX-7: Removed !l.hasBids() check — cancelListing will handle this inside
+                // lock
+                .map(AuctionListing::getId)
+                .collect(Collectors.toList());
+
+        int count = 0;
+        for (String listingId : listingIds) {
+            // cancelListing sudah punya synchronized block dan re-check state
+            // Jika listing sudah punya bid saat cancel dipanggil, cancelListing akan gagal
+            // gracefully
+            if (cancelListing(player, listingId)) {
+                count++;
+            }
+        }
+        return count;
+    }
+
+    /**
+     * Bulk cancel all active listings (admin only).
+     */
+    public int bulkCancelAdmin(Player player) {
+        // FIX-6: Permission check HARUS di awal method, sebelum operasi apapun
+        if (!player.hasPermission("auctify.admin")) {
+            plugin.getLogger().warning("[Auctify] Unauthorized bulkCancelAdmin attempt by "
+                    + player.getName());
+            return 0;
+        }
+
+        List<AuctionListing> toCancel = activeListings.values().stream()
+                .filter(l -> l.isActive())
                 .collect(Collectors.toList());
 
         int count = 0;
         for (AuctionListing listing : toCancel) {
             if (cancelListing(player, listing.getId())) {
+                count++;
+            }
+        }
+        return count;
+    }
+
+    /**
+     * Bulk cancel all expired listings (admin only).
+     */
+    public int bulkCancelExpired(Player player) {
+        List<AuctionListing> toCancel = activeListings.values().stream()
+                .filter(l -> l.isExpired())
+                .collect(Collectors.toList());
+
+        int count = 0;
+        for (AuctionListing listing : toCancel) {
+            if (cancelListing(player, listing.getId())) {
+                count++;
+            }
+        }
+        return count;
+    }
+
+    /**
+     * Bulk extend all active listings by a duration (admin only).
+     */
+    public int bulkExtendAll(Player player, int seconds) {
+        List<AuctionListing> toExtend = activeListings.values().stream()
+                .filter(l -> l.isActive() && !l.isExpired())
+                .collect(Collectors.toList());
+
+        int count = 0;
+        int minutes = seconds / 60;
+        for (AuctionListing listing : toExtend) {
+            if (extendAuction(player, listing.getId(), minutes)) {
                 count++;
             }
         }
@@ -907,11 +1094,10 @@ public class AuctionManager {
                 ? Math.max(1, listing.getBuyoutPrice() * (1 - discountPercent / 100))
                 : 0;
 
+        // FIX-11: Use in-memory map instead of config.yml to prevent pollution
         // Get current relist count and increment
-        String relistKey = "auto-relist.count." + listing.getId();
-        int relistCount = config.getInt(relistKey, 0);
-        config.set(relistKey, relistCount + 1);
-        plugin.saveConfig();
+        int relistCount = relistCounts.getOrDefault(listing.getId(), 0);
+        relistCounts.put(listing.getId(), relistCount + 1);
 
         // Create new listing with same item but new prices
         Player seller = Bukkit.getPlayer(listing.getSellerUUID());
@@ -940,8 +1126,18 @@ public class AuctionManager {
      *
      * @param listing      the auction listing
      * @param outbidPlayer the UUID of the player who was outbid
+     * @param depth        current cascade depth (0 = first trigger, increases with
+     *                     each cascade)
      */
-    private void triggerAutoBid(AuctionListing listing, UUID outbidPlayer) {
+    private void triggerAutoBid(AuctionListing listing, UUID outbidPlayer, int depth) {
+        // FIX-1: Prevent infinite auto-bid cascade loop — max 5 levels
+        int maxDepth = plugin.getConfig().getInt("autobid.max-cascade-depth", 5);
+        if (depth >= maxDepth) {
+            plugin.getLogger().warning("[Auctify] Auto-bid cascade limit reached for listing "
+                    + listing.getId() + " — stopping at depth " + depth);
+            return;
+        }
+
         dev.auctify.auction.AutoBid autoBid = storage.getAutoBid(listing.getId(), outbidPlayer);
         if (autoBid == null) {
             return; // No auto-bid configured

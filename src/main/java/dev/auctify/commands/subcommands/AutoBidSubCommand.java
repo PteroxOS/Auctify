@@ -106,6 +106,12 @@ public class AutoBidSubCommand implements SubCommand {
     }
 
     private void setAutoBid(Player player, String listingId, double maxAmount) {
+        // FIX-2a: Blacklist check — harus sebelum apapun
+        if (plugin.getStorageManager().isBlacklisted(player.getUniqueId())) {
+            MessageUtil.send(player, "blacklisted", null);
+            return;
+        }
+
         AuctionListing listing = plugin.getAuctionManager().getActiveListings().stream()
                 .filter(l -> l.getId().equals(listingId))
                 .findFirst()
@@ -117,6 +123,12 @@ public class AutoBidSubCommand implements SubCommand {
 
         if (!listing.isActive() || listing.isExpired()) {
             MessageUtil.send(player, "listing-not-active", null);
+            return;
+        }
+
+        // FIX-2b: BIN-only check — auto-bid tidak masuk akal untuk BIN listing
+        if (listing.isBinOnly()) {
+            MessageUtil.send(player, "autobid-bin-not-allowed", null);
             return;
         }
 

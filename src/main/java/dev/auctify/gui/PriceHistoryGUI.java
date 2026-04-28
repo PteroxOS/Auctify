@@ -2,8 +2,9 @@ package dev.auctify.gui;
 
 import dev.auctify.Auctify;
 import dev.auctify.auction.PriceHistory;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
@@ -18,7 +19,9 @@ import java.util.List;
 /** GUI for displaying price history trends of auction items. */
 public class PriceHistoryGUI {
 
-    private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("MMM dd, HH:mm");
+    // FIX-5: SimpleDateFormat is not thread-safe — use ThreadLocal
+    private static final ThreadLocal<SimpleDateFormat> DATE_FORMAT = ThreadLocal
+            .withInitial(() -> new SimpleDateFormat("MMM dd, HH:mm"));
     private static final int GUI_SIZE = 54;
 
     private final Auctify plugin;
@@ -36,8 +39,9 @@ public class PriceHistoryGUI {
         AuctifyHolder holder = new AuctifyHolder("PRICE_HISTORY");
         holder.setPage(page);
 
+        // FIX H-1: Gunakan Adventure API Component daripada ChatColor deprecated
         Inventory inventory = Bukkit.createInventory(holder, GUI_SIZE,
-                ChatColor.DARK_GRAY + "Price History: " + itemType);
+                Component.text("Price History: " + itemType).color(NamedTextColor.DARK_GRAY));
 
         // Get price history data
         List<PriceHistory> history = plugin.getStorageManager().getPriceHistory(itemType, 45);
@@ -88,20 +92,28 @@ public class PriceHistoryGUI {
         ItemStack item = new ItemStack(Material.BOOK);
         ItemMeta meta = item.getItemMeta();
 
-        meta.setDisplayName(ChatColor.GOLD + "Price Statistics");
+        // FIX H-1: Gunakan Adventure API Component daripada ChatColor deprecated
+        meta.displayName(Component.text("Price Statistics").color(NamedTextColor.GOLD));
 
-        List<String> lore = new ArrayList<>();
-        lore.add(ChatColor.GRAY + "Total Sales: " + ChatColor.WHITE + count);
-        lore.add(ChatColor.GRAY + "Average: " + ChatColor.GREEN
-                + plugin.getAuctionManager().getEconomy().format(avgPrice));
-        lore.add(ChatColor.GRAY + "Minimum: " + ChatColor.RED
-                + plugin.getAuctionManager().getEconomy().format(minPrice));
-        lore.add(ChatColor.GRAY + "Maximum: " + ChatColor.AQUA
-                + plugin.getAuctionManager().getEconomy().format(maxPrice));
-        lore.add("");
-        lore.add(ChatColor.YELLOW + "Item: " + ChatColor.WHITE + itemType);
+        java.util.List<Component> lore = new java.util.ArrayList<>();
+        lore.add(Component.text("Total Sales: ").color(NamedTextColor.GRAY)
+                .append(Component.text(String.valueOf(count)).color(NamedTextColor.WHITE)));
+        lore.add(Component.text("Average: ").color(NamedTextColor.GRAY)
+                .append(Component.text(plugin.getAuctionManager().getEconomy().format(avgPrice))
+                        .color(NamedTextColor.GREEN)));
+        lore.add(Component.text("Minimum: ").color(NamedTextColor.GRAY)
+                .append(Component.text(plugin.getAuctionManager().getEconomy().format(minPrice))
+                        .color(NamedTextColor.RED)));
+        lore.add(Component.text("Maximum: ").color(NamedTextColor.GRAY)
+                .append(Component.text(plugin.getAuctionManager().getEconomy().format(maxPrice))
+                        .color(NamedTextColor.AQUA)));
+        lore.add(Component.empty());
+        lore.add(Component.text("Item: ").color(NamedTextColor.YELLOW)
+                .append(Component.text(itemType).color(NamedTextColor.WHITE)));
 
-        meta.setLore(lore);
+        // FIX H-1: Gunakan lore(List<Component>) daripada setLore(List<String>) yang
+        // deprecated
+        meta.lore(lore);
         item.setItemMeta(meta);
 
         return item;
@@ -114,17 +126,27 @@ public class PriceHistoryGUI {
         ItemStack item = new ItemStack(Material.PAPER);
         ItemMeta meta = item.getItemMeta();
 
-        meta.setDisplayName(ChatColor.WHITE + entry.getItemName());
+        // FIX H-1: Gunakan Adventure API Component daripada ChatColor deprecated
+        meta.displayName(Component.text(entry.getItemName()).color(NamedTextColor.WHITE));
 
-        List<String> lore = new ArrayList<>();
-        lore.add(ChatColor.GRAY + "Price: " + ChatColor.GREEN
-                + plugin.getAuctionManager().getEconomy().format(entry.getFinalPrice()));
-        lore.add(ChatColor.GRAY + "Seller: " + ChatColor.YELLOW + entry.getSellerName());
-        lore.add(ChatColor.GRAY + "Winner: " + ChatColor.YELLOW + entry.getWinnerName());
-        lore.add(ChatColor.GRAY + "Date: " + ChatColor.WHITE + DATE_FORMAT.format(new Date(entry.getTimestamp())));
-        lore.add(ChatColor.GRAY + "ID: " + ChatColor.DARK_GRAY + entry.getId());
+        java.util.List<Component> lore = new java.util.ArrayList<>();
+        lore.add(Component.text("Price: ").color(NamedTextColor.GRAY)
+                .append(Component.text(plugin.getAuctionManager().getEconomy().format(entry.getFinalPrice()))
+                        .color(NamedTextColor.GREEN)));
+        lore.add(Component.text("Seller: ").color(NamedTextColor.GRAY)
+                .append(Component.text(entry.getSellerName()).color(NamedTextColor.YELLOW)));
+        lore.add(Component.text("Winner: ").color(NamedTextColor.GRAY)
+                .append(Component.text(entry.getWinnerName()).color(NamedTextColor.YELLOW)));
+        // FIX-5: Use ThreadLocal.get() to access SimpleDateFormat
+        lore.add(Component.text("Date: ").color(NamedTextColor.GRAY)
+                .append(Component.text(DATE_FORMAT.get().format(new Date(entry.getTimestamp())))
+                        .color(NamedTextColor.WHITE)));
+        lore.add(Component.text("ID: ").color(NamedTextColor.GRAY)
+                .append(Component.text(entry.getId()).color(NamedTextColor.DARK_GRAY)));
 
-        meta.setLore(lore);
+        // FIX H-1: Gunakan lore(List<Component>) daripada setLore(List<String>) yang
+        // deprecated
+        meta.lore(lore);
         item.setItemMeta(meta);
 
         return item;
@@ -137,7 +159,9 @@ public class PriceHistoryGUI {
         ItemStack item = new ItemStack(material);
         ItemMeta meta = item.getItemMeta();
 
-        meta.setDisplayName(ChatColor.YELLOW + name);
+        // FIX H-1: Gunakan Adventure API Component daripada ChatColor deprecated
+        meta.displayName(Component.text(name).color(NamedTextColor.YELLOW));
+        meta.lore(new ArrayList<>());
         item.setItemMeta(meta);
 
         return item;
@@ -150,7 +174,8 @@ public class PriceHistoryGUI {
         ItemStack item = new ItemStack(Material.BARRIER);
         ItemMeta meta = item.getItemMeta();
 
-        meta.setDisplayName(ChatColor.RED + "Close");
+        // FIX H-1: Gunakan Adventure API Component daripada ChatColor deprecated
+        meta.displayName(Component.text("Close").color(NamedTextColor.RED));
         item.setItemMeta(meta);
 
         return item;
@@ -176,8 +201,9 @@ public class PriceHistoryGUI {
     public static void openAllHistory(Auctify plugin, Player player) {
         AuctifyHolder holder = new AuctifyHolder("PRICE_HISTORY_ALL");
 
+        // FIX H-1: Gunakan Adventure API Component daripada ChatColor deprecated
         Inventory inventory = Bukkit.createInventory(holder, GUI_SIZE,
-                ChatColor.DARK_GRAY + "Recent Price History");
+                Component.text("Recent Price History").color(NamedTextColor.DARK_GRAY));
 
         // Get all recent price history
         List<PriceHistory> history = plugin.getStorageManager().getAllPriceHistory(45);
@@ -203,15 +229,23 @@ public class PriceHistoryGUI {
         ItemStack item = new ItemStack(Material.PAPER);
         ItemMeta meta = item.getItemMeta();
 
-        meta.setDisplayName(ChatColor.WHITE + entry.getItemName());
+        // FIX H-1: Gunakan Adventure API Component daripada ChatColor deprecated
+        meta.displayName(Component.text(entry.getItemName()).color(NamedTextColor.WHITE));
 
-        List<String> lore = new ArrayList<>();
-        lore.add(ChatColor.GRAY + "Price: " + ChatColor.GREEN
-                + plugin.getAuctionManager().getEconomy().format(entry.getFinalPrice()));
-        lore.add(ChatColor.GRAY + "Material: " + ChatColor.YELLOW + entry.getItemMaterial());
-        lore.add(ChatColor.GRAY + "Date: " + ChatColor.WHITE + DATE_FORMAT.format(new Date(entry.getTimestamp())));
+        java.util.List<Component> lore = new java.util.ArrayList<>();
+        lore.add(Component.text("Price: ").color(NamedTextColor.GRAY)
+                .append(Component.text(plugin.getAuctionManager().getEconomy().format(entry.getFinalPrice()))
+                        .color(NamedTextColor.GREEN)));
+        lore.add(Component.text("Material: ").color(NamedTextColor.GRAY)
+                .append(Component.text(entry.getItemMaterial()).color(NamedTextColor.YELLOW)));
+        // FIX-5: Use ThreadLocal.get() to access SimpleDateFormat
+        lore.add(Component.text("Date: ").color(NamedTextColor.GRAY)
+                .append(Component.text(DATE_FORMAT.get().format(new Date(entry.getTimestamp())))
+                        .color(NamedTextColor.WHITE)));
 
-        meta.setLore(lore);
+        // FIX H-1: Gunakan lore(List<Component>) daripada setLore(List<String>) yang
+        // deprecated
+        meta.lore(lore);
         item.setItemMeta(meta);
 
         return item;

@@ -7,6 +7,8 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.Map;
+
 /** Handles the /ac sell command. Usage: /ac sell <price> [buyout] [duration] */
 public class SellSubCommand implements SubCommand {
 
@@ -60,6 +62,11 @@ public class SellSubCommand implements SubCommand {
                 buyoutPrice = Double.parseDouble(args[2]);
                 if (buyoutPrice < 0 || Double.isNaN(buyoutPrice) || Double.isInfinite(buyoutPrice)) {
                     MessageUtil.send(player, "sell-invalid-buyout", null);
+                    return;
+                }
+                // H-1 HIGH FIX: Buyout harus lebih besar dari start price (jika buyout > 0)
+                if (buyoutPrice > 0 && buyoutPrice <= startPrice) {
+                    MessageUtil.send(player, "buyout-must-be-higher", Map.of("start", String.valueOf(startPrice)));
                     return;
                 }
             } catch (NumberFormatException e) {

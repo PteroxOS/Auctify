@@ -104,36 +104,69 @@ public class H2Storage implements StorageManager {
             // Add bin_only column if missing
             try {
                 st.execute("ALTER TABLE auctify_listings ADD COLUMN IF NOT EXISTS bin_only INT NOT NULL DEFAULT 0");
-            } catch (SQLException ignored) {
+            } catch (SQLException e) {
+                // FIX M-1: H2 menggunakan IF NOT EXISTS seharusnya aman, tapi tetap log error
+                // yang unexpected
+                if (!e.getMessage().toLowerCase().contains("duplicate")
+                        && !e.getMessage().toLowerCase().contains("already exists")) {
+                    logger.log(Level.WARNING,
+                            "[Auctify] H2 schema migration warning adding bin_only: " + e.getMessage());
+                }
             }
             // Add tax_exempt column if missing
             try {
                 st.execute("ALTER TABLE auctify_listings ADD COLUMN IF NOT EXISTS tax_exempt INT NOT NULL DEFAULT 0");
-            } catch (SQLException ignored) {
+            } catch (SQLException e) {
+                // FIX M-1: Log error yang unexpected
+                if (!e.getMessage().toLowerCase().contains("duplicate")
+                        && !e.getMessage().toLowerCase().contains("already exists")) {
+                    logger.log(Level.WARNING,
+                            "[Auctify] H2 schema migration warning adding tax_exempt: " + e.getMessage());
+                }
             }
             // Create bid_history table if not exists
             try {
                 st.execute(
                         "CREATE TABLE IF NOT EXISTS auctify_bid_history (id INT AUTO_INCREMENT PRIMARY KEY, listing_id VARCHAR(36) NOT NULL, bidder_uuid VARCHAR(36) NOT NULL, bidder_name VARCHAR(100) NOT NULL, amount DOUBLE NOT NULL, bid_time BIGINT NOT NULL)");
-            } catch (SQLException ignored) {
+            } catch (SQLException e) {
+                // FIX M-1: Log error yang unexpected
+                if (!e.getMessage().toLowerCase().contains("already exists")) {
+                    logger.log(Level.SEVERE,
+                            "[Auctify] H2 schema migration failed creating bid_history: " + e.getMessage());
+                }
             }
             // Create pending_notifications table if not exists
             try {
                 st.execute(
                         "CREATE TABLE IF NOT EXISTS auctify_pending_notifications (id INT AUTO_INCREMENT PRIMARY KEY, player_uuid VARCHAR(36) NOT NULL, type VARCHAR(50) NOT NULL, item_name VARCHAR(255), winner_name VARCHAR(100), amount VARCHAR(50), net_amount VARCHAR(50), created_at BIGINT NOT NULL)");
-            } catch (SQLException ignored) {
+            } catch (SQLException e) {
+                // FIX M-1: Log error yang unexpected
+                if (!e.getMessage().toLowerCase().contains("already exists")) {
+                    logger.log(Level.SEVERE,
+                            "[Auctify] H2 schema migration failed creating pending_notifications: " + e.getMessage());
+                }
             }
             // Create price_history table if not exists
             try {
                 st.execute(
                         "CREATE TABLE IF NOT EXISTS auctify_price_history (id INT AUTO_INCREMENT PRIMARY KEY, listing_id VARCHAR(36) NOT NULL, item_material VARCHAR(100) NOT NULL, item_name VARCHAR(255) NOT NULL, final_price DOUBLE NOT NULL, seller_name VARCHAR(100) NOT NULL, winner_name VARCHAR(100) NOT NULL, timestamp BIGINT NOT NULL)");
-            } catch (SQLException ignored) {
+            } catch (SQLException e) {
+                // FIX M-1: Log error yang unexpected
+                if (!e.getMessage().toLowerCase().contains("already exists")) {
+                    logger.log(Level.SEVERE,
+                            "[Auctify] H2 schema migration failed creating price_history: " + e.getMessage());
+                }
             }
             // Create auto_bid table if not exists
             try {
                 st.execute(
                         "CREATE TABLE IF NOT EXISTS auctify_auto_bid (id INT AUTO_INCREMENT PRIMARY KEY, player_uuid VARCHAR(36) NOT NULL, player_name VARCHAR(100) NOT NULL, listing_id VARCHAR(36) NOT NULL, max_bid_amount DOUBLE NOT NULL, created_at BIGINT NOT NULL, CONSTRAINT UNIQUE(player_uuid, listing_id))");
-            } catch (SQLException ignored) {
+            } catch (SQLException e) {
+                // FIX M-1: Log error yang unexpected
+                if (!e.getMessage().toLowerCase().contains("already exists")) {
+                    logger.log(Level.SEVERE,
+                            "[Auctify] H2 schema migration failed creating auto_bid: " + e.getMessage());
+                }
             }
         } catch (SQLException e) {
             logger.log(Level.SEVERE, "Schema migration failed", e);
@@ -376,6 +409,26 @@ public class H2Storage implements StorageManager {
             }
         } catch (SQLException e) {
             logger.log(Level.SEVERE, "Check has rated failed", e);
+        }
+        return false;
+    }
+
+    @Override
+    public boolean hasTransactionWith(UUID raterUUID, UUID sellerUUID) {
+        // FIX-8: Check if rater has ever won an auction from seller (reason = 'SOLD'
+        // and winner = rater and seller = seller)
+        String sql = "SELECT COUNT(*) as cnt FROM auctify_history " +
+                "WHERE winner_uuid = ? AND seller_uuid = ? AND reason = 'SOLD'";
+        try (Connection c = dataSource.getConnection();
+                PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setString(1, raterUUID.toString());
+            ps.setString(2, sellerUUID.toString());
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next())
+                    return rs.getInt("cnt") > 0;
+            }
+        } catch (SQLException e) {
+            logger.log(Level.SEVERE, "Check has transaction with failed", e);
         }
         return false;
     }
@@ -650,6 +703,26 @@ public class H2Storage implements StorageManager {
         return bids;
     }
 
+    @Override
+    public java.util.List<dev.auctify.auction.BidRecord> getPlayerBidHistory(UUID playerUUID) {
+        java.util.List<dev.auctify.auction.BidRecord> bids = new java.util.ArrayList<>();
+        String sql = "SELECT bidder_uuid, bidder_name, amount, bid_time FROM auctify_bid_history WHERE bidder_uuid = ? ORDER BY bid_time DESC";
+        try (Connection c = dataSource.getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setString(1, playerUUID.toString());
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                bids.add(new dev.auctify.auction.BidRecord(
+                        UUID.fromString(rs.getString("bidder_uuid")),
+                        rs.getString("bidder_name"),
+                        rs.getDouble("amount"),
+                        rs.getLong("bid_time")));
+            }
+        } catch (SQLException e) {
+            logger.log(Level.SEVERE, "Failed to get player bid history", e);
+        }
+        return bids;
+    }
+
     // ─── Pending Notification Implementation ────────
 
     @Override
@@ -703,8 +776,26 @@ public class H2Storage implements StorageManager {
 
     @Override
     public double[] getPriceStats(String itemType) {
-        // TODO: Query history table for item type stats
-        return null;
+        // FIX M-4: Query auctify_price_history table dengan item_material column (bukan
+        // LIKE pada Base64)
+        String sql = "SELECT MIN(final_price) as min_price, MAX(final_price) as max_price, " +
+                "AVG(final_price) as avg_price, COUNT(*) as count " +
+                "FROM auctify_price_history WHERE item_material = ?";
+        try (Connection c = dataSource.getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setString(1, itemType);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return new double[] {
+                        rs.getDouble("min_price"),
+                        rs.getDouble("max_price"),
+                        rs.getDouble("avg_price"),
+                        rs.getInt("count")
+                };
+            }
+        } catch (SQLException e) {
+            logger.log(Level.WARNING, "[Auctify] Failed to get price stats for " + itemType + ": " + e.getMessage());
+        }
+        return new double[] { 0, 0, 0, 0 };
     }
 
     // ─── Buy Order Implementation ───────────────────

@@ -24,7 +24,8 @@ public class TabCompleter implements org.bukkit.command.TabCompleter {
             "sell", "bid", "open", "cancel", "search", "history", "about",
             "claim", "admin", "reload",
             "bidhistory", "extend", "bulkcancel", "watchlist", "ping",
-            "buyorder", "stats", "bulksell", "filter", "notifications", "autobid", "pricehistory");
+            "buyorder", "stats", "bulksell", "filter", "notifications", "autobid", "pricehistory",
+            "theme", "template", "rating", "trade", "bulkbuy");
 
     /** Constructor. */
     public TabCompleter(Auctify plugin) {
@@ -46,12 +47,20 @@ public class TabCompleter implements org.bukkit.command.TabCompleter {
             return switch (sub) {
                 case "sell" -> List.of("<price>");
                 case "bid" -> {
-                    // Only suggest listing IDs the player can actually bid on (not their own, not
-                    // expired)
+                    // C-3 CRITICAL FIX: Only suggest listing IDs if player has permission and not
+                    // blacklisted
                     if (sender instanceof Player player) {
+                        // Check permission
+                        if (!player.hasPermission("auctify.bid")) {
+                            yield List.of();
+                        }
+                        // Check blacklist
+                        if (plugin.getStorageManager().isBlacklisted(player.getUniqueId())) {
+                            yield List.of();
+                        }
                         yield plugin.getAuctionManager().getActiveListings().stream()
                                 .filter(l -> !l.getSellerUUID().equals(player.getUniqueId()) && l.isActive()
-                                        && !l.isExpired())
+                                        && !l.isExpired() && !l.isBinOnly()) // C-3: Jangan suggest BIN-only
                                 .map(AuctionListing::getId)
                                 .filter(id -> id.startsWith(args[1]))
                                 .collect(Collectors.toList());
@@ -111,6 +120,11 @@ public class TabCompleter implements org.bukkit.command.TabCompleter {
                 case "notifications" -> List.of("toggle", "all");
                 case "autobid" -> List.of("set", "remove", "clear");
                 case "pricehistory" -> List.of("[item_type]");
+                case "theme" -> List.of("list", "set", "reset");
+                case "template" -> List.of("list", "create", "delete", "use");
+                case "rating" -> List.of("[player]");
+                case "trade" -> List.of("send", "accept", "decline", "cancel");
+                case "bulkbuy" -> List.of("add", "remove", "list", "clear", "buy");
                 default -> List.of();
             };
         }

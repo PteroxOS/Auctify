@@ -48,6 +48,13 @@ public class WatchlistSubCommand implements SubCommand {
                 plugin.getStorageManager().removeFromWatchlist(player.getUniqueId(), listingId);
                 MessageUtil.send(player, "watchlist-removed", Map.of("id", listingId));
             } else {
+                // FIX-9: Check watchlist limit before adding
+                int maxWatchlist = plugin.getConfig().getInt("general.max-watchlist-per-player", 50);
+                int currentCount = plugin.getStorageManager().getWatchlist(player.getUniqueId()).size();
+                if (currentCount >= maxWatchlist) {
+                    MessageUtil.send(player, "watchlist-full", Map.of("max", String.valueOf(maxWatchlist)));
+                    return;
+                }
                 plugin.getStorageManager().addToWatchlist(player.getUniqueId(), listingId);
                 String itemName = ItemUtil.getDisplayName(listing.getItem());
                 MessageUtil.send(player, "watchlist-added", Map.of("id", listingId, "item", itemName));

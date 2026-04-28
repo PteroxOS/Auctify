@@ -88,6 +88,9 @@ public class GUIClickListener implements Listener {
             case "SHULKER" -> handleShulkerGUIClick(player, holder, slot);
             case "RATE" -> handleRateGUIClick(player, holder, slot);
             case "ADMIN" -> handleAdminGUIClick(player, holder, slot, clicked);
+            case "HISTORY" -> handleHistoryGUIClick(player, holder, slot, clicked);
+            case "AUDIT" -> handleAuditGUIClick(player, holder, slot, clicked);
+            case "BULK" -> handleBulkGUIClick(player, holder, slot, clicked);
         }
     }
 
@@ -173,10 +176,15 @@ public class GUIClickListener implements Listener {
                 // Category Cycle
                 String currentCat = holder.getCategory();
                 String nextCat = switch (currentCat) {
-                    case "ALL" -> "WEAPONS_TOOLS";
-                    case "WEAPONS_TOOLS" -> "ARMOR";
+                    case "ALL" -> "WEAPONS";
+                    case "WEAPONS" -> "TOOLS";
+                    case "TOOLS" -> "ARMOR";
                     case "ARMOR" -> "BLOCKS";
-                    case "BLOCKS" -> "MISC";
+                    case "BLOCKS" -> "FOOD";
+                    case "FOOD" -> "POTIONS";
+                    case "POTIONS" -> "REDSTONE";
+                    case "REDSTONE" -> "DECORATIONS";
+                    case "DECORATIONS" -> "MISC";
                     default -> "ALL";
                 };
                 guiManager.cancelRefreshTask(player);
@@ -198,7 +206,11 @@ public class GUIClickListener implements Listener {
                     case "TIME_ASC" -> "TIME_DESC";
                     case "TIME_DESC" -> "PRICE_ASC";
                     case "PRICE_ASC" -> "PRICE_DESC";
-                    case "PRICE_DESC" -> "BIDS";
+                    case "PRICE_DESC" -> "PRICE_PER_UNIT_ASC";
+                    case "PRICE_PER_UNIT_ASC" -> "PRICE_PER_UNIT_DESC";
+                    case "PRICE_PER_UNIT_DESC" -> "BIDS";
+                    case "BIDS" -> "NEWEST";
+                    case "NEWEST" -> "ENDING_SOON";
                     default -> "TIME_ASC";
                 };
                 guiManager.cancelRefreshTask(player);
@@ -473,6 +485,25 @@ public class GUIClickListener implements Listener {
             plugin.getAdminGUI().open(player, currentPage + 1);
             return;
         }
+
+        // Player history viewer (slot 48)
+        if (slot == 48 && clicked.getType() == Material.PLAYER_HEAD) {
+            plugin.getPlayerHistoryGUI().openSearch(player);
+            return;
+        }
+
+        // Audit log (slot 50)
+        if (slot == 50 && clicked.getType() == Material.WRITABLE_BOOK) {
+            plugin.getAuditLogGUI().open(player, 0);
+            return;
+        }
+
+        // Bulk actions (slot 51)
+        if (slot == 51 && clicked.getType() == Material.CHEST) {
+            plugin.getBulkActionsGUI().open(player);
+            return;
+        }
+
         if (slot >= 45)
             return; // Bottom nav row, ignore
 
@@ -494,6 +525,110 @@ public class GUIClickListener implements Listener {
         });
     }
 
+    private void handleHistoryGUIClick(Player player, AuctifyHolder holder, int slot, ItemStack clicked) {
+        if (!(holder instanceof dev.auctify.gui.PlayerHistoryGUI.HistoryHolder historyHolder)) {
+            return;
+        }
+
+        int currentPage = historyHolder.getPage();
+
+        // Navigation
+        if (slot == 45 && clicked.getType() == Material.ARROW) {
+            if (currentPage > 0 && historyHolder.getPlayerUUID() != null) {
+                plugin.getPlayerHistoryGUI().open(player, historyHolder.getPlayerUUID(),
+                        "Player", currentPage - 1);
+            }
+            return;
+        }
+        if (slot == 53 && clicked.getType() == Material.ARROW) {
+            if (historyHolder.getPlayerUUID() != null) {
+                plugin.getPlayerHistoryGUI().open(player, historyHolder.getPlayerUUID(),
+                        "Player", currentPage + 1);
+            }
+            return;
+        }
+
+        // Back to search
+        if (slot == 48 && clicked.getType() == Material.BARRIER) {
+            plugin.getPlayerHistoryGUI().openSearch(player);
+            return;
+        }
+    }
+
+    private void handleAuditGUIClick(Player player, AuctifyHolder holder, int slot, ItemStack clicked) {
+        if (!(holder instanceof dev.auctify.gui.AuditLogGUI.AuditHolder auditHolder)) {
+            return;
+        }
+
+        int currentPage = auditHolder.getPage();
+
+        // Navigation
+        if (slot == 45 && clicked.getType() == Material.ARROW) {
+            if (currentPage > 0)
+                plugin.getAuditLogGUI().open(player, currentPage - 1);
+            return;
+        }
+        if (slot == 53 && clicked.getType() == Material.ARROW) {
+            plugin.getAuditLogGUI().open(player, currentPage + 1);
+            return;
+        }
+
+        // Back to admin panel
+        if (slot == 48 && clicked.getType() == Material.BARRIER) {
+            plugin.getAdminGUI().open(player, 0);
+            return;
+        }
+    }
+
+    private void handleBulkGUIClick(Player player, AuctifyHolder holder, int slot, ItemStack clicked) {
+        // Back to admin panel
+        if (slot == 40 && clicked.getType() == Material.ARROW) {
+            plugin.getAdminGUI().open(player, 0);
+            return;
+        }
+
+        // Bulk cancel all
+        if (slot == 11 && clicked.getType() == Material.BARRIER) {
+            plugin.getBulkActionsGUI().bulkCancelAll(player);
+            plugin.getAdminGUI().open(player, 0);
+            return;
+        }
+
+        // Bulk cancel expired
+        if (slot == 13 && clicked.getType() == Material.CLOCK) {
+            plugin.getBulkActionsGUI().bulkCancelExpired(player);
+            plugin.getAdminGUI().open(player, 0);
+            return;
+        }
+
+        // Bulk extend all
+        if (slot == 15 && clicked.getType() == Material.REPEATER) {
+            plugin.getBulkActionsGUI().bulkExtendAll(player);
+            plugin.getAdminGUI().open(player, 0);
+            return;
+        }
+
+        // Cancel by player (would need chat input)
+        if (slot == 20 && clicked.getType() == Material.PLAYER_HEAD) {
+            player.sendMessage("§eEnter player name in chat to cancel their listings.");
+            player.closeInventory();
+            return;
+        }
+
+        // Cancel by category (would need selection GUI)
+        if (slot == 22 && clicked.getType() == Material.CHEST) {
+            player.sendMessage("§eCategory selection coming soon.");
+            return;
+        }
+
+        // Cancel under threshold (would need chat input)
+        if (slot == 24 && clicked.getType() == Material.GOLD_INGOT) {
+            player.sendMessage("§eEnter price threshold in chat.");
+            player.closeInventory();
+            return;
+        }
+    }
+
     /**
      * Checks if an item is a GUI filler (glass pane with blank name).
      */
@@ -509,22 +644,68 @@ public class GUIClickListener implements Listener {
             return true;
         String name = mat.name();
         switch (category) {
-            case "WEAPONS_TOOLS":
-                return name.endsWith("_SWORD") || name.endsWith("_PICKAXE") || name.endsWith("_AXE")
-                        || name.endsWith("_SHOVEL") || name.endsWith("_HOE") || name.equals("BOW")
-                        || name.equals("CROSSBOW") || name.equals("TRIDENT");
+            case "WEAPONS":
+                return name.endsWith("_SWORD") || name.equals("BOW") || name.equals("CROSSBOW")
+                        || name.equals("TRIDENT") || name.equals("MACE") || name.equals("SPECTRAL_ARROW")
+                        || name.equals("TIPPED_ARROW") || name.equals("ARROW");
+            case "TOOLS":
+                return name.endsWith("_PICKAXE") || name.endsWith("_AXE") || name.endsWith("_SHOVEL")
+                        || name.endsWith("_HOE") || name.equals("SHEARS") || name.equals("FLINT_AND_STEEL")
+                        || name.equals("FISHING_ROD") || name.equals("CARROT_ON_A_STICK")
+                        || name.equals("WARPED_FUNGUS_ON_A_STICK") || name.equals("BRUSH")
+                        || name.equals("SPYGLASS") || name.equals("CLOCK") || name.equals("COMPASS");
             case "ARMOR":
                 return name.endsWith("_HELMET") || name.endsWith("_CHESTPLATE")
-                        || name.endsWith("_LEGGINGS") || name.endsWith("_BOOTS") || name.equals("SHIELD");
+                        || name.endsWith("_LEGGINGS") || name.endsWith("_BOOTS") || name.equals("SHIELD")
+                        || name.equals("ELYTRA") || name.equals("TURTLE_HELMET");
             case "BLOCKS":
-                return mat.isBlock();
+                return mat.isBlock() && !name.contains("POTION") && !name.contains("ITEM");
+            case "FOOD":
+                return mat.isEdible() || name.contains("COOKIE") || name.contains("CAKE")
+                        || name.contains("MUSHROOM") || name.contains("STEW") || name.contains("BREAD")
+                        || name.contains("APPLE") || name.contains("CARROT") || name.contains("POTATO")
+                        || name.contains("BEEF") || name.contains("PORKCHOP") || name.contains("CHICKEN")
+                        || name.contains("MUTTON") || name.contains("RABBIT") || name.contains("COD")
+                        || name.contains("SALMON") || name.contains("TROPICAL") || name.contains("PUFFER")
+                        || name.contains("KELP") || name.contains("DRIED") || name.contains("HONEY")
+                        || name.contains("BERRY") || name.contains("SWEET") || name.contains("GLISTERING");
+            case "POTIONS":
+                return name.contains("POTION") || name.contains("SPLASH") || name.contains("LINGERING");
+            case "REDSTONE":
+                return name.contains("REDSTONE") || name.contains("REPEATER") || name.contains("COMPARATOR")
+                        || name.contains("PISTON") || name.contains("LEVER") || name.contains("BUTTON")
+                        || name.contains("PRESSURE") || name.contains("TRIPWIRE") || name.contains("HOPPER")
+                        || name.contains("DROPPER") || name.contains("DISPENSER") || name.contains("OBSERVER")
+                        || name.contains("DAYLIGHT") || name.contains("SCULK");
+            case "DECORATIONS":
+                return mat.isBlock() && (name.contains("CARPET") || name.contains("FLOWER")
+                        || name.contains("LEAVES") || name.contains("SAPLING") || name.contains("WOOL")
+                        || name.contains("TERRACOTTA") || name.contains("GLASS") || name.contains("SLAB")
+                        || name.contains("STAIRS") || name.contains("FENCE") || name.contains("WALL")
+                        || name.contains("PANE") || name.contains("BANNER") || name.contains("BED")
+                        || name.contains("CANDLE") || name.contains("LANTERN") || name.contains("TORCH")
+                        || name.contains("CAMPFIRE") || name.contains("POT"));
             case "MISC":
                 return !mat.isBlock() && !name.endsWith("_SWORD") && !name.endsWith("_PICKAXE")
                         && !name.endsWith("_AXE") && !name.endsWith("_SHOVEL") && !name.endsWith("_HOE")
                         && !name.endsWith("_HELMET") && !name.endsWith("_CHESTPLATE")
                         && !name.endsWith("_LEGGINGS") && !name.endsWith("_BOOTS")
                         && !name.equals("BOW") && !name.equals("CROSSBOW") && !name.equals("TRIDENT")
-                        && !name.equals("SHIELD");
+                        && !name.equals("SHIELD") && !name.equals("ELYTRA") && !name.equals("TURTLE_HELMET")
+                        && !name.contains("POTION") && !name.contains("SPLASH") && !name.contains("LINGERING")
+                        && !mat.isEdible() && !name.contains("COOKIE") && !name.contains("CAKE")
+                        && !name.contains("MUSHROOM") && !name.contains("STEW") && !name.contains("BREAD")
+                        && !name.contains("APPLE") && !name.contains("CARROT") && !name.contains("POTATO")
+                        && !name.contains("BEEF") && !name.contains("PORKCHOP") && !name.contains("CHICKEN")
+                        && !name.contains("MUTTON") && !name.contains("RABBIT") && !name.contains("COD")
+                        && !name.contains("SALMON") && !name.contains("TROPICAL") && !name.contains("PUFFER")
+                        && !name.contains("KELP") && !name.contains("DRIED") && !name.contains("HONEY")
+                        && !name.contains("BERRY") && !name.contains("SWEET") && !name.contains("GLISTERING")
+                        && !name.contains("REDSTONE") && !name.contains("REPEATER") && !name.contains("COMPARATOR")
+                        && !name.contains("PISTON") && !name.contains("LEVER") && !name.contains("BUTTON")
+                        && !name.contains("PRESSURE") && !name.contains("TRIPWIRE") && !name.contains("HOPPER")
+                        && !name.contains("DROPPER") && !name.contains("DISPENSER") && !name.contains("OBSERVER")
+                        && !name.contains("DAYLIGHT") && !name.contains("SCULK");
             default:
                 return true;
         }

@@ -15,8 +15,23 @@ auctify.db
 logs/
 plugins/
 *.log
+release.md
 wiki.md
+EXTREME_FIX_REPORT_v3.md
 
 # System
 .DS_Store
 Thumbs.db
+
+# Locales (keep en.yml and id.yml, ignore others)
+src/main/resources/locales/de.yml
+src/main/resources/locales/es.yml
+src/main/resources/locales/fr.yml
+src/main/resources/locales/ja.yml
+src/main/resources/locales/ko.yml
+src/main/resources/locales/nl.yml
+src/main/resources/locales/pl.yml
+src/main/resources/locales/pt_br.yml
+src/main/resources/locales/ru.yml
+src/main/resources/locales/tr.yml
+src/main/resources/locales/zh_cn.yml

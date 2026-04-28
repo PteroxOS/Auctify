@@ -29,6 +29,9 @@ public class GUIManager {
     /** Maps player UUID to their current page number in the main GUI. */
     private final Map<UUID, Integer> playerPages = new HashMap<>();
 
+    /** Maps player UUID to their bulk buy list (listing IDs). */
+    private final Map<UUID, List<String>> bulkBuyLists = new HashMap<>();
+
     /** Marks a player as having an Auctify GUI open. */
     public void markOpen(Player player, String guiType) {
         openGUIs.put(player.getUniqueId(), guiType);
@@ -86,10 +89,24 @@ public class GUIManager {
     /**
      * Full cleanup for a player: closes GUI state, cancels refresh, removes page
      * tracking.
+     * H-5 HIGH FIX: Memastikan viewingListing juga di-cleanup via markClosed()
      */
     public void cleanup(Player player) {
-        markClosed(player);
+        markClosed(player); // H-5: Ini juga menghapus viewingListing via markClosed()
         cancelRefreshTask(player);
         playerPages.remove(player.getUniqueId());
+        bulkBuyLists.remove(player.getUniqueId());
+        // H-5: viewingListing sudah dihapus di markClosed() - jangan hapus di sini
+        // untuk menghindari double-remove yang mungkin tidak di-sync
+    }
+
+    /** Gets the player's bulk buy list. */
+    public List<String> getBulkBuyList(UUID playerUUID) {
+        return bulkBuyLists.computeIfAbsent(playerUUID, k -> new ArrayList<>());
+    }
+
+    /** Sets the player's bulk buy list. */
+    public void setBulkBuyList(UUID playerUUID, List<String> list) {
+        bulkBuyLists.put(playerUUID, list);
     }
 }

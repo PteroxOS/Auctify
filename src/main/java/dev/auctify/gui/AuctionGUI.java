@@ -69,7 +69,11 @@ public class AuctionGUI {
         if (rows > 6)
             rows = 6;
 
-        String title = config.getString("gui.title", "§8✦ §6Auctify §8— §7Auction House §8✦");
+        // Get current theme
+        var theme = plugin.getGUIThemeManager().getCurrentTheme();
+        String title = theme != null ? theme.getTitle()
+                : config.getString("gui.title", "§8✦ §6Auctify §8— §7Auction House §8✦");
+
         AuctifyHolder holder = new AuctifyHolder("MAIN");
         holder.setPage(page);
         holder.setCategory(category);
@@ -115,7 +119,8 @@ public class AuctionGUI {
         }
 
         // Fill empty slots with filler
-        Material filler = Material.matchMaterial(config.getString("gui.filler-material", "GRAY_STAINED_GLASS_PANE"));
+        Material filler = theme != null ? theme.getFillerMaterial()
+                : Material.matchMaterial(config.getString("gui.filler-material", "GRAY_STAINED_GLASS_PANE"));
         if (filler == null)
             filler = Material.GRAY_STAINED_GLASS_PANE;
         ItemStack fillerItem = createFillerItem(filler);
@@ -161,9 +166,14 @@ public class AuctionGUI {
         // Category Button (Slot 47)
         String catDisplayName = getCategoryDisplayName(category);
         Material catMat = switch (category) {
-            case "WEAPONS_TOOLS" -> Material.DIAMOND_SWORD;
+            case "WEAPONS" -> Material.DIAMOND_SWORD;
+            case "TOOLS" -> Material.DIAMOND_PICKAXE;
             case "ARMOR" -> Material.DIAMOND_CHESTPLATE;
             case "BLOCKS" -> Material.GRASS_BLOCK;
+            case "FOOD" -> Material.GOLDEN_APPLE;
+            case "POTIONS" -> Material.POTION;
+            case "REDSTONE" -> Material.REDSTONE;
+            case "DECORATIONS" -> Material.POPPY;
             case "MISC" -> Material.APPLE;
             default -> Material.HOPPER;
         };
@@ -174,12 +184,22 @@ public class AuctionGUI {
                 MessageUtil.get("gui-category-click"),
                 category.equals("ALL") ? "§a▶ " + MessageUtil.get("gui-category-all")
                         : "§7- " + MessageUtil.get("gui-category-all"),
-                category.equals("WEAPONS_TOOLS") ? "§a▶ " + MessageUtil.get("gui-category-weapons")
+                category.equals("WEAPONS") ? "§a▶ " + MessageUtil.get("gui-category-weapons")
                         : "§7- " + MessageUtil.get("gui-category-weapons"),
+                category.equals("TOOLS") ? "§a▶ " + MessageUtil.get("gui-category-tools")
+                        : "§7- " + MessageUtil.get("gui-category-tools"),
                 category.equals("ARMOR") ? "§a▶ " + MessageUtil.get("gui-category-armor")
                         : "§7- " + MessageUtil.get("gui-category-armor"),
                 category.equals("BLOCKS") ? "§a▶ " + MessageUtil.get("gui-category-blocks")
                         : "§7- " + MessageUtil.get("gui-category-blocks"),
+                category.equals("FOOD") ? "§a▶ " + MessageUtil.get("gui-category-food")
+                        : "§7- " + MessageUtil.get("gui-category-food"),
+                category.equals("POTIONS") ? "§a▶ " + MessageUtil.get("gui-category-potions")
+                        : "§7- " + MessageUtil.get("gui-category-potions"),
+                category.equals("REDSTONE") ? "§a▶ " + MessageUtil.get("gui-category-redstone")
+                        : "§7- " + MessageUtil.get("gui-category-redstone"),
+                category.equals("DECORATIONS") ? "§a▶ " + MessageUtil.get("gui-category-decorations")
+                        : "§7- " + MessageUtil.get("gui-category-decorations"),
                 category.equals("MISC") ? "§a▶ " + MessageUtil.get("gui-category-misc")
                         : "§7- " + MessageUtil.get("gui-category-misc")));
 
@@ -362,9 +382,14 @@ public class AuctionGUI {
 
     private String getCategoryDisplayName(String category) {
         return switch (category) {
-            case "WEAPONS_TOOLS" -> MessageUtil.get("gui-category-weapons");
+            case "WEAPONS" -> MessageUtil.get("gui-category-weapons");
+            case "TOOLS" -> MessageUtil.get("gui-category-tools");
             case "ARMOR" -> MessageUtil.get("gui-category-armor");
             case "BLOCKS" -> MessageUtil.get("gui-category-blocks");
+            case "FOOD" -> MessageUtil.get("gui-category-food");
+            case "POTIONS" -> MessageUtil.get("gui-category-potions");
+            case "REDSTONE" -> MessageUtil.get("gui-category-redstone");
+            case "DECORATIONS" -> MessageUtil.get("gui-category-decorations");
             case "MISC" -> MessageUtil.get("gui-category-misc");
             default -> MessageUtil.get("gui-category-all");
         };
@@ -375,22 +400,68 @@ public class AuctionGUI {
             return true;
         String name = mat.name();
         switch (category) {
-            case "WEAPONS_TOOLS":
-                return name.endsWith("_SWORD") || name.endsWith("_PICKAXE") || name.endsWith("_AXE")
-                        || name.endsWith("_SHOVEL") || name.endsWith("_HOE") || name.equals("BOW")
-                        || name.equals("CROSSBOW") || name.equals("TRIDENT");
+            case "WEAPONS":
+                return name.endsWith("_SWORD") || name.equals("BOW") || name.equals("CROSSBOW")
+                        || name.equals("TRIDENT") || name.equals("MACE") || name.equals("SPECTRAL_ARROW")
+                        || name.equals("TIPPED_ARROW") || name.equals("ARROW");
+            case "TOOLS":
+                return name.endsWith("_PICKAXE") || name.endsWith("_AXE") || name.endsWith("_SHOVEL")
+                        || name.endsWith("_HOE") || name.equals("SHEARS") || name.equals("FLINT_AND_STEEL")
+                        || name.equals("FISHING_ROD") || name.equals("CARROT_ON_A_STICK")
+                        || name.equals("WARPED_FUNGUS_ON_A_STICK") || name.equals("BRUSH")
+                        || name.equals("SPYGLASS") || name.equals("CLOCK") || name.equals("COMPASS");
             case "ARMOR":
                 return name.endsWith("_HELMET") || name.endsWith("_CHESTPLATE")
-                        || name.endsWith("_LEGGINGS") || name.endsWith("_BOOTS") || name.equals("SHIELD");
+                        || name.endsWith("_LEGGINGS") || name.endsWith("_BOOTS") || name.equals("SHIELD")
+                        || name.equals("ELYTRA") || name.equals("TURTLE_HELMET");
             case "BLOCKS":
-                return mat.isBlock();
+                return mat.isBlock() && !name.contains("POTION") && !name.contains("ITEM");
+            case "FOOD":
+                return mat.isEdible() || name.contains("COOKIE") || name.contains("CAKE")
+                        || name.contains("MUSHROOM") || name.contains("STEW") || name.contains("BREAD")
+                        || name.contains("APPLE") || name.contains("CARROT") || name.contains("POTATO")
+                        || name.contains("BEEF") || name.contains("PORKCHOP") || name.contains("CHICKEN")
+                        || name.contains("MUTTON") || name.contains("RABBIT") || name.contains("COD")
+                        || name.contains("SALMON") || name.contains("TROPICAL") || name.contains("PUFFER")
+                        || name.contains("KELP") || name.contains("DRIED") || name.contains("HONEY")
+                        || name.contains("BERRY") || name.contains("SWEET") || name.contains("GLISTERING");
+            case "POTIONS":
+                return name.contains("POTION") || name.contains("SPLASH") || name.contains("LINGERING");
+            case "REDSTONE":
+                return name.contains("REDSTONE") || name.contains("REPEATER") || name.contains("COMPARATOR")
+                        || name.contains("PISTON") || name.contains("LEVER") || name.contains("BUTTON")
+                        || name.contains("PRESSURE") || name.contains("TRIPWIRE") || name.contains("HOPPER")
+                        || name.contains("DROPPER") || name.contains("DISPENSER") || name.contains("OBSERVER")
+                        || name.contains("DAYLIGHT") || name.contains("SCULK");
+            case "DECORATIONS":
+                return mat.isBlock() && (name.contains("CARPET") || name.contains("FLOWER")
+                        || name.contains("LEAVES") || name.contains("SAPLING") || name.contains("WOOL")
+                        || name.contains("TERRACOTTA") || name.contains("GLASS") || name.contains("SLAB")
+                        || name.contains("STAIRS") || name.contains("FENCE") || name.contains("WALL")
+                        || name.contains("PANE") || name.contains("BANNER") || name.contains("BED")
+                        || name.contains("CANDLE") || name.contains("LANTERN") || name.contains("TORCH")
+                        || name.contains("CAMPFIRE") || name.contains("POT"));
             case "MISC":
                 return !mat.isBlock() && !name.endsWith("_SWORD") && !name.endsWith("_PICKAXE")
                         && !name.endsWith("_AXE") && !name.endsWith("_SHOVEL") && !name.endsWith("_HOE")
                         && !name.endsWith("_HELMET") && !name.endsWith("_CHESTPLATE")
                         && !name.endsWith("_LEGGINGS") && !name.endsWith("_BOOTS")
                         && !name.equals("BOW") && !name.equals("CROSSBOW") && !name.equals("TRIDENT")
-                        && !name.equals("SHIELD");
+                        && !name.equals("SHIELD") && !name.equals("ELYTRA") && !name.equals("TURTLE_HELMET")
+                        && !name.contains("POTION") && !name.contains("SPLASH") && !name.contains("LINGERING")
+                        && !mat.isEdible() && !name.contains("COOKIE") && !name.contains("CAKE")
+                        && !name.contains("MUSHROOM") && !name.contains("STEW") && !name.contains("BREAD")
+                        && !name.contains("APPLE") && !name.contains("CARROT") && !name.contains("POTATO")
+                        && !name.contains("BEEF") && !name.contains("PORKCHOP") && !name.contains("CHICKEN")
+                        && !name.contains("MUTTON") && !name.contains("RABBIT") && !name.contains("COD")
+                        && !name.contains("SALMON") && !name.contains("TROPICAL") && !name.contains("PUFFER")
+                        && !name.contains("KELP") && !name.contains("DRIED") && !name.contains("HONEY")
+                        && !name.contains("BERRY") && !name.contains("SWEET") && !name.contains("GLISTERING")
+                        && !name.contains("REDSTONE") && !name.contains("REPEATER") && !name.contains("COMPARATOR")
+                        && !name.contains("PISTON") && !name.contains("LEVER") && !name.contains("BUTTON")
+                        && !name.contains("PRESSURE") && !name.contains("TRIPWIRE") && !name.contains("HOPPER")
+                        && !name.contains("DROPPER") && !name.contains("DISPENSER") && !name.contains("OBSERVER")
+                        && !name.contains("DAYLIGHT") && !name.contains("SCULK");
             default:
                 return true;
         }
@@ -401,6 +472,18 @@ public class AuctionGUI {
             case "TIME_DESC" -> (a, b) -> Long.compare(b.getEndTime(), a.getEndTime());
             case "PRICE_ASC" -> (a, b) -> Double.compare(a.getCurrentBid(), b.getCurrentBid());
             case "PRICE_DESC" -> (a, b) -> Double.compare(b.getCurrentBid(), a.getCurrentBid());
+            case "PRICE_PER_UNIT_ASC" -> (a, b) -> {
+                double pricePerUnitA = a.getItem() != null ? a.getCurrentBid() / a.getItem().getAmount()
+                        : Double.MAX_VALUE;
+                double pricePerUnitB = b.getItem() != null ? b.getCurrentBid() / b.getItem().getAmount()
+                        : Double.MAX_VALUE;
+                return Double.compare(pricePerUnitA, pricePerUnitB);
+            };
+            case "PRICE_PER_UNIT_DESC" -> (a, b) -> {
+                double pricePerUnitA = a.getItem() != null ? a.getCurrentBid() / a.getItem().getAmount() : 0;
+                double pricePerUnitB = b.getItem() != null ? b.getCurrentBid() / b.getItem().getAmount() : 0;
+                return Double.compare(pricePerUnitB, pricePerUnitA);
+            };
             case "BIDS" -> (a, b) -> Integer.compare(b.getBidHistory().size(), a.getBidHistory().size());
             case "NEWEST" -> (a, b) -> Long.compare(b.getCreatedAt(), a.getCreatedAt());
             case "ENDING_SOON" -> (a, b) -> Long.compare(a.getEndTime(), b.getEndTime());

@@ -173,7 +173,10 @@ public class DiscordWebhookUtil {
                         if (errStream != null) {
                             errorBody = new String(errStream.readAllBytes(), StandardCharsets.UTF_8);
                         }
-                    } catch (Exception ignored) {
+                    } catch (Exception e) {
+                        // FIX Mi-1: Log error saat baca error stream gagal (bukan silent ignore)
+                        plugin.getLogger()
+                                .warning("[Auctify] Discord webhook: failed to read error stream: " + e.getMessage());
                     }
                     plugin.getLogger().warning("[Discord] Webhook failed! HTTP " + responseCode + ": " + errorBody);
                 }

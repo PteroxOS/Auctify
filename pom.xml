@@ -6,7 +6,7 @@
 
     <groupId>dev.auctify</groupId>
     <artifactId>Auctify</artifactId>
-    <version>1.1.5</version>
+    <version>1.8.0</version>
     <packaging>jar</packaging>
 
     <name>Auctify</name>

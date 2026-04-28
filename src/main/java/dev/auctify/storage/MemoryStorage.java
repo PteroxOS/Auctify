@@ -159,6 +159,14 @@ public class MemoryStorage implements StorageManager {
         return r.stream().anyMatch(a -> a[0] == hash);
     }
 
+    @Override
+    public boolean hasTransactionWith(UUID raterUUID, UUID sellerUUID) {
+        // FIX-8: Check if rater (as winner) has won an auction from seller
+        return history.stream()
+                .filter(h -> h.reason().equals("SOLD"))
+                .anyMatch(h -> h.winnerUUID().equals(raterUUID) && h.sellerUUID().equals(sellerUUID));
+    }
+
     // ─── Blacklist System ────────────────────────────
 
     @Override
@@ -233,6 +241,15 @@ public class MemoryStorage implements StorageManager {
             return Collections.emptyList();
         // Return a copy sorted by timestamp descending
         return bids.stream()
+                .sorted((a, b) -> Long.compare(b.timestamp(), a.timestamp()))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<BidRecord> getPlayerBidHistory(UUID playerUUID) {
+        return bidHistory.values().stream()
+                .flatMap(List::stream)
+                .filter(bid -> bid.bidderUUID().equals(playerUUID))
                 .sorted((a, b) -> Long.compare(b.timestamp(), a.timestamp()))
                 .collect(Collectors.toList());
     }

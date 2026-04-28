@@ -51,6 +51,12 @@ public class BulkSellSubCommand implements SubCommand {
                 MessageUtil.send(player, "invalid-price", null);
                 return;
             }
+            // FIX-4: Validate buyout > start (sama seperti SellSubCommand.java:65-69)
+            if (buyoutPrice > 0 && buyoutPrice <= startPrice) {
+                MessageUtil.send(player, "buyout-must-be-higher",
+                        Map.of("start", String.valueOf(startPrice)));
+                return;
+            }
         } catch (NumberFormatException e) {
             MessageUtil.send(player, "invalid-price", null);
             return;

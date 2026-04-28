@@ -116,6 +116,13 @@ public interface StorageManager {
     /** Checks if a player has already rated a specific seller. */
     boolean hasRated(UUID sellerUUID, UUID raterUUID);
 
+    /**
+     * Checks if a player has ever won an auction from a specific seller.
+     * Used to verify rating eligibility.
+     * FIX-8: Transaction verification for rating system
+     */
+    boolean hasTransactionWith(UUID raterUUID, UUID sellerUUID);
+
     // ─── Blacklist System ────────────────────────────
 
     /** Adds a player to the blacklist. */
@@ -144,6 +151,9 @@ public interface StorageManager {
 
     /** Retrieves the bid history for a specific auction listing. */
     java.util.List<dev.auctify.auction.BidRecord> getBidHistory(String listingId);
+
+    /** Retrieves all bid history for a specific player. */
+    java.util.List<dev.auctify.auction.BidRecord> getPlayerBidHistory(UUID playerUUID);
 
     // ─── Price Statistics ──────────────────────────
 

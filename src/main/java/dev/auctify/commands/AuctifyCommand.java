@@ -36,6 +36,11 @@ public class AuctifyCommand implements CommandExecutor {
         subCommands.put("watchlist", new WatchlistSubCommand(plugin));
         subCommands.put("buyorder", new BuyOrderSubCommand(plugin));
         subCommands.put("bulksell", new BulkSellSubCommand(plugin));
+        subCommands.put("bulkbuy", new BulkBuySubCommand(plugin));
+        subCommands.put("theme", new ThemeSubCommand(plugin));
+        subCommands.put("template", new TemplateSubCommand(plugin));
+        subCommands.put("rating", new RatingSubCommand(plugin));
+        subCommands.put("trade", new TradeSubCommand(plugin));
         subCommands.put("stats", new StatsSubCommand(plugin));
         subCommands.put("filter", new FilterSubCommand(plugin));
         subCommands.put("notifications", new NotificationsSubCommand(plugin));
@@ -84,6 +89,12 @@ public class AuctifyCommand implements CommandExecutor {
         if (args[0].equalsIgnoreCase("setup")) {
             if (!(sender instanceof Player player)) {
                 MessageUtil.sendRaw(sender, "§cSetup wizard can only be used in-game.");
+                return true;
+            }
+            // C-2 CRITICAL FIX: Tambahkan permission check - hanya admin yang boleh akses
+            // setup
+            if (!player.hasPermission("auctify.admin")) {
+                MessageUtil.send(player, "no-permission", null);
                 return true;
             }
             if (args.length > 1 && args[1].equalsIgnoreCase("skip")) {

@@ -25,6 +25,7 @@ import dev.auctify.scheduler.AuctionExpiryTask;
 import dev.auctify.storage.*;
 import dev.auctify.setup.SetupWizard;
 import dev.auctify.util.ConfigUtil;
+import dev.auctify.util.DebugLog;
 import dev.auctify.util.DependencyManager;
 import dev.auctify.util.MessageUtil;
 import org.bukkit.command.PluginCommand;
@@ -53,6 +54,9 @@ public class Auctify extends JavaPlugin {
 
     /** GUI state tracker for open inventories. */
     private GUIManager guiManager;
+
+    /** GUI theme manager for custom themes. */
+    private dev.auctify.gui.GUIThemeManager guiThemeManager;
 
     /** Main auction house GUI builder. */
     private AuctionGUI auctionGUI;
@@ -90,6 +94,15 @@ public class Auctify extends JavaPlugin {
     /** Statistics GUI builder. */
     private dev.auctify.gui.StatsGUI statsGUI;
 
+    /** Player history GUI builder. */
+    private dev.auctify.gui.PlayerHistoryGUI playerHistoryGUI;
+
+    /** Audit log GUI builder. */
+    private dev.auctify.gui.AuditLogGUI auditLogGUI;
+
+    /** Bulk actions GUI builder. */
+    private dev.auctify.gui.BulkActionsGUI bulkActionsGUI;
+
     /** World manager for per-world auction house. */
     private dev.auctify.util.WorldManager worldManager;
 
@@ -107,6 +120,27 @@ public class Auctify extends JavaPlugin {
 
     /** Buy order manager for WTB system. */
     private dev.auctify.auction.BuyOrderManager buyOrderManager;
+
+    /** Template manager for listing templates. */
+    private dev.auctify.auction.TemplateManager templateManager;
+
+    /** Trade manager for direct player trades. */
+    private dev.auctify.trade.TradeManager tradeManager;
+
+    /** Tax manager for listing tax brackets. */
+    private dev.auctify.economy.TaxManager taxManager;
+
+    /** Currency manager for multi-currency support. */
+    private dev.auctify.economy.CurrencyManager currencyManager;
+
+    /** Migration manager for database migrations. */
+    private dev.auctify.storage.MigrationManager migrationManager;
+
+    /** Error handler for centralized error handling. */
+    private dev.auctify.util.ErrorHandler errorHandler;
+
+    /** Cache manager for performance optimization. */
+    private dev.auctify.util.CacheManager cacheManager;
 
     /** The expiry task for cancellation on disable. */
     private AuctionExpiryTask expiryTask;
@@ -131,6 +165,17 @@ public class Auctify extends JavaPlugin {
         // Initialize utility classes with plugin reference
         MessageUtil.init(this);
         ConfigUtil.init(this);
+
+        // Validate configuration
+        dev.auctify.util.ConfigValidator configValidator = new dev.auctify.util.ConfigValidator(this);
+        if (!configValidator.validate()) {
+            getLogger().severe("§c═══════════════════════════════════════════════");
+            getLogger().severe("§c  Auctify is DISABLING due to configuration errors.");
+            getLogger().severe("§c  Please fix the errors in config.yml and restart.");
+            getLogger().severe("§c═══════════════════════════════════════════════");
+            getServer().getPluginManager().disablePlugin(this);
+            return;
+        }
 
         // Register crash handler
         new dev.auctify.util.CrashHandler(this).register();
@@ -164,6 +209,7 @@ public class Auctify extends JavaPlugin {
         auctionManager.resolveExpiredOnStartup();
 
         getLogger().info("§e⚡ §7Initializing GUI system...");
+        guiThemeManager = new dev.auctify.gui.GUIThemeManager(this);
         guiManager = new GUIManager();
         auctionGUI = new AuctionGUI(this);
         confirmBidGUI = new ConfirmBidGUI(this);
@@ -174,6 +220,9 @@ public class Auctify extends JavaPlugin {
         rateGUI = new RateGUI(this);
         adminGUI = new AdminGUI(this);
         statsGUI = new dev.auctify.gui.StatsGUI(this);
+        playerHistoryGUI = new dev.auctify.gui.PlayerHistoryGUI(this);
+        auditLogGUI = new dev.auctify.gui.AuditLogGUI(this);
+        bulkActionsGUI = new dev.auctify.gui.BulkActionsGUI(this);
         worldManager = new dev.auctify.util.WorldManager(this);
         loggerManager = new dev.auctify.util.LoggerManager(this);
         soundManager = new dev.auctify.util.SoundManager(this);
@@ -184,6 +233,27 @@ public class Auctify extends JavaPlugin {
 
         // Initialize Buy Order manager (WTB system)
         buyOrderManager = new dev.auctify.auction.BuyOrderManager(this);
+
+        // Initialize Template manager
+        templateManager = new dev.auctify.auction.TemplateManager(this);
+
+        // Initialize Trade manager
+        tradeManager = new dev.auctify.trade.TradeManager(this);
+
+        // Initialize Tax manager
+        taxManager = new dev.auctify.economy.TaxManager(this);
+
+        // Initialize Currency manager
+        currencyManager = new dev.auctify.economy.CurrencyManager(this, economyManager);
+
+        // Initialize Migration manager
+        migrationManager = new dev.auctify.storage.MigrationManager(this);
+
+        // Initialize Error handler
+        errorHandler = new dev.auctify.util.ErrorHandler(this);
+
+        // Initialize Cache manager (5 minute TTL, 1000 max entries)
+        cacheManager = new dev.auctify.util.CacheManager(this, 5, 1000);
 
         // Initialize Notification manager
         notificationManager = new NotificationManager(this);
@@ -233,6 +303,11 @@ public class Auctify extends JavaPlugin {
         if (getServer().getPluginManager().getPlugin("PlaceholderAPI") != null) {
             new dev.auctify.hook.PlaceholderAPIHook(this).register();
             new dev.auctify.hook.AuctifyPlaceholderExpansion(this).register();
+            // #region agent log
+            DebugLog.log("run1", "H3", "Auctify.java:onEnable", "registered two PlaceholderAPI expansions", java.util.Map.of(
+                    "identifier", "auctify",
+                    "hookClass", "PlaceholderAPIHook+AuctifyPlaceholderExpansion"));
+            // #endregion
             getLogger().info("§e⚡ §7PlaceholderAPI expansion registered.");
         }
 
@@ -413,6 +488,11 @@ public class Auctify extends JavaPlugin {
         return guiManager;
     }
 
+    /** Returns the GUI theme manager. */
+    public dev.auctify.gui.GUIThemeManager getGUIThemeManager() {
+        return guiThemeManager;
+    }
+
     /** Returns the main auction GUI builder. */
     public AuctionGUI getAuctionGUI() {
         return auctionGUI;
@@ -447,6 +527,45 @@ public class Auctify extends JavaPlugin {
         return discordWebhookUtil;
     }
 
+    public dev.auctify.auction.BuyOrderManager getBuyOrderManager() {
+        return buyOrderManager;
+    }
+
+    /** Returns the template manager. */
+    public dev.auctify.auction.TemplateManager getTemplateManager() {
+        return templateManager;
+    }
+
+    /** Returns the trade manager. */
+    public dev.auctify.trade.TradeManager getTradeManager() {
+        return tradeManager;
+    }
+
+    /** Returns the tax manager. */
+    public dev.auctify.economy.TaxManager getTaxManager() {
+        return taxManager;
+    }
+
+    /** Returns the currency manager. */
+    public dev.auctify.economy.CurrencyManager getCurrencyManager() {
+        return currencyManager;
+    }
+
+    /** Returns the migration manager. */
+    public dev.auctify.storage.MigrationManager getMigrationManager() {
+        return migrationManager;
+    }
+
+    /** Returns the error handler. */
+    public dev.auctify.util.ErrorHandler getErrorHandler() {
+        return errorHandler;
+    }
+
+    /** Returns the cache manager. */
+    public dev.auctify.util.CacheManager getCacheManager() {
+        return cacheManager;
+    }
+
     /** Returns the claim/mailbox GUI builder. */
     public ClaimGUI getClaimGUI() {
         return claimGUI;
@@ -467,7 +586,27 @@ public class Auctify extends JavaPlugin {
         return adminGUI;
     }
 
-    /** Returns the world manager for per-world auction house. */
+    /** Returns the stats GUI builder. */
+    public dev.auctify.gui.StatsGUI getStatsGUI() {
+        return statsGUI;
+    }
+
+    /** Returns the player history GUI builder. */
+    public dev.auctify.gui.PlayerHistoryGUI getPlayerHistoryGUI() {
+        return playerHistoryGUI;
+    }
+
+    /** Returns the audit log GUI builder. */
+    public dev.auctify.gui.AuditLogGUI getAuditLogGUI() {
+        return auditLogGUI;
+    }
+
+    /** Returns the bulk actions GUI builder. */
+    public dev.auctify.gui.BulkActionsGUI getBulkActionsGUI() {
+        return bulkActionsGUI;
+    }
+
+    /** Returns the world manager. */
     public dev.auctify.util.WorldManager getWorldManager() {
         return worldManager;
     }
@@ -482,18 +621,8 @@ public class Auctify extends JavaPlugin {
         return soundManager;
     }
 
-    /** Returns the buy order manager for WTB system. */
-    public dev.auctify.auction.BuyOrderManager getBuyOrderManager() {
-        return buyOrderManager;
-    }
-
     /** Returns the notification manager. */
     public NotificationManager getNotificationManager() {
         return notificationManager;
-    }
-
-    /** Returns the statistics GUI builder. */
-    public dev.auctify.gui.StatsGUI getStatsGUI() {
-        return statsGUI;
     }
 }
