@@ -135,6 +135,61 @@ public class TabCompleter implements org.bukkit.command.TabCompleter {
                 case "sell" -> List.of("[buyout]");
                 case "bid" -> List.of("<amount>");
                 case "extend" -> List.of("<minutes>");
+                case "theme" -> {
+                    // Suggest available theme names from config
+                    var themesSection = plugin.getConfig().getConfigurationSection("gui.themes");
+                    if (themesSection != null) {
+                        yield themesSection.getKeys(false).stream()
+                                .filter(name -> name.toLowerCase().startsWith(args[2].toLowerCase()))
+                                .collect(Collectors.toList());
+                    }
+                    yield List.of();
+                }
+                case "template" -> {
+                    String action = args[1].toLowerCase();
+                    if (action.equals("delete") || action.equals("use")) {
+                        // Suggest template names the player owns
+                        if (sender instanceof Player player) {
+                            var templates = plugin.getTemplateManager().getTemplates(player.getUniqueId());
+                            if (templates != null) {
+                                yield templates.values().stream()
+                                        .map(t -> t.getName())
+                                        .filter(name -> name != null
+                                                && name.toLowerCase().startsWith(args[2].toLowerCase()))
+                                        .collect(Collectors.toList());
+                            }
+                        }
+                    }
+                    yield List.of("<template_name>");
+                }
+                case "trade" -> {
+                    String action = args[1].toLowerCase();
+                    if (action.equals("send")) {
+                        // Suggest online player names
+                        yield plugin.getServer().getOnlinePlayers().stream()
+                                .filter(p -> !p.getName().equals(sender.getName())) // Don't suggest self
+                                .map(p -> p.getName())
+                                .filter(name -> name.toLowerCase().startsWith(args[2].toLowerCase()))
+                                .collect(Collectors.toList());
+                    }
+                    yield List.of();
+                }
+                case "bulkbuy" -> {
+                    String action = args[1].toLowerCase();
+                    if (action.equals("add") || action.equals("remove")) {
+                        // Suggest active listing IDs
+                        if (sender instanceof Player player) {
+                            yield plugin.getAuctionManager().getActiveListings().stream()
+                                    .filter(l -> l.isActive() && !l.isExpired())
+                                    .filter(l -> !l.getSellerUUID().equals(player.getUniqueId())) // Don't suggest own
+                                                                                                  // listings
+                                    .map(AuctionListing::getId)
+                                    .filter(id -> id.toLowerCase().startsWith(args[2].toLowerCase()))
+                                    .collect(Collectors.toList());
+                        }
+                    }
+                    yield List.of();
+                }
                 case "buyorder" -> {
                     yield switch (args[1].toLowerCase()) {
                         case "create", "c" -> List.of("<price>");
@@ -153,7 +208,7 @@ public class TabCompleter implements org.bukkit.command.TabCompleter {
                         }
                         case "sell", "s", "fill", "f" -> {
                             // Suggest all active buy order IDs
-                            if (sender instanceof Player player && args.length > 2) {
+                            if (sender instanceof Player && args.length > 2) {
                                 var orders = plugin.getBuyOrderManager().getActiveOrders();
                                 if (orders != null) {
                                     yield orders.stream()
